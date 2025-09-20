@@ -1,0 +1,27 @@
+# 빌드 산출물
+build/
+dist/
+
+# 라이브러리 캐시
+node_modules/
+.next/
+out/
+
+# 잠금 파일
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# 환경 파일
+.env
+.env.* 
+
+# 압축/번들 결과물
+*.min.js
+*.bundle.js
+
+# 이미지/아이콘 
+*.ico
+
+# 자동 생성 파일
+coverage/

@@ -1,0 +1,56 @@
+@font-face {
+  font-family: logo;
+  src: url('./assets/fonts/CAFE24PROUP.TTF');
+}
+
+@font-face {
+  font-family: nanumR;
+  src: url('./assets/fonts/NANUMSQUAREROUNDR.TTF');
+}
+
+@font-face {
+  font-family: nanumB;
+  src: url('./assets/fonts/NANUMSQUAREROUNDB.TTF');
+}
+
+@font-face {
+  font-family: nanumEB;
+  src: url('./assets/fonts/NANUMSQUAREROUNDEB.TTF');
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  line-height: 1.5;
+}
+
+body {
+  margin: 0px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+div {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+li {
+  margin: 0;
+  padding: 0;
+}
+
+table {
+  border-collapse: collapse;
+}
