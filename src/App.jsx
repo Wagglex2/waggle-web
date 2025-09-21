@@ -22,6 +22,8 @@ import SavedJobPage from './pages/my-page/SavedJobsPage';
 import NotificationPage from './pages/notification/NotificationPage';
 import SearchResult from './pages/search-result/SearchResultPage';
 
+//JIRA 테스트용 주석
+
 function App() {
   return (
     <Routes>
