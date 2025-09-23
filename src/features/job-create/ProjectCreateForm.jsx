@@ -168,9 +168,6 @@ export default ProjectCreateForm;
 const formContainer = css`
   width: 740px;
   height: 100%;
-  margin: auto;
-
-  //border: 1px solid black;
 `;
 
 const formListBox = css`
