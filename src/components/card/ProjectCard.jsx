@@ -1,7 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import styled from "@emotion/styled";
-import { colors } from "../../styles/theme";
+import { colors } from "@/styles/theme";
 
 import { SiTypescript, SiReact, SiFigma } from 'react-icons/si';
 
@@ -77,7 +76,7 @@ const deadlineStyle = css`
 const titleStyle = css`
   font-size: 18px;
   font-weight: 700;
-  color: #3A3637;
+  color: ${colors.secondary};
   margin-top: 1.2px;
   margin-bottom: 20px;
 `;
@@ -133,9 +132,6 @@ const nicknameStyle = css`
   color: ${colors.gray[400]};
 `;
 
-
-// 더미 데이터에 맞게 기술 스택 아이콘을 매핑하는 함수
-// 실제 프로젝트에서는 데이터베이스에 있는 기술 스택 정보를 가져와서 매핑해야 합니다.
 const getTechIcons = (tags) => {
   const iconMap = {
     'TypeScript': <SiTypescript key="ts" color="#3178C6" css={iconStyle} />, 
