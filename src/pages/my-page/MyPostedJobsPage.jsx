@@ -11,20 +11,24 @@ const colors = {
   primary: '#FFCC00',
   danger: '#FFE7E7',
   dangerBorder: '#FFD6D6',
+  btnHover: '#fcfbf8',
 };
 
 const styles = {
   wrap: css`
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 16px 16px;
+    padding: 24px 32px;
     color: ${colors.text};
-    font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+    font-family: 'nanumR', 'NanumSquareRound', sans-serif;
+  `,
+  contentContainer: css`
+    max-width: 1100px;
+    margin: 0 auto;
   `,
   title: css`
-    margin: 0 0 16px;
+    margin: 40px 0 24px;
     font-size: 22px;
     font-weight: 800;
+    font-family: 'nanumB', 'NanumSquareRound', sans-serif;
   `,
   tabs: css`
     display: flex;
@@ -38,7 +42,10 @@ const styles = {
     border: 1px solid ${colors.border};
     background: ${active ? colors.tabActive : '#fff'};
     cursor: pointer;
-    font-family: inherit;
+    font-family: 'nanumB', 'NanumSquareRound', sans-serif;
+    &:hover {
+      background: ${active ? '' : colors.btnHover};
+    }
   `,
   tableWrap: css`
     border: 1px solid ${colors.border};
@@ -55,6 +62,7 @@ const styles = {
     font-weight: 700;
     font-size: 13px;
     color: #666;
+    font-family: 'nanumB', 'NanumSquareRound', sans-serif;
     & > div {
       text-align: center;
     }
@@ -103,7 +111,7 @@ const styles = {
     border: 1px solid #b3b3b3;
     background: #fff;
     cursor: pointer;
-    font-family: inherit;
+    font-family: 'nanumB', 'NanumSquareRound', sans-serif;
     font-size: 13px;
     color: #666666;
   `,
@@ -147,6 +155,7 @@ const styles = {
     font-weight: 800;
     font-size: 22px;
     flex-shrink: 0;
+    font-family: 'nanumEB', 'NanumSquareRound', sans-serif;
   `,
   modalContent: css`
     flex-grow: 1;
@@ -185,6 +194,7 @@ const styles = {
     font-weight: 700;
     color: ${colors.text};
     font-size: 13px;
+    font-family: 'nanumB', 'NanumSquareRound', sans-serif;
   `,
   detailBox: css`
     margin-top: 12px;
@@ -426,7 +436,7 @@ const ApplicationModal = ({ data, onClose }) => {
   );
 };
 
-const MyPostedJobsPage = () => {
+const MyApplicationsPage = () => {
   const [tab, setTab] = useState('프로젝트');
   const [rows, setRows] = useState(sampleRows);
   const [modalData, setModalData] = useState(null);
@@ -441,54 +451,56 @@ const MyPostedJobsPage = () => {
 
   return (
     <div css={styles.wrap}>
-      <h2 css={styles.title}>내가 지원한 공고</h2>
+      <div css={styles.contentContainer}>
+        <h2 css={styles.title}>내가 지원한 공고</h2>
 
-      <div css={styles.tabs}>
-        <button css={styles.tabBtn(tab === '프로젝트')} onClick={() => setTab('프로젝트')}>
-          프로젝트
-        </button>
-        <button css={styles.tabBtn(tab === '과제')} onClick={() => setTab('과제')}>
-          과제
-        </button>
-        <button css={styles.tabBtn(tab === '스터디')} onClick={() => setTab('스터디')}>
-          스터디
-        </button>
-      </div>
-
-      <div css={styles.tableWrap}>
-        <div css={styles.tableHead}>
-          <div>No.</div>
-          <div>공고제목</div>
-          <div>마감일</div>
-          <div>지원상태</div>
-          <div>지원서보기</div>
-          <div>지원 취소</div>
+        <div css={styles.tabs}>
+          <button css={styles.tabBtn(tab === '프로젝트')} onClick={() => setTab('프로젝트')}>
+            프로젝트
+          </button>
+          <button css={styles.tabBtn(tab === '과제')} onClick={() => setTab('과제')}>
+            과제
+          </button>
+          <button css={styles.tabBtn(tab === '스터디')} onClick={() => setTab('스터디')}>
+            스터디
+          </button>
         </div>
 
-        {filtered.length === 0 && <div css={styles.empty}>해당 카테고리의 공고가 없습니다.</div>}
-
-        {filtered.map((r, i) => (
-          <div css={styles.row} key={r.id}>
-            <div>{i + 1}</div>
-            <div css={styles.cellEllipsis} title={r.title}>
-              {r.title}
-            </div>
-            <div>{r.due}</div>
-            <div>
-              <span css={styles.badge(toneByStatus(r.status))}>{r.status}</span>
-            </div>
-            <div>
-              <button css={styles.action} onClick={() => setModalData(r)}>
-                지원서
-              </button>
-            </div>
-            <div>
-              <button css={[styles.action, styles.danger]} onClick={() => removeRow(r.id)}>
-                취소하기
-              </button>
-            </div>
+        <div css={styles.tableWrap}>
+          <div css={styles.tableHead}>
+            <div>No.</div>
+            <div>공고제목</div>
+            <div>마감일</div>
+            <div>지원상태</div>
+            <div>지원서보기</div>
+            <div>지원 취소</div>
           </div>
-        ))}
+
+          {filtered.length === 0 && <div css={styles.empty}>해당 카테고리의 공고가 없습니다.</div>}
+
+          {filtered.map((r, i) => (
+            <div css={styles.row} key={r.id}>
+              <div>{i + 1}</div>
+              <div css={styles.cellEllipsis} title={r.title}>
+                {r.title}
+              </div>
+              <div>{r.due}</div>
+              <div>
+                <span css={styles.badge(toneByStatus(r.status))}>{r.status}</span>
+              </div>
+              <div>
+                <button css={styles.action} onClick={() => setModalData(r)}>
+                  지원서
+                </button>
+              </div>
+              <div>
+                <button css={[styles.action, styles.danger]} onClick={() => removeRow(r.id)}>
+                  취소하기
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <ApplicationModal data={modalData} onClose={() => setModalData(null)} />
@@ -496,4 +508,4 @@ const MyPostedJobsPage = () => {
   );
 };
 
-export default MyPostedJobsPage;
+export default MyApplicationsPage;
