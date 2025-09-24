@@ -2,6 +2,7 @@
 /** @jsxRuntime automatic */
 import React, { useMemo, useState } from 'react';
 import { css } from '@emotion/react';
+import { create } from 'zustand';
 
 const colors = {
   border: '#eee6d6',
@@ -24,7 +25,8 @@ const styles = {
     margin: 0 auto;
   `,
   title: css`
-    margin: 0 0 24px;
+    margin: 40px 0 24px;
+    font-size: 22px;
     display: flex;
     align-items: center;
     gap: 8px;
