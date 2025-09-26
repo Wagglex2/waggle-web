@@ -2,7 +2,6 @@
 import { css } from "@emotion/react";
 import React, { useState } from "react";
 import { colors } from "@/styles/theme";
-import { SiTypescript, SiReact, SiFigma } from 'react-icons/si';
 
 const cardStyle = css`
   display: flex;
@@ -40,8 +39,8 @@ const tagGroupStyle = css`
   gap: 8px;
 `;
 
-const primaryTagStyle = css`
-  background: #FFF4C2;
+const purposeTagStyle = css`
+  background: #CCEAEE; 
   color: ${colors.gray[400]};
   font-size: 12px;
   font-weight: 400;
@@ -54,8 +53,8 @@ const primaryTagStyle = css`
   justify-content: center;
 `;
 
-const secondaryTagStyle = css`
-  background: #DAF1DE;
+const departmentTagStyle = css`
+  background: #DAF1DE; 
   color: ${colors.gray[400]};
   font-size: 12px;
   font-weight: 400;
@@ -81,11 +80,10 @@ const titleStyle = css`
   font-size: 18px;
   font-weight: 700;
   color: ${colors.secondary};
-  margin-top: -25px;
   font-family: 'nanumEB';
   line-height: 1.4;
   position: absolute;
-  top: 68px;
+  top: 60px;
   left: 15px;
   right: 15px;
   
@@ -96,17 +94,17 @@ const titleStyle = css`
   -webkit-box-orient: vertical;
 `;
 
-const positionTagBoxStyle = css`
+const subjectTagBoxStyle = css`
   display: flex;
   flex-wrap: nowrap;
   gap: 6px;
   position: absolute;
-  top: 120px;
+  top: 170px;
   left: 15px;
   right: 15px;
 `;
 
-const positionTagStyle = css`
+const subjectTagStyle = css`
   background: #E2E2E2;
   color: ${colors.gray[400]};
   font-size: 13px;
@@ -118,28 +116,6 @@ const positionTagStyle = css`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const techStackIconBoxStyle = css`
-  display: flex;
-  align-items: center;
-  padding-bottom: 6px;
-  margin-top: 0px;
-  position: absolute;
-  top: 150px;
-  left: 15px;
-  right: 15px;
-`;
-
-const iconStyle = css`
-  width: 40px;
-  height: 40px;
-  background: #fff;
-  border-radius: 50%;
-  padding: 0.5px;
-  margin-left: -8px;
-  &:first-of-type {margin-left: 0;}
-  border: 1px solid #e0e0e0;
 `;
 
 const dividerStyle = css`
@@ -159,7 +135,6 @@ const footerStyle = css`
   left: 15px;
   right: 15px;
 `;
-
 const profileStyle = css`
   display: flex;
   align-items: center;
@@ -195,52 +170,40 @@ const HeartIcon = ({ isLiked }) => (
   </svg>
 );
 
-const getTechIcons = (tags) => {
-  const iconMap = {
-    'TypeScript': <SiTypescript key="ts" color="#3178C6" css={iconStyle} />,
-    'React': <SiReact key="react" color="#61DAFB" css={iconStyle} />,
-    'Figma': <SiFigma key="figma" color="#F24E1E" css={iconStyle} />,
-  };
-  return tags.map(tag => iconMap[tag]).filter(Boolean);
-};
-
-export default function ProjectCard({ project }) {
-  const techIcons = getTechIcons(project.techStack);
-
+export default function HwCard({ project }) {
   const [isLiked, setIsLiked] = useState(false);
 
-  const displayedPositions = project.positions.slice(0, 4);
-  const hasMorePositions = project.positions.length > 4;
+  const displayedSubjects = project.subjects ? project.subjects.slice(0, 4) : [];
+  const hasMoreSubjects = project.subjects ? project.subjects.length > 4 : false;
 
   return (
     <div css={cardStyle}>
-      <div css={headerTopStyle}>
-        <div css={tagGroupStyle}>
-          {project.purposeTag && (
-            <span css={primaryTagStyle}>{project.purposeTag}</span>
-          )}
-          {project.methodTag && (
-            <span css={secondaryTagStyle}>{project.methodTag}</span>
+      <div>
+        <div css={headerTopStyle}>
+          <div css={tagGroupStyle}>
+            {project.purposeTag && (
+              <span css={purposeTagStyle}>{project.purposeTag}</span>
+            )}
+            {project.department && (
+              <span css={departmentTagStyle}>{project.department}</span>
+            )}
+          </div>
+          <span css={deadlineStyle}>{project.deadline}</span>
+        </div>
+
+        <h3 css={titleStyle}>{project.title}</h3>
+      </div>
+      
+      {project.subjects && (
+        <div css={subjectTagBoxStyle}>
+          {displayedSubjects.map((subject, idx) => (
+            <span key={idx} css={subjectTagStyle}>{subject}</span>
+          ))}
+          {hasMoreSubjects && (
+            <span css={subjectTagStyle}>...</span>
           )}
         </div>
-        <span css={deadlineStyle}>{project.deadline}</span>
-      </div>
-
-      <h3 css={titleStyle}>{project.title}</h3>
-
-      <div css={positionTagBoxStyle}>
-        {displayedPositions.map((tag, idx) => (
-          <span key={idx} css={positionTagStyle}>{tag}</span>
-        ))}
-
-        {hasMorePositions && (
-          <span css={positionTagStyle}>...</span>
-        )}
-      </div>
-
-      <div css={techStackIconBoxStyle}>
-        {techIcons}
-      </div>
+      )}
 
       <div>
         <div css={dividerStyle} />
