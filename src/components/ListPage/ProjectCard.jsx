@@ -85,7 +85,7 @@ const titleStyle = css`
   font-family: 'nanumEB';
   line-height: 1.4;
   position: absolute;
-  top: 68px;
+  top: 75px;
   left: 15px;
   right: 15px;
   
