@@ -2,9 +2,22 @@
 import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
 import Editor from './components/Editor';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { purposeOptions, positionOptions, techStackOptions } from '@/data/options';
+import DropDown from '@/components/dropdown/DropDown';
+import MultiSelectDropDown from '@/components/dropdown/MultiSelectDropdown';
+import { useState } from 'react';
 
 const ProjectCreateForm = () => {
+  const [positionState, setPositionState] = useState([{ id: 1, position: '', personnel: '' }]);
+
+  function addPosition() {
+    setPositionState((prev) => [...prev, { id: prev.length + 1, position: '', personnel: '' }]);
+  }
+
+  function deletePosition(id) {
+    setPositionState((prev) => prev.filter((item) => item.id !== id));
+  }
+
   return (
     <form css={formContainer}>
       <div css={formListBox}>
@@ -29,14 +42,7 @@ const ProjectCreateForm = () => {
         <div css={item}>
           <p>목적</p>
           <div css={itemContent}>
-            <div css={dropDown('200px')}>
-              <button>
-                목적{' '}
-                <ArrowDropDownIcon
-                  css={css({ float: 'right', color: '#3B3537', paddingTop: '3px' })}
-                />
-              </button>
-            </div>
+            <DropDown label="목적" options={purposeOptions} buttonWidth={'200px'} />
           </div>
         </div>
       </div>
@@ -65,6 +71,7 @@ const ProjectCreateForm = () => {
             <input type="date" />
           </div>
         </div>
+
         <div css={item}>
           <p>진행방식</p>
           <div css={itemContent}>
@@ -82,6 +89,7 @@ const ProjectCreateForm = () => {
             </div>
           </div>
         </div>
+
         <div css={item}>
           <p>학년</p>
           <div css={itemContent}>
@@ -107,32 +115,35 @@ const ProjectCreateForm = () => {
             </div>
           </div>
         </div>
+
         <div css={item}>
           <p>포지션</p>
-          <div css={itemContent('200px')}>
-            <div css={dropDown('200px')}>
-              <button>
-                포지션
-                <ArrowDropDownIcon
-                  css={css({ float: 'right', color: '#3B3537', paddingTop: '3px' })}
-                />
-              </button>
-            </div>
-            <span css={css({ margin: '0px 15px', color: '#3B3537' })}>:</span>
-            <input type="text" placeholder="공고 제목을 적어주세요" />
+          <div css={itemContent('200px', 'column')}>
+            {positionState.map((prev) => (
+              <div css={positionBox} key={prev.id}>
+                <button
+                  type="button"
+                  css={deletePositionBtn}
+                  onClick={() => deletePosition(prev.id)}
+                >
+                  삭제
+                </button>
+                <DropDown label="포지션" options={positionOptions} buttonWidth={'200px'} />
+                <span css={css({ margin: '0px 15px', color: '#3B3537' })}>:</span>
+                <input type="text" placeholder="모집 인원을 입력해 주세요" />
+                <span css={css({ margin: '0px 5px', color: '#3B3537' })}>명</span>
+              </div>
+            ))}
+            <button type="button" css={addPosionBtn} onClick={addPosition}>
+              + 포지션 추가
+            </button>
           </div>
         </div>
+
         <div css={item}>
           <p>기술</p>
           <div css={itemContent}>
-            <div css={dropDown('435px')}>
-              <button>
-                프로젝트/스터디에 필요한 언어 및 도구를 선택해 주세요
-                <ArrowDropDownIcon
-                  css={css({ float: 'right', color: '#3B3537', paddingTop: '3px' })}
-                />
-              </button>
-            </div>
+            <MultiSelectDropDown label="기술" options={techStackOptions} buttonWidth={'475px'} />
           </div>
         </div>
       </div>
@@ -214,12 +225,13 @@ const item = css`
   }
 `;
 
-const itemContent = (inputWidth) => css`
+const itemContent = (inputWidth, direction = 'row') => css`
   padding: 16px 7px;
   font-size: 14px;
   color: ${colors.gray[300]};
 
   display: flex;
+  flex-direction: ${direction};
   align-items: center;
 
   input {
@@ -288,21 +300,26 @@ const submitBtn = css`
   color: ${colors.secondary};
 `;
 
-const dropDown = (buttonWidth) => css`
-  height: 33px;
-  width: ${buttonWidth};
+const positionBox = css`
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+`;
 
-  button {
-    width: 100%;
-    height: 100%;
-    text-align: left;
-    padding-left: 10px;
-    line-height: 30px;
-    background-color: #ffffff;
+const deletePositionBtn = css`
+  padding-right: 10px;
+  background: none;
+  border: none;
+  color: ${colors.gray[400]};
+  font-family: 'nanumR';
+  font-size: 14px;
+`;
 
-    border-radius: 10px;
-    border: 1px solid ${colors.gray[300]};
-    font-family: 'nanumR';
-    color: ${colors.gray[300]};
-  }
+const addPosionBtn = css`
+  background: none;
+  border: none;
+  color: ${colors.gray[300]};
+  font-size: 13px;
+  font-family: 'nanumR';
+  align-self: end;
 `;
