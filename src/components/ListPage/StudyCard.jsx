@@ -41,21 +41,7 @@ const tagGroupStyle = css`
 `;
 
 const primaryTagStyle = css`
-  background: #FFF4C2;
-  color: ${colors.gray[400]};
-  font-size: 12px;
-  font-weight: 400;
-  padding: 2px 14px 1px 14px;
-  border-radius: 18px;
-  font-family: 'nanumR';
-  line-height: 1.4;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const secondaryTagStyle = css`
-  background: #DAF1DE;
+  background: #FFDFDF;
   color: ${colors.gray[400]};
   font-size: 12px;
   font-weight: 400;
@@ -81,11 +67,10 @@ const titleStyle = css`
   font-size: 18px;
   font-weight: 700;
   color: ${colors.secondary};
-  margin-top: -25px;
   font-family: 'nanumEB';
   line-height: 1.4;
   position: absolute;
-  top: 75px;
+  top: 60px;
   left: 15px;
   right: 15px;
   
@@ -94,30 +79,6 @@ const titleStyle = css`
   display: -webkit-box;
   -webkit-line-clamp: 2; 
   -webkit-box-orient: vertical;
-`;
-
-const positionTagBoxStyle = css`
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 6px;
-  position: absolute;
-  top: 120px;
-  left: 15px;
-  right: 15px;
-`;
-
-const positionTagStyle = css`
-  background: #E2E2E2;
-  color: ${colors.gray[400]};
-  font-size: 13px;
-  font-weight: 400;
-  padding: 2px 14px 1px 14px;
-  border-radius: 18px;
-  font-family: 'nanumR';
-  line-height: 1.4;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
 
 const techStackIconBoxStyle = css`
@@ -129,17 +90,6 @@ const techStackIconBoxStyle = css`
   top: 150px;
   left: 15px;
   right: 15px;
-`;
-
-const iconStyle = css`
-  width: 40px;
-  height: 40px;
-  background: #fff;
-  border-radius: 50%;
-  padding: 0.5px;
-  margin-left: -8px;
-  &:first-of-type {margin-left: 0;}
-  border: 1px solid #e0e0e0;
 `;
 
 const dividerStyle = css`
@@ -180,6 +130,17 @@ const nicknameStyle = css`
   line-height: 1.4;
 `;
 
+const iconStyle = css`
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  border-radius: 50%;
+  padding: 0.5px;
+  margin-left: -8px;
+  &:first-of-type {margin-left: 0;}
+  border: 1px solid #e0e0e0;
+`;
+
 const HeartIcon = ({ isLiked }) => (
   <svg
     width="24"
@@ -201,16 +162,13 @@ const getTechIcons = (tags) => {
     'React': <SiReact key="react" color="#61DAFB" css={iconStyle} />,
     'Figma': <SiFigma key="figma" color="#F24E1E" css={iconStyle} />,
   };
-  return tags.map(tag => iconMap[tag]).filter(Boolean);
+  return tags ? tags.map(tag => iconMap[tag]).filter(Boolean) : null;
 };
 
-export default function ProjectCard({ project }) {
+export default function StudyCard({ project }) {
   const techIcons = getTechIcons(project.techStack);
 
   const [isLiked, setIsLiked] = useState(false);
-
-  const displayedPositions = project.positions.slice(0, 4);
-  const hasMorePositions = project.positions.length > 4;
 
   return (
     <div css={cardStyle}>
@@ -219,50 +177,37 @@ export default function ProjectCard({ project }) {
           {project.purposeTag && (
             <span css={primaryTagStyle}>{project.purposeTag}</span>
           )}
-          {project.methodTag && (
-            <span css={secondaryTagStyle}>{project.methodTag}</span>
-          )}
         </div>
         <span css={deadlineStyle}>{project.deadline}</span>
       </div>
 
       <h3 css={titleStyle}>{project.title}</h3>
 
-      <div css={positionTagBoxStyle}>
-        {displayedPositions.map((tag, idx) => (
-          <span key={idx} css={positionTagStyle}>{tag}</span>
-        ))}
-
-        {hasMorePositions && (
-          <span css={positionTagStyle}>...</span>
-        )}
-      </div>
-
-      <div css={techStackIconBoxStyle}>
-        {techIcons}
-      </div>
-
-      <div>
-        <div css={dividerStyle} />
-
-        <div css={footerStyle}>
-          <div css={profileStyle}>
-            <div css={avatarStyle} />
-            <span css={nicknameStyle}>{project.author}</span>
-          </div>
-
-          <button
-            onClick={() => setIsLiked(!isLiked)}
-            css={css`
-              background: none;
-              border: none;
-              padding: 0;
-              cursor: pointer;
-            `}
-          >
-            <HeartIcon isLiked={isLiked} />
-          </button>
+      {project.techStack && (
+        <div css={techStackIconBoxStyle}>
+          {techIcons}
         </div>
+      )}
+
+      <div css={dividerStyle} />
+
+      <div css={footerStyle}>
+        <div css={profileStyle}>
+          <div css={avatarStyle} />
+          <span css={nicknameStyle}>{project.author}</span>
+        </div>
+
+        <button
+          onClick={() => setIsLiked(!isLiked)}
+          css={css`
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+          `}
+        >
+          <HeartIcon isLiked={isLiked} />
+        </button>
       </div>
     </div>
   );
