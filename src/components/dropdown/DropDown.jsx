@@ -21,6 +21,7 @@ const DropDown = ({ label, options, buttonWidth }) => {
         onClick={() => {
           setOpenModal(!openModal);
         }}
+        disabled={label !== '목적' && label !== '포지션'}
       >
         {selected}
         {openModal ? (
