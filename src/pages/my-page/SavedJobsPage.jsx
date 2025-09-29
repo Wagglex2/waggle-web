@@ -210,7 +210,7 @@ function StudyCard({ project, onUnlike }) {
 
 const pageStyles = {
   wrap: css`padding: 24px 32px; color: ${colors.text}; font-family: 'nanumR', 'NanumSquareRound', sans-serif;`,
-  contentContainer: css`max-width: 1100px; margin: 0 auto;`, // 여백 일치를 위해 max-width 수정
+  contentContainer: css`max-width: 1100px; margin: 0 auto;`, 
   title: css`margin: 40px 0 24px; font-size: 22px; font-family: 'nanumB', 'NanumSquareRound', sans-serif;`,
   tabs: css`display: flex; gap: 8px; margin-bottom: 24px;`,
   tabBtn: (active) => css`padding: 0 16px; height: 33px; border-radius: 10px; border: 1px solid ${colors.border}; background: ${active ? colors.tabActive : colors.white}; cursor: pointer; font-family: 'nanumB', 'NanumSquareRound', sans-serif; &:hover { background: ${active ? '' : colors.btnHover}; }`,
@@ -221,17 +221,17 @@ const pageStyles = {
 const dummyProjects = [
     { id: 1, purposeTag: "프로젝트", methodTag: "온/오프라인", deadline: "2025.12.15까지", title: "웹 어쩌구저쩌구 함께할 팀원 구합니다.", positions: ["기획", "디자인", "프론트엔드", "백엔드", "PM"], techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
     { id: 2, purposeTag: "프로젝트", methodTag: "오프라인", deadline: "2025.12.15까지", title: "사이드프로젝트 팀원 구합니다.", positions: ["기획", "디자인", "프론트엔드", "백엔드"], techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-    { id: 4, purposeTag: "프로젝트", methodTag: "온라인", deadline: "2025.12.15까지", title: "토이프로젝트 같이 만들어요", positions: ["프론트엔드", "백엔드"], techStack: ["TypeScript", "Figma"], author: "솔랑솔랑" },
+    { id: 4, purposeTag: "프로젝트", methodTag: "온라인", deadline: "2025.12.15까지", title: "웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다람지렁이빨대머리스본드라이기러기차표범인간장독대나무", positions: ["프론트엔드", "백엔드"], techStack: ["TypeScript", "Figma"], author: "솔랑솔랑" },
 ];
 
 const dummyHomeworks = [
     { id: 6, purposeTag: "과제", department: "컴퓨터공학과", deadline: "2025.10.31까지", title: "운영체제 과제 같이 할 분 구해요", subjects: ["운영체제(1234)"], author: "솔랑솔랑" },
-    { id: 7, purposeTag: "과제", department: "컴퓨터공학과", deadline: "2025.11.15까지", title: "마케팅원론 팀플하실 분", subjects: ["운영체제(1234)"], author: "솔랑솔랑" },
+    { id: 7, purposeTag: "과제", department: "컴퓨터공학과", deadline: "2025.11.15까지", title: "운영체제 과제 같이 할 분 구해요", subjects: ["운영체제(1234)"], author: "솔랑솔랑" },
 ];
 
 const dummyStudies = [
     { id: 3, purposeTag: "스터디", deadline: "상시모집", title: "코딩테스트 스터디원을 모집합니다", techStack: ["React"], author: "솔랑솔랑" },
-    { id: 5, purposeTag: "스터디", deadline: "2025.12.15까지", title: "정부 주최 해커톤 준비 스터디", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
+    { id: 5, purposeTag: "스터디", deadline: "2025.12.15까지", title: "코딩테스트 스터디원을 모집합니다", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
 ];
 
 const useSavedJobsStore = create((set) => ({
