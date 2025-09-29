@@ -2,7 +2,9 @@
 import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
 import Editor from './components/Editor';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { techStackOptions } from '@/data/options';
+import MultiSelectDropDown from '@/components/dropdown/MultiSelectDropdown';
+import DropDown from '@/components/dropdown/DropDown';
 
 const StudyCreateForm = () => {
   return (
@@ -13,15 +15,15 @@ const StudyCreateForm = () => {
           <p>카테고리</p>
           <div css={itemContent}>
             <div css={inputBtnOption('100px')}>
-              <input type="radio" name="category-options" id="first-option" />
+              <input type="radio" name="category-options" id="first-option" disabled />
               <label htmlFor="first-option">프로젝트</label>
             </div>
             <div css={inputBtnOption('100px')}>
-              <input type="radio" name="category-options" id="second-option" />
+              <input type="radio" name="category-options" id="second-option" disabled />
               <label htmlFor="second-option">과제</label>
             </div>
             <div css={inputBtnOption('100px')}>
-              <input type="radio" name="category-options" id="third-option" />
+              <input type="radio" name="category-options" id="third-option" defaultChecked />
               <label htmlFor="third-option">스터디</label>
             </div>
           </div>
@@ -29,14 +31,7 @@ const StudyCreateForm = () => {
         <div css={item}>
           <p>목적</p>
           <div css={itemContent}>
-            <div css={dropDown('200px')}>
-              <button>
-                스터디
-                <ArrowDropDownIcon
-                  css={css({ float: 'right', color: '#3B3537', paddingTop: '3px' })}
-                />
-              </button>
-            </div>
+            <DropDown label="스터디" buttonWidth={'200px'} />
           </div>
         </div>
       </div>
@@ -69,14 +64,7 @@ const StudyCreateForm = () => {
         <div css={item}>
           <p>포지션</p>
           <div css={itemContent('200px')}>
-            <div css={dropDown('200px')}>
-              <button>
-                멤버
-                <ArrowDropDownIcon
-                  css={css({ float: 'right', color: '#3B3537', paddingTop: '3px' })}
-                />
-              </button>
-            </div>
+            <DropDown label="멤버" buttonWidth={'200px'} />
             <span css={css({ margin: '0px 15px', color: '#3B3537' })}>:</span>
             <input type="text" placeholder="모집 인원을 입력해 주세요" />
           </div>
@@ -85,14 +73,7 @@ const StudyCreateForm = () => {
         <div css={item}>
           <p>기술</p>
           <div css={itemContent}>
-            <div css={dropDown('435px')}>
-              <button>
-                프로젝트/스터디에 필요한 언어 및 도구를 선택해 주세요
-                <ArrowDropDownIcon
-                  css={css({ float: 'right', color: '#3B3537', paddingTop: '3px' })}
-                />
-              </button>
-            </div>
+            <MultiSelectDropDown label="기술" options={techStackOptions} buttonWidth={'435px'} />
           </div>
         </div>
       </div>
@@ -246,23 +227,4 @@ const submitBtn = css`
   font-family: 'nanumEB';
   font-size: 15px;
   color: ${colors.secondary};
-`;
-
-const dropDown = (buttonWidth) => css`
-  height: 33px;
-  width: ${buttonWidth};
-
-  button {
-    width: 100%;
-    height: 100%;
-    text-align: left;
-    padding-left: 10px;
-    line-height: 30px;
-    background-color: #ffffff;
-
-    border-radius: 10px;
-    border: 1px solid ${colors.gray[300]};
-    font-family: 'nanumR';
-    color: ${colors.gray[300]};
-  }
 `;
