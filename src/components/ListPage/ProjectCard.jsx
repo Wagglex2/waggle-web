@@ -209,8 +209,8 @@ export default function ProjectCard({ project }) {
 
   const [isLiked, setIsLiked] = useState(false);
 
-  const displayedPositions = project.positions.slice(0, 4);
-  const hasMorePositions = project.positions.length > 4;
+  const displayedPositions = project.positions.slice(0,3);
+  const hasMorePositions = project.positions.length > 3;
 
   return (
     <div css={cardStyle}>
