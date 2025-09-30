@@ -114,7 +114,7 @@ const dropDownMenuStyle = css`
   top: 100%;
   left: 0;
   background-color: white;
-  border: 1px solid ${colors.gray[300]};
+  border: 1px solid #ddd;
   border-radius: 10px;
   margin-top: 8px;
   padding: 8px;
@@ -139,7 +139,7 @@ const customCheckboxStyle = css`
   -webkit-appearance: none;
   width: 18px;
   height: 18px;
-  border: 1.5px solid ${colors.gray[300]};
+  border: 1.5px solid #E0E0E0;
   border-radius: 4px;
   cursor: pointer;
   position: relative;
