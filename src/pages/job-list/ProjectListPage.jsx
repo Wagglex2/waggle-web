@@ -68,11 +68,7 @@ const dropDownsContainerStyle = css`
 const addedColors = {
   yellow: {
     background: '#FFF9DC',
-    checkbox: '#FCD514',
   },
-  text: {
-    selected: '#3B3537',
-  }
 };
 
 const dropDownButtonStyle = (width, isSelected) => css`
@@ -82,7 +78,7 @@ const dropDownButtonStyle = (width, isSelected) => css`
   border-radius: 10px;
   border: 1px solid #B3B3B3;
   font-size: 16px;
-  color: ${isSelected ? addedColors.text.selected : colors.gray[400]};
+  color: ${isSelected ? colors.secondary : colors.gray[400]};
   padding: 0 12px;
   display: flex;
   justify-content: space-between;
@@ -153,8 +149,8 @@ const customCheckboxStyle = css`
   transition: background-color 0.2s, border-color 0.2s;
 
   &:checked {
-    background-color: ${addedColors.yellow.checkbox};
-    border-color: ${addedColors.yellow.checkbox};
+    background-color: ${colors.primary};
+    border-color: ${colors.primary};
     &::after {
       content: '✔';
       font-size: 14px;
@@ -176,7 +172,7 @@ const dropDownMenuItemStyle = (isSelected, isGrid = false) => css`
   font-family: "nanumR";
   font-size: 14px;
   white-space: nowrap;
-  color: ${isSelected ? addedColors.text.selected : colors.gray[400]};
+  color: ${isSelected ? colors.secondary : colors.gray[400]};
   background-color: ${isSelected && !isGrid ? addedColors.yellow.background : 'transparent'};
 
   &:hover {

@@ -2,7 +2,6 @@
 import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
 import Editor from './components/Editor';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import DropDown from '@/components/dropdown/DropDown';
 
 const HomeworkCreateForm = () => {
