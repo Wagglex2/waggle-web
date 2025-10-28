@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
-import Editor from './components/Editor';
+import Editor from '../Editor';
 import { techStackOptions } from '@/data/options';
 import MultiSelectDropDown from '@/components/dropdown/MultiSelectDropdown';
 import DropDown from '@/components/dropdown/DropDown';

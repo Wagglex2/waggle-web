@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import HomeworkCreateForm from '@/features/job-create/HomeworkCreateForm';
-import InputcheckList from '@/features/job-create/components/InputCheckList';
+import HomeworkCreateForm from './components/form/HomeworkCreateForm';
+import InputcheckList from './components/InputCheckList';
 
 const HomeworkCreatePage = () => {
   return (
