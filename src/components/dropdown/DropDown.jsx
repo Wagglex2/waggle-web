@@ -5,7 +5,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { useState } from 'react';
 
-const DropDown = ({ label, options, buttonWidth }) => {
+const DropDown = ({ label, options, buttonWidth, dropDownWidth }) => {
   const [openModal, setOpenModal] = useState(false);
   const [selected, setSelected] = useState(label);
 
@@ -21,7 +21,7 @@ const DropDown = ({ label, options, buttonWidth }) => {
         onClick={() => {
           setOpenModal(!openModal);
         }}
-        disabled={label !== '목적' && label !== '포지션'}
+        disabled={label !== '목적' && label !== '포지션' && label !== '학년'}
       >
         {selected}
         {openModal ? (
@@ -32,7 +32,7 @@ const DropDown = ({ label, options, buttonWidth }) => {
       </button>
 
       {openModal && (
-        <ul css={dropDownListBox}>
+        <ul css={dropDownListBox(dropDownWidth)}>
           {options.map((option) => (
             <li key={option} onClick={() => handleSelect(option)}>
               {option}
@@ -72,12 +72,12 @@ const dropDownIcon = css`
   padding-top: '3px';
 `;
 
-const dropDownListBox = css`
+const dropDownListBox = (width = '200px') => css`
   position: relative;
   z-index: 10;
 
   margin-top: 5px;
-  width: 200px;
+  width: ${width};
   padding: 10px 0px;
   background-color: #ffffff;
 
