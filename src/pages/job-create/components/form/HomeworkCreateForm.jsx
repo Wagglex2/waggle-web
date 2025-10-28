@@ -1,23 +1,10 @@
 /** @jsxImportSource @emotion/react */
 import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
-import Editor from './components/Editor';
-import { purposeOptions, positionOptions, techStackOptions } from '@/data/options';
+import Editor from '../Editor';
 import DropDown from '@/components/dropdown/DropDown';
-import MultiSelectDropDown from '@/components/dropdown/MultiSelectDropdown';
-import { useState } from 'react';
 
-const ProjectCreateForm = () => {
-  const [positionState, setPositionState] = useState([{ id: 1, position: '', personnel: '' }]);
-
-  function addPosition() {
-    setPositionState((prev) => [...prev, { id: prev.length + 1, position: '', personnel: '' }]);
-  }
-
-  function deletePosition(id) {
-    setPositionState((prev) => prev.filter((item) => item.id !== id));
-  }
-
+const HomeworkCreateForm = () => {
   return (
     <form css={formContainer}>
       <div css={formListBox}>
@@ -26,15 +13,15 @@ const ProjectCreateForm = () => {
           <p>카테고리</p>
           <div css={itemContent}>
             <div css={inputBtnOption('100px')}>
-              <input type="radio" name="category-options" id="first-option" />
+              <input type="radio" name="category-options" id="first-option" disabled />
               <label htmlFor="first-option">프로젝트</label>
             </div>
             <div css={inputBtnOption('100px')}>
-              <input type="radio" name="category-options" id="second-option" />
+              <input type="radio" name="category-options" id="second-option" defaultChecked />
               <label htmlFor="second-option">과제</label>
             </div>
             <div css={inputBtnOption('100px')}>
-              <input type="radio" name="category-options" id="third-option" />
+              <input type="radio" name="category-options" id="third-option" disabled />
               <label htmlFor="third-option">스터디</label>
             </div>
           </div>
@@ -42,7 +29,7 @@ const ProjectCreateForm = () => {
         <div css={item}>
           <p>목적</p>
           <div css={itemContent}>
-            <DropDown label="목적" options={purposeOptions} buttonWidth={'200px'} />
+            <DropDown label="과제" buttonWidth={'200px'} />
           </div>
         </div>
       </div>
@@ -64,29 +51,16 @@ const ProjectCreateForm = () => {
       <div css={formListBox}>
         <p css={listLabel}>정보</p>
         <div css={item}>
-          <p>진행기간</p>
+          <p>학과</p>
           <div css={itemContent('200px')}>
-            <input type="date" />
-            <span css={css({ margin: '0px 15px', color: '#3B3537' })}>~</span>
-            <input type="date" />
+            <input type="text" placeholder="어떤 학과의 과제인지 알려주세요" />
           </div>
         </div>
 
         <div css={item}>
-          <p>진행방식</p>
-          <div css={itemContent}>
-            <div css={inputBtnOption('100px')}>
-              <input type="radio" name="progress-options" id="first-option" />
-              <label htmlFor="first-option">온라인</label>
-            </div>
-            <div css={inputBtnOption('100px')}>
-              <input type="radio" name="progress-options" id="second-option" />
-              <label htmlFor="second-option">오프라인</label>
-            </div>
-            <div css={inputBtnOption('100px')}>
-              <input type="radio" name="progress-options" id="third-option" />
-              <label htmlFor="third-option">온/오프라인</label>
-            </div>
+          <p>과목코드</p>
+          <div css={itemContent('200px')}>
+            <input type="text" placeholder="과제의 과목코드를 입력해 주세요" />
           </div>
         </div>
 
@@ -115,35 +89,12 @@ const ProjectCreateForm = () => {
             </div>
           </div>
         </div>
-
         <div css={item}>
           <p>포지션</p>
-          <div css={itemContent('200px', 'column')}>
-            {positionState.map((prev) => (
-              <div css={positionBox} key={prev.id}>
-                <button
-                  type="button"
-                  css={deletePositionBtn}
-                  onClick={() => deletePosition(prev.id)}
-                >
-                  삭제
-                </button>
-                <DropDown label="포지션" options={positionOptions} buttonWidth={'200px'} />
-                <span css={css({ margin: '0px 15px', color: '#3B3537' })}>:</span>
-                <input type="text" placeholder="모집 인원을 입력해 주세요" />
-                <span css={css({ margin: '0px 5px', color: '#3B3537' })}>명</span>
-              </div>
-            ))}
-            <button type="button" css={addPosionBtn} onClick={addPosition}>
-              + 포지션 추가
-            </button>
-          </div>
-        </div>
-
-        <div css={item}>
-          <p>기술</p>
-          <div css={itemContent}>
-            <MultiSelectDropDown label="기술" options={techStackOptions} buttonWidth={'475px'} />
+          <div css={itemContent('200px')}>
+            <DropDown label="멤버" buttonWidth={'200px'} />
+            <span css={css({ margin: '0px 15px', color: '#3B3537' })}>:</span>
+            <input type="text" placeholder="모집 인원을 입력해 주세요" />
           </div>
         </div>
       </div>
@@ -174,7 +125,7 @@ const ProjectCreateForm = () => {
   );
 };
 
-export default ProjectCreateForm;
+export default HomeworkCreateForm;
 
 const formContainer = css`
   width: 740px;
@@ -225,13 +176,12 @@ const item = css`
   }
 `;
 
-const itemContent = (inputWidth, direction = 'row') => css`
+const itemContent = (inputWidth) => css`
   padding: 16px 7px;
   font-size: 14px;
   color: ${colors.gray[300]};
 
   display: flex;
-  flex-direction: ${direction};
   align-items: center;
 
   input {
@@ -298,28 +248,4 @@ const submitBtn = css`
   font-family: 'nanumEB';
   font-size: 15px;
   color: ${colors.secondary};
-`;
-
-const positionBox = css`
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-`;
-
-const deletePositionBtn = css`
-  padding-right: 10px;
-  background: none;
-  border: none;
-  color: ${colors.gray[400]};
-  font-family: 'nanumR';
-  font-size: 14px;
-`;
-
-const addPosionBtn = css`
-  background: none;
-  border: none;
-  color: ${colors.gray[300]};
-  font-size: 13px;
-  font-family: 'nanumR';
-  align-self: end;
 `;

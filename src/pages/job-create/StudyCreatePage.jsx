@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import InputcheckList from '@/features/job-create/components/InputCheckList';
-import StudyCreateForm from '@/features/job-create/StudyCreateForm';
+import StudyCreateForm from './components/form/StudyCreateForm';
+import InputcheckList from './components/InputCheckList';
 
 const StudyCreatePage = () => {
   return (
