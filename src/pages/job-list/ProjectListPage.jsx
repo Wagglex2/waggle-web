@@ -4,7 +4,7 @@ import { css } from "@emotion/react";
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { colors } from "@/styles/theme";
 import ProjectCard from "@/pages/job-list/components/card/ProjectCard";
-import ToggleSwitch from "@/components/ListPage/ToggleSwitch";
+import ToggleSwitch from "@/pages/job-list/components/ToggleSwitch";
 import Pagination from "@/pages/job-list/components/Pagination";
 
 const importedPurposeOptions = ["공모전", "해커톤", "사이드프로젝트", "토이프로젝트"];
