@@ -4,7 +4,7 @@ import { colors } from "@/styles/theme";
 import React, { useState } from "react";
 import ProjectCard from "@/pages/job-list/components/card/ProjectCard";
 import ToggleSwitch from "@/components/ListPage/ToggleSwitch";
-import Pagination from "@/components/ListPage/Pagination";
+import Pagination from "@/pages/job-list/components/Pagination";
 
 const pageTitleStyle = css`
   font-size: 22px;
