@@ -3,7 +3,7 @@
 import { css } from "@emotion/react";
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { colors } from "@/styles/theme";
-import ProjectCard from "@/components/ListPage/ProjectCard";
+import ProjectCard from "@/pages/job-list/components/card/ProjectCard";
 import ToggleSwitch from "@/components/ListPage/ToggleSwitch";
 import Pagination from "@/components/ListPage/Pagination";
 
