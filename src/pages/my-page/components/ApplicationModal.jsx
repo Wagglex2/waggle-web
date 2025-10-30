@@ -6,19 +6,17 @@ const colors = {
   border: '#eee6d6',
   text: '#3a3a3a',
   muted: '#8f8678',
-  primary: '#FFCC00',
-};
 
-const ApplicantModal = ({ modalData, onClose, onAcceptClick, onRejectClick }) => {
-  if (!modalData) {
-    return null;
-  }
+const ApplicationModal = ({ data, onClose }) => {
+  if (!data) return null;
+
+  const { applicant, category } = data;
 
   return (
     <div css={overlay} onClick={onClose} role="dialog" aria-modal="true">
       <div css={modal} onClick={(e) => e.stopPropagation()}>
         <header css={modalHeader}>
-          {modalData.name}님의 지원서
+          {applicant.name}님의 지원서
           <button css={closeBtn} onClick={onClose} aria-label="닫기">
             ✕
           </button>
@@ -27,48 +25,38 @@ const ApplicantModal = ({ modalData, onClose, onAcceptClick, onRejectClick }) =>
         <div css={modalContent}>
           <div css={fieldRow}>
             <span css={fieldLabel}>가능한 진행방식</span>
-            <span css={fieldValue}>{modalData.mode}</span>
+            <span css={fieldValue}>{applicant.mode}</span>
           </div>
           <div css={fieldRow}>
             <span css={fieldLabel}>학년</span>
-            <span css={fieldValue}>{modalData.year}</span>
+            <span css={fieldValue}>{applicant.year}</span>
           </div>
 
-          {modalData.postType === '프로젝트' && (
+          {category === '프로젝트' && (
             <>
               <div css={fieldRow}>
                 <span css={fieldLabel}>지원 포지션</span>
-                <span css={fieldValue}>{modalData.position}</span>
+                <span css={fieldValue}>{applicant.position}</span>
               </div>
               <div css={fieldRow}>
                 <span css={fieldLabel}>기술 스택</span>
-                <span css={fieldValue}>{modalData.stack}</span>
+                <span css={fieldValue}>{applicant.stack}</span>
               </div>
             </>
           )}
-
-          <div style={{ marginTop: '12px' }}>
-            <span css={fieldLabel}>상세</span>
+          <div style={{ marginTop: '12px', paddingBottom: '24px' }}>
+            <span css={fieldLabel}>상세내용</span>
             <div css={detailBox}>
-              <textarea css={detailArea} readOnly value={modalData.detail || ''} />
+              <textarea css={detailArea} readOnly value={applicant.detail || ''} />
             </div>
           </div>
         </div>
-
-        <footer css={modalActions}>
-          <button css={modalReject} onClick={onRejectClick}>
-            거절하기
-          </button>
-          <button css={modalAccept} onClick={onAcceptClick}>
-            수락하기
-          </button>
-        </footer>
       </div>
     </div>
   );
 };
 
-export default ApplicantModal;
+export default ApplicationModal;
 
 const overlay = css`
   position: fixed;
@@ -82,7 +70,6 @@ const overlay = css`
 
 const modal = css`
   width: 400px;
-  height: 600px;
   max-width: calc(100% - 32px);
   background: #fff;
   border-radius: 16px;
@@ -90,6 +77,7 @@ const modal = css`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  max-height: 90vh;
 `;
 
 const modalHeader = css`
@@ -112,7 +100,7 @@ const modalContent = css`
 
 const closeBtn = css`
   position: absolute;
-  right: 0;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   width: 36px;
@@ -157,7 +145,7 @@ const detailBox = css`
 
 const detailArea = css`
   width: 100%;
-  min-height: 220px;
+  min-height: 120px;
   resize: none;
   padding: 12px;
   border: 0;
@@ -165,37 +153,5 @@ const detailArea = css`
   font-family: inherit;
   color: ${colors.text};
   font-size: 13px;
-`;
-
-const modalActions = css`
-  padding: 18px 24px 24px;
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-shrink: 0;
-`;
-
-const modalReject = css`
-  min-width: 160px;
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid #b3b3b3;
-  background: #fff;
-  color: #333;
-  cursor: pointer;
-  font-size: 13px;
-  font-family: 'nanumB', 'NanumSquareRound', sans-serif;
-`;
-
-const modalAccept = css`
-  min-width: 160px;
-  height: 44px;
-  border-radius: 12px;
-  border: 0;
-  background: ${colors.primary};
-  color: #173300;
-  font-weight: 700;
-  cursor: pointer;
-  font-size: 13px;
-  font-family: 'nanumEB', 'NanumSquareRound', sans-serif;
+  background-color: #fdfdfd;
 `;
