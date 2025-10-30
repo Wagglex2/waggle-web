@@ -2,7 +2,7 @@
 /** @jsxRuntime automatic */
 import React, { useMemo, useState } from 'react';
 import { css } from '@emotion/react';
-import ApplicantModal from './components/ApplicantModal';
+import ApplicantModal from './components/ApplicationModal';
 import PostedJobCard from './components/PostedJobCard';
 
 const colors = {
