@@ -6,6 +6,7 @@ const colors = {
   border: '#eee6d6',
   text: '#3a3a3a',
   muted: '#8f8678',
+};
 
 const ApplicationModal = ({ data, onClose }) => {
   if (!data) return null;

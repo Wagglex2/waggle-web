@@ -2,7 +2,7 @@
 /** @jsxRuntime automatic */
 import React, { useMemo, useState } from 'react';
 import { css } from '@emotion/react';
-import { useApplicationStore, toneByStatus } from '../useApplicationStore';
+import { useApplicationStore, toneByStatus } from './useApplicationStore';
 import ApplicationModal from './components/ApplicationModal';
 
 const colors = {
