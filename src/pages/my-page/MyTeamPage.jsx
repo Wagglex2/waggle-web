@@ -2,9 +2,9 @@
 /** @jsxRuntime automatic */
 import React, { useMemo, useState } from 'react';
 import { css } from '@emotion/react';
-import { useTeamStore } from './useTeamStore'; // 👈 스토어 import
-import TeamCard from './components/TeamCard'; // 👈 TeamCard import
-import ReviewModal from './components/ReviewModal'; // 👈 ReviewModal import
+import { useTeamStore } from './useTeamStore';
+import TeamCard from './components/TeamCard';
+import ReviewModal from './components/ReviewModal';
 
 const colors = {
   border: '#eee6d6',
@@ -40,12 +40,10 @@ const MyTeamPage = () => {
 
         {filtered.length === 0 && <div css={empty}>해당 카테고리의 팀이 없어요.</div>}
 
-        {/* 👈 TeamCard 컴포넌트 사용 */}
         {filtered.map((team) => (
           <TeamCard key={team.id} team={team} />
         ))}
 
-        {/* 👈 ReviewModal 컴포넌트 사용 (내부 로직으로 보였다 안 보였다 함) */}
         <ReviewModal />
       </div>
     </div>
@@ -53,8 +51,6 @@ const MyTeamPage = () => {
 };
 
 export default MyTeamPage;
-
-// --- Styles ---
 
 const wrap = css`
   padding: 24px 32px;

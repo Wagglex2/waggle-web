@@ -77,8 +77,6 @@ const TeamCard = ({ team }) => {
 
 export default TeamCard;
 
-// --- Styles ---
-
 const teamCard = css`
   background: ${colors.white};
   border: 1px solid ${colors.border};
