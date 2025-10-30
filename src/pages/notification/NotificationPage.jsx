@@ -1,8 +1,8 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { colors } from '@/styles/theme';
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import { useState } from 'react';
+import NotificationList from './components/NotificationList';
 
 // 임시 더미 데이터
 const notificationList = [
@@ -110,10 +110,12 @@ const NotificationPage = () => {
   }
 
   return (
-    <div css={wrapStyle}>
-      <h1 css={pageTitleStyle}>알림</h1>
-      <div css={actionBoxStyle}>
-        <ul css={filterBoxStyle}>
+    <div css={wrap}>
+      <h1 css={pageTitle}>알림</h1>
+
+      {/* 헤더: 필터링 박스 + 전체삭제 버튼 */}
+      <header css={contentHeader}>
+        <ul css={filterBox}>
           {filterItems.map((item, i) => (
             <li
               css={filterItemStyle(activeFilterIndex, i)}
@@ -124,28 +126,20 @@ const NotificationPage = () => {
             </li>
           ))}
         </ul>
-        <button onClick={handleDeleteAll}>전체삭제</button>
-      </div>
-      <ul>
-        {notifications.map((item) => (
-          <li css={notificationItem(item.isRead)} key={item.id}>
-            <div css={iconBoxStyle}>
-              <NotificationsNoneIcon className="notification-icon" />
-            </div>
-            <p className="message">{item.message}</p>
-            <p className="category">{item.category}</p>
-            <p className="date">{item.date}</p>
-            <button onClick={() => handleDelete(item.id)}>X</button>
-          </li>
-        ))}
-      </ul>
+        <button css={allDeleteBtn} onClick={handleDeleteAll}>
+          전체삭제
+        </button>
+      </header>
+
+      {/* 알림내역 */}
+      <NotificationList notificationItems={notifications} handleDelete={handleDelete} />
     </div>
   );
 };
 
 export default NotificationPage;
 
-const wrapStyle = css`
+const wrap = css`
   width: 710px;
   height: 100vh;
   margin: auto;
@@ -156,42 +150,27 @@ const wrapStyle = css`
   ul {
     padding: 0;
     margin: 0;
-  }
 
-  li {
-    list-style-type: none;
+    li {
+      list-style-type: none;
+    }
   }
 `;
 
-const pageTitleStyle = css`
+const pageTitle = css`
   font-size: 24px;
   padding: 15px 0;
   font-family: 'nanumEB';
   border-bottom: 1px solid ${colors.gray[100]};
 `;
 
-const actionBoxStyle = css`
+const contentHeader = css`
   display: flex;
   justify-content: space-between;
   margin: 20px 0 15px 0;
-
-  button {
-    border: none;
-    border-radius: 18px;
-    padding: 0 15px;
-    font-size: 13px;
-    font-family: 'nanumR';
-    background-color: #ffffff;
-    color: ${colors.gray[400]};
-
-    &:hover {
-      cursor: pointer;
-      color: #000000;
-    }
-  }
 `;
 
-const filterBoxStyle = css`
+const filterBox = css`
   display: flex;
   align-items: center;
   height: 38px;
@@ -217,57 +196,17 @@ const filterItemStyle = (activeIndex, myIndex) => css`
   }
 `;
 
-const notificationItem = (isRead) => css`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px 20px 5px 5px;
-  border: 1px solid ${colors.gray[200]};
-  border-radius: 30px;
-  margin-bottom: 8px;
-  background-color: ${isRead ? '#ffffff' : '#FEF8D9'};
-
-  .message {
-    margin-right: 30px;
-    width: 300px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .category {
-    width: 80px;
-    text-align: center;
-    font-size: 12px;
-  }
-
-  .date {
-    font-size: 12px;
-    margin: 0 20px;
-  }
-
-  button {
-    background: none;
-    border: none;
-    font-size: 15px;
-    color: ${colors.gray[400]};
-  }
-`;
-
-const iconBoxStyle = css`
-  position: relative;
-  border-radius: 100%;
-  border: 2px solid ${colors.tertiary};
-  width: 40px;
-  height: 40px;
+const allDeleteBtn = css`
+  border: none;
+  border-radius: 18px;
+  padding: 0 15px;
+  font-size: 13px;
+  font-family: 'nanumR';
   background-color: #ffffff;
+  color: ${colors.gray[400]};
 
-  .notification-icon {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 5px;
-    margin: auto;
-    color: ${colors.tertiary};
+  &:hover {
+    cursor: pointer;
+    color: #000000;
   }
 `;
