@@ -6,7 +6,6 @@ const colors = {
   border: '#eee6d6',
   text: '#3a3a3a',
   muted: '#8f8678',
-};
 
 const ApplicationModal = ({ data, onClose }) => {
   if (!data) return null;
@@ -45,7 +44,6 @@ const ApplicationModal = ({ data, onClose }) => {
               </div>
             </>
           )}
-
           <div style={{ marginTop: '12px', paddingBottom: '24px' }}>
             <span css={fieldLabel}>상세내용</span>
             <div css={detailBox}>
