@@ -2,7 +2,7 @@
 /** @jsxRuntime automatic */
 import React, { useMemo, useState } from 'react';
 import { css } from '@emotion/react';
-import { useTeamStore } from './useTeamStore';
+import { UseTeamStore } from './UseTeamStore';
 import TeamCard from './components/TeamCard';
 import ReviewModal from './components/ReviewModal';
 
