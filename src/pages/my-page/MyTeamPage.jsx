@@ -2,9 +2,9 @@
 /** @jsxRuntime automatic */
 import React, { useMemo, useState } from 'react';
 import { css } from '@emotion/react';
-import { useTeamStore } from './useTeamStore'; // 👈 스토어 import
-import TeamCard from './components/TeamCard'; // 👈 TeamCard import
-import ReviewModal from './components/ReviewModal'; // 👈 ReviewModal import
+import { useTeamStore } from './useTeamStore'; 
+import TeamCard from './components/TeamCard'; 
+import ReviewModal from './components/ReviewModal'; 
 
 const colors = {
   border: '#eee6d6',
