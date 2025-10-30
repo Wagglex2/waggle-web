@@ -110,10 +110,12 @@ const NotificationPage = () => {
   }
 
   return (
-    <div css={wrapStyle}>
-      <h1 css={pageTitleStyle}>알림</h1>
-      <div css={actionBoxStyle}>
-        <ul css={filterBoxStyle}>
+    <div css={wrap}>
+      <h1 css={pageTitle}>알림</h1>
+
+      {/* 헤더: 필터링 박스 + 전체삭제 버튼 */}
+      <header css={contentHeader}>
+        <ul css={filterBox}>
           {filterItems.map((item, i) => (
             <li
               css={filterItemStyle(activeFilterIndex, i)}
@@ -124,18 +126,24 @@ const NotificationPage = () => {
             </li>
           ))}
         </ul>
-        <button onClick={handleDeleteAll}>전체삭제</button>
-      </div>
+        <button css={allDeleteBtn} onClick={handleDeleteAll}>
+          전체삭제
+        </button>
+      </header>
+
+      {/* 알림내역 */}
       <ul>
         {notifications.map((item) => (
-          <li css={notificationItem(item.isRead)} key={item.id}>
-            <div css={iconBoxStyle}>
+          <li css={notificationItemStyle(item.isRead)} key={item.id}>
+            <div css={notificationIconBox}>
               <NotificationsNoneIcon className="notification-icon" />
             </div>
-            <p className="message">{item.message}</p>
-            <p className="category">{item.category}</p>
-            <p className="date">{item.date}</p>
-            <button onClick={() => handleDelete(item.id)}>X</button>
+            <p className="msg-field">{item.message}</p>
+            <p className="category-field">{item.category}</p>
+            <p className="date-field">{item.date}</p>
+            <button className="notification-item-delete-btn" onClick={() => handleDelete(item.id)}>
+              X
+            </button>
           </li>
         ))}
       </ul>
@@ -145,7 +153,7 @@ const NotificationPage = () => {
 
 export default NotificationPage;
 
-const wrapStyle = css`
+const wrap = css`
   width: 710px;
   height: 100vh;
   margin: auto;
@@ -156,42 +164,27 @@ const wrapStyle = css`
   ul {
     padding: 0;
     margin: 0;
-  }
 
-  li {
-    list-style-type: none;
+    li {
+      list-style-type: none;
+    }
   }
 `;
 
-const pageTitleStyle = css`
+const pageTitle = css`
   font-size: 24px;
   padding: 15px 0;
   font-family: 'nanumEB';
   border-bottom: 1px solid ${colors.gray[100]};
 `;
 
-const actionBoxStyle = css`
+const contentHeader = css`
   display: flex;
   justify-content: space-between;
   margin: 20px 0 15px 0;
-
-  button {
-    border: none;
-    border-radius: 18px;
-    padding: 0 15px;
-    font-size: 13px;
-    font-family: 'nanumR';
-    background-color: #ffffff;
-    color: ${colors.gray[400]};
-
-    &:hover {
-      cursor: pointer;
-      color: #000000;
-    }
-  }
 `;
 
-const filterBoxStyle = css`
+const filterBox = css`
   display: flex;
   align-items: center;
   height: 38px;
@@ -217,7 +210,22 @@ const filterItemStyle = (activeIndex, myIndex) => css`
   }
 `;
 
-const notificationItem = (isRead) => css`
+const allDeleteBtn = css`
+  border: none;
+  border-radius: 18px;
+  padding: 0 15px;
+  font-size: 13px;
+  font-family: 'nanumR';
+  background-color: #ffffff;
+  color: ${colors.gray[400]};
+
+  &:hover {
+    cursor: pointer;
+    color: #000000;
+  }
+`;
+
+const notificationItemStyle = (isRead) => css`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -227,7 +235,7 @@ const notificationItem = (isRead) => css`
   margin-bottom: 8px;
   background-color: ${isRead ? '#ffffff' : '#FEF8D9'};
 
-  .message {
+  .msg-field {
     margin-right: 30px;
     width: 300px;
     white-space: nowrap;
@@ -235,18 +243,18 @@ const notificationItem = (isRead) => css`
     text-overflow: ellipsis;
   }
 
-  .category {
+  .category-field {
     width: 80px;
     text-align: center;
     font-size: 12px;
   }
 
-  .date {
+  .date-field {
     font-size: 12px;
     margin: 0 20px;
   }
 
-  button {
+  .notification-item-delete-btn {
     background: none;
     border: none;
     font-size: 15px;
@@ -254,7 +262,7 @@ const notificationItem = (isRead) => css`
   }
 `;
 
-const iconBoxStyle = css`
+const notificationIconBox = css`
   position: relative;
   border-radius: 100%;
   border: 2px solid ${colors.tertiary};
