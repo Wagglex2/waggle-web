@@ -1,4 +1,5 @@
 /** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react';
 import MyDetails from './application-form-fields/MyDetails';
 import MyGrade from './application-form-fields/MyGrade';
 import PossibleMethod from './application-form-fields/PossibleMethod';
@@ -14,7 +15,7 @@ const HomeworkApplicationForm = () => {
       <MyDetails />
 
       <div>
-        <p className="warning-msg">※본인이 수강하는 과목이 맞는지 반드시 확인하세요 </p>
+        <p css={warningMsgStyle}>※본인이 수강하는 과목이 맞는지 반드시 확인하세요 </p>
         <ApplyBtn />
       </div>
     </form>
@@ -22,3 +23,10 @@ const HomeworkApplicationForm = () => {
 };
 
 export default HomeworkApplicationForm;
+
+const warningMsgStyle = css`
+  color: #c00000;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 8px;
+`;

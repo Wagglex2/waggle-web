@@ -1,14 +1,16 @@
 /** @jsxImportSource @emotion/react */
-import { formItem, itemLabelBox, itemContent, inputBtnOption } from '../applicationFormStyle';
+import { colors } from '@/styles/theme';
+import { css } from '@emotion/react';
+import { formField, fieldLabelBox } from '../applicationFormStyle';
 
 const PossibleMethod = () => {
   return (
-    <div css={formItem}>
-      <div css={itemLabelBox}>
-        <p className="item-title text-green">진행방식</p>
-        <p className="item-description">*참여 가능한 진행방식을 선택해 주세요</p>
+    <div css={formField}>
+      <div css={fieldLabelBox}>
+        <p className="field-title text-green">진행방식</p>
+        <p className="field-description">*참여 가능한 진행방식을 선택해 주세요</p>
       </div>
-      <div css={itemContent}>
+      <div css={fieldItems}>
         <div css={inputBtnOption}>
           <input type="radio" name="progress-options" id="first-option" />
           <label htmlFor="first-option">온라인</label>
@@ -27,3 +29,25 @@ const PossibleMethod = () => {
 };
 
 export default PossibleMethod;
+
+const fieldItems = css`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const inputBtnOption = css`
+  padding-left: 5px;
+  display: flex;
+  align-items: center;
+
+  input {
+    margin: 0;
+    accent-color: ${colors.primary};
+  }
+
+  label {
+    padding-top: 2px;
+    padding-left: 4px;
+  }
+`;
