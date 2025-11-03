@@ -17,7 +17,7 @@ const cardStyle = css`
   cursor: pointer;
   height: 260px;
   position: relative;
-
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
@@ -165,10 +165,20 @@ const getTechIcons = (tags) => {
   return tags ? tags.map(tag => iconMap[tag]).filter(Boolean) : null;
 };
 
-export default function StudyCard({ project }) {
+export default function StudyCard({ project, onUnlike }) {
   const techIcons = getTechIcons(project.techStack);
+  const [internalLiked, setInternalLiked] = useState(false);
+  const isSavedPage = onUnlike !== undefined;
+  const isLiked = isSavedPage ? true : internalLiked;
 
-  const [isLiked, setIsLiked] = useState(false);
+  const handleLikeClick = (e) => {
+    e.stopPropagation();
+    if (isSavedPage) {
+      onUnlike(project.id);
+    } else {
+      setInternalLiked(!internalLiked);
+    }
+  };
 
   return (
     <div css={cardStyle}>
@@ -198,7 +208,7 @@ export default function StudyCard({ project }) {
         </div>
 
         <button
-          onClick={() => setIsLiked(!isLiked)}
+          onClick={handleLikeClick}
           css={css`
             background: none;
             border: none;

@@ -16,7 +16,7 @@ const cardStyle = css`
   cursor: pointer;
   height: 260px;
   position: relative;
-
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
@@ -86,7 +86,6 @@ const titleStyle = css`
   top: 60px;
   left: 15px;
   right: 15px;
-  
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -102,6 +101,7 @@ const subjectTagBoxStyle = css`
   top: 170px;
   left: 15px;
   right: 15px;
+  overflow: hidden;
 `;
 
 const subjectTagStyle = css`
@@ -116,6 +116,7 @@ const subjectTagStyle = css`
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 `;
 
 const dividerStyle = css`
@@ -170,11 +171,21 @@ const HeartIcon = ({ isLiked }) => (
   </svg>
 );
 
-export default function HwCard({ project }) {
-  const [isLiked, setIsLiked] = useState(false);
+export default function HwCard({ project, onUnlike }) {
+  const [internalLiked, setInternalLiked] = useState(false);
+  const isSavedPage = onUnlike !== undefined;
+  const isLiked = isSavedPage ? true : internalLiked;
+  const displayedSubjects = project.subjects ? project.subjects.slice(0, 3) : [];
+  const hasMoreSubjects = project.subjects ? project.subjects.length > 3 : false;
 
-  const displayedSubjects = project.subjects ? project.subjects.slice(0, 4) : [];
-  const hasMoreSubjects = project.subjects ? project.subjects.length > 4 : false;
+  const handleLikeClick = (e) => {
+    e.stopPropagation();
+    if (isSavedPage) {
+      onUnlike(project.id);
+    } else {
+      setInternalLiked(!internalLiked);
+    }
+  };
 
   return (
     <div css={cardStyle}>
@@ -215,7 +226,7 @@ export default function HwCard({ project }) {
           </div>
 
           <button
-            onClick={() => setIsLiked(!isLiked)}
+            onClick={handleLikeClick}
             css={css`
               background: none;
               border: none;

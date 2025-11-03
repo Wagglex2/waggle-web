@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import React, { useState } from "react";
-import { colors } from "@/styles/theme";
+import { colors } from "@/styles/theme"; 
 import { SiTypescript, SiReact, SiFigma } from 'react-icons/si';
 
 const cardStyle = css`
@@ -17,7 +17,7 @@ const cardStyle = css`
   cursor: pointer;
   height: 260px;
   position: relative;
-
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
@@ -104,6 +104,7 @@ const positionTagBoxStyle = css`
   top: 120px;
   left: 15px;
   right: 15px;
+  overflow: hidden;
 `;
 
 const positionTagStyle = css`
@@ -118,6 +119,7 @@ const positionTagStyle = css`
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 `;
 
 const techStackIconBoxStyle = css`
@@ -204,13 +206,22 @@ const getTechIcons = (tags) => {
   return tags.map(tag => iconMap[tag]).filter(Boolean);
 };
 
-export default function ProjectCard({ project }) {
+export default function ProjectCard({ project, onUnlike }) {
   const techIcons = getTechIcons(project.techStack);
-
-  const [isLiked, setIsLiked] = useState(false);
-
-  const displayedPositions = project.positions.slice(0,3);
+  const [internalLiked, setInternalLiked] = useState(false);
+  const isSavedPage = onUnlike !== undefined;
+  const isLiked = isSavedPage ? true : internalLiked;
+  const displayedPositions = project.positions.slice(0, 3);
   const hasMorePositions = project.positions.length > 3;
+
+  const handleLikeClick = (e) => {
+    e.stopPropagation(); 
+    if (isSavedPage) {
+      onUnlike(project.id);
+    } else {
+      setInternalLiked(!internalLiked);
+    }
+  };
 
   return (
     <div css={cardStyle}>
@@ -252,7 +263,7 @@ export default function ProjectCard({ project }) {
           </div>
 
           <button
-            onClick={() => setIsLiked(!isLiked)}
+            onClick={handleLikeClick} 
             css={css`
               background: none;
               border: none;
