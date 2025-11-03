@@ -17,7 +17,7 @@ const importedTechStackOptions = [
 ];
 
 const purposeOptions = ["전체", ...importedPurposeOptions];
-const positionOptions = ["전체", ...importedPositionOptions];
+const positionOptions = [...importedPositionOptions];
 const techOptions = [...importedTechStackOptions];
 
 const pageTitleStyle = css`
@@ -206,8 +206,7 @@ export default function ProjectListPage() {
   const [selectedPurpose, setSelectedPurpose] = useState("전체");
   const [hasSelectedPurpose, setHasSelectedPurpose] = useState(false);
   const [selectedTechs, setSelectedTechs] = useState([]);
-  const [selectedPosition, setSelectedPosition] = useState("전체");
-  const [hasSelectedPosition, setHasSelectedPosition] = useState(false);
+  const [selectedPositions, setSelectedPositions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [openDropdown, setOpenDropdown] = useState(null);
   const dropdownRefs = useRef({});
@@ -244,17 +243,13 @@ export default function ProjectListPage() {
   };
 
   const handlePositionSelect = (position) => {
-    if (hasSelectedPosition && selectedPosition === position) {
-      setSelectedPosition("전체");
-      setHasSelectedPosition(false);
-    } else {
-      setSelectedPosition(position);
-      setHasSelectedPosition(true);
-    }
-    setOpenDropdown(null);
+    setSelectedPositions(prev =>
+       prev.includes(position)
+        ? prev.filter(p => p !== position)
+        : [...prev, position]
+    );
     setCurrentPage(1);
   };
-
 const dummyProjects = [
   {
     id: 1,
@@ -422,10 +417,11 @@ const dummyProjects = [
     return dummyProjects.filter(project => {
       const purposeMatch = !hasSelectedPurpose || selectedPurpose === '전체' || project.purposeTag === selectedPurpose;
       const techMatch = selectedTechs.length === 0 || selectedTechs.every(tech => project.techStack.includes(tech));
-      const positionMatch = !hasSelectedPosition || selectedPosition === '전체' || project.positions.includes(selectedPosition);
+      const positionMatch = selectedPositions.length === 0 || selectedPositions.some(pos => project.positions.includes(pos));
+      
       return purposeMatch && techMatch && positionMatch;
     });
-  }, [selectedPurpose, selectedTechs, selectedPosition, hasSelectedPurpose, hasSelectedPosition]);
+  }, [selectedPurpose, selectedTechs, selectedPositions, hasSelectedPurpose]);
 
   const totalItems = filteredProjects.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -484,14 +480,14 @@ const dummyProjects = [
           </div>
 
           <div css={dropdownContainerStyle} ref={el => dropdownRefs.current['position'] = el}>
-            <button css={dropDownButtonStyle("120px", hasSelectedPosition)} onClick={() => setOpenDropdown(openDropdown === "position" ? null : "position")}>
-              <span>{hasSelectedPosition ? selectedPosition : '포지션'}</span>
+            <button css={dropDownButtonStyle("120px", selectedPositions.length > 0)} onClick={() => setOpenDropdown(openDropdown === "position" ? null : "position")}>
+              <span>{selectedPositions.length > 0 ? `포지션 ${selectedPositions.length}` : '포지션'}</span>
               <ArrowIcon />
             </button>
             {openDropdown === 'position' && (
-              <ul css={dropDownMenuStyle}>
+              <ul css={dropDownMenuStyle}> 
                 {positionOptions.map(option => (
-                  <li key={option} css={dropDownMenuItemStyle(selectedPosition === option, false)} onClick={() => handlePositionSelect(option)}>
+                  <li key={option} css={dropDownMenuItemStyle(selectedPositions.includes(option), false)} onClick={() => handlePositionSelect(option)}>
                     {option}
                   </li>
                 ))}
