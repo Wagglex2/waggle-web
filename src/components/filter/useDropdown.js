@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-export function useDropdownMenu() {
+export function useDropdown() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const dropdownRefs = useRef({});
 
