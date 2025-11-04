@@ -1,8 +1,6 @@
 /** @jsxRuntime automatic */
 /** @jsxImportSource @emotion/react */
 import React, { useState, useMemo } from "react";
-
-
 import PageWrapper from "@/components/layout/PageWrapper";
 import PageHeader from "@/components/layout/PageHeader";
 import FilterBar from "@/components/layout/FilterBar";
