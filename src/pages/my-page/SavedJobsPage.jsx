@@ -3,9 +3,9 @@
 import { css } from "@emotion/react";
 import React, { useState } from "react";
 import { create } from 'zustand';
-import ProjectCard from "@/pages/job-list/components/card/ProjectCard";
-import HwCard from "@/pages/job-list/components/card/HwCard";
-import StudyCard from "@/pages/job-list/components/card/StudyCard";
+import ProjectCard from "@/components/card/ProjectCard";
+import HwCard from "@/components/card/HwCard";
+import StudyCard from "@/components/card/StudyCard";
 
 const colors = {
   border: '#eee6d6',
