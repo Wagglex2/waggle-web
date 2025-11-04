@@ -3,9 +3,9 @@
 import { css } from "@emotion/react";
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { colors } from "@/styles/theme";
-import ProjectCard from "@/pages/job-list/components/card/ProjectCard";
-import ToggleSwitch from "@/pages/job-list/components/ToggleSwitch";
-import Pagination from "@/pages/job-list/components/Pagination";
+import ProjectCard from "@/components/card/ProjectCard";
+import ToggleSwitch from "@/components/common/ToggleSwitch";
+import Pagination from "@/components/common/Pagination";
 
 const importedPurposeOptions = ["공모전", "해커톤", "사이드프로젝트", "토이프로젝트"];
 const importedPositionOptions = ["백엔드", "프론트엔드", "풀스택", "데이터", "AI", "게임", "기획", "디자인"];

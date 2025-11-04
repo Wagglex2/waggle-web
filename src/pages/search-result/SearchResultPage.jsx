@@ -4,11 +4,11 @@ import { css } from "@emotion/react";
 import { colors } from "@/styles/theme";
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import ProjectCard from "@/pages/job-list/components/card/ProjectCard";
-import HwCard from "@/pages/job-list/components/card/HwCard";
-import StudyCard from "@/pages/job-list/components/card/StudyCard";
-import ToggleSwitch from "@/pages/job-list/components/ToggleSwitch";
-import Pagination from "@/pages/job-list/components/Pagination";
+import ProjectCard from "@/components/card/ProjectCard";
+import HwCard from "@/components/card/HwCard";
+import StudyCard from "@/components/card/StudyCard";
+import ToggleSwitch from "@/components/common/ToggleSwitch";
+import Pagination from "@/components/common/Pagination";
 
 const pageTitleStyle = css`
   font-size: 22px;

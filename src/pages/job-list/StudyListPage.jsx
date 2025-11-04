@@ -3,9 +3,9 @@
 import { css } from "@emotion/react";
 import { colors } from "@/styles/theme";
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import StudyCard from "@/pages/job-list/components/card/StudyCard";
-import ToggleSwitch from "@/pages/job-list/components/ToggleSwitch";
-import Pagination from "@/pages/job-list/components/Pagination";
+import StudyCard from "@/components/card/StudyCard";
+import ToggleSwitch from "@/components/common/ToggleSwitch";
+import Pagination from "@/components/common/Pagination";
 
 const pageTitleStyle = css`
   font-size: 24px;
