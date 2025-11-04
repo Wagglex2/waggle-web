@@ -33,7 +33,7 @@ const toggleSwitchStyle = css`
     height: 14px;
     width: 14px;
     left: 5px;
-    bottom: 3.5px;
+    bottom: 3.1px;
     background-color: white;
     transition: 0.4s;
     border-radius: 50%;
