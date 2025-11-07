@@ -6,18 +6,29 @@ const colors = {
   border: '#eee6d6',
   text: '#3a3a3a',
   muted: '#8f8678',
+  btnHover: '#fcfbf8',
+  primary: '#FFCC00',
+  white: '#fff',
+  overlay: 'rgba(0, 0, 0, 0.45)',
+  modalTitle: '#103c1f',
+  avatarBg: '#ffe7e7',
+  placeholder: '#b5b0a8',
+  detailBg: '#fdfdfd',
 };
 
-const ApplicationModal = ({ data, onClose }) => {
-  if (!data) return null;
+const ApplicationModal = ({ modalData, onClose, onAcceptClick, onRejectClick }) => {
+  if (!modalData) {
+    return null;
+  }
 
-  const { applicant, category } = data;
+  const applicant = modalData;
+  const category = modalData.postType;
 
   return (
     <div css={overlay} onClick={onClose} role="dialog" aria-modal="true">
       <div css={modal} onClick={(e) => e.stopPropagation()}>
         <header css={modalHeader}>
-          {applicant.name}님의 지원서
+          <h3 css={modalTitle}>{applicant.name}님의 지원서</h3>
           <button css={closeBtn} onClick={onClose} aria-label="닫기">
             ✕
           </button>
@@ -45,12 +56,22 @@ const ApplicationModal = ({ data, onClose }) => {
               </div>
             </>
           )}
-          <div style={{ marginTop: '12px', paddingBottom: '24px' }}>
-            <span css={fieldLabel}>상세내용</span>
-            <div css={detailBox}>
-              <textarea css={detailArea} readOnly value={applicant.detail || ''} />
-            </div>
+
+          <label htmlFor="review-detail" css={label}>
+            상세내용
+          </label>
+          <div css={detailBox}>
+            <textarea id="review-detail" css={detailArea} readOnly value={applicant.detail || ''} />
           </div>
+        </div>
+
+        <div css={saveBar}>
+          <button css={deleteBtn} onClick={onRejectClick}>
+            거절하기
+          </button>
+          <button css={smallSaveBtn} onClick={onAcceptClick}>
+            수락하기
+          </button>
         </div>
       </div>
     </div>
@@ -62,7 +83,7 @@ export default ApplicationModal;
 const overlay = css`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: ${colors.overlay};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,38 +91,35 @@ const overlay = css`
 `;
 
 const modal = css`
-  width: 400px;
+  width: 410px;
   max-width: calc(100% - 32px);
-  background: #fff;
+  background: ${colors.white};
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 30px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   max-height: 90vh;
 `;
 
 const modalHeader = css`
   position: relative;
-  padding: 20px 24px;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 8px;
   border-bottom: 1px solid ${colors.border};
-  text-align: center;
-  color: #153b24;
-  font-weight: 800;
-  font-size: 22px;
-  flex-shrink: 0;
-  font-family: 'nanumEB', 'NanumSquareRound', sans-serif;
 `;
 
-const modalContent = css`
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 0 24px;
+const modalTitle = css`
+  margin: 0;
+  font-size: 22px;
+  color: ${colors.modalTitle};
+  font-family: 'nanumEB', 'NanumSquareRound', sans-serif;
 `;
 
 const closeBtn = css`
   position: absolute;
-  right: 10px;
+  right: -10px;
   top: 50%;
   transform: translateY(-50%);
   width: 36px;
@@ -109,8 +127,14 @@ const closeBtn = css`
   border: 0;
   background: transparent;
   cursor: pointer;
-  color: ${colors.muted};
   font-size: 20px;
+  color: ${colors.muted};
+`;
+
+const modalContent = css`
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-top: 10px;
 `;
 
 const fieldRow = css`
@@ -128,6 +152,7 @@ const fieldRow = css`
 const fieldLabel = css`
   color: ${colors.muted};
   font-size: 13px;
+  font-family: 'nanumB', 'NanumSquareRound', sans-serif;
 `;
 
 const fieldValue = css`
@@ -137,8 +162,16 @@ const fieldValue = css`
   font-family: 'nanumB', 'NanumSquareRound', sans-serif;
 `;
 
+const label = css`
+  display: block;
+  font-weight: 600;
+  margin: 20px 0 6px;
+  font-family: 'nanumB', 'NanumSquareRound', sans-serif;
+  color: ${colors.muted};
+  font-size: 13px;
+`;
+
 const detailBox = css`
-  margin-top: 12px;
   border: 1px solid ${colors.border};
   border-radius: 12px;
   overflow: hidden;
@@ -148,11 +181,42 @@ const detailArea = css`
   width: 100%;
   min-height: 120px;
   resize: none;
-  padding: 12px;
+  padding: 14px;
   border: 0;
   outline: none;
   font-family: inherit;
   color: ${colors.text};
   font-size: 13px;
-  background-color: #fdfdfd;
+  background-color: ${colors.detailBg};
+`;
+
+const saveBar = css`
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+`;
+
+const smallSaveBtn = css`
+  min-width: 150px;
+  height: 48px;
+  border-radius: 12px;
+  border: 0;
+  background: ${colors.primary};
+  color: #173300;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'nanumEB', 'NanumSquareRound', sans-serif;
+`;
+
+const deleteBtn = css`
+  min-width: 150px;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid ${colors.border};
+  background: ${colors.btnHover};
+  color: ${colors.muted};
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'nanumEB', 'NanumSquareRound', sans-serif;
 `;
