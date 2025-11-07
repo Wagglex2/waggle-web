@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { css } from '@emotion/react';
 import { useApplicationStore, toneByStatus } from './useApplicationStore';
-import ApplicationModal from './components/ApplicationModal';
+import MyApplicationModal from './components/MyApplicationModal';
 
 const colors = {
   border: '#eee6d6',
@@ -51,20 +51,20 @@ const MyApplicationsPage = () => {
           {filtered.map((r, i) => (
             <div css={row} key={r.id}>
               <div>{i + 1}</div>
-              <div css={cellEllipsis} title={r.title}>
+              <div className="cell-ellipsis" title={r.title}>
                 {r.title}
               </div>
               <div>{r.due}</div>
               <div>
-                <span css={badge(toneByStatus(r.status))}>{r.status}</span>
+                <span className={`status-badge tone-${toneByStatus(r.status)}`}>{r.status}</span>
               </div>
               <div>
-                <button css={action} onClick={() => openModal(r)}>
+                <button className="action-btn" onClick={() => openModal(r)}>
                   지원서
                 </button>
               </div>
               <div>
-                <button css={[action, danger]} onClick={() => removeRow(r.id)}>
+                <button className="action-btn danger" onClick={() => removeRow(r.id)}>
                   취소하기
                 </button>
               </div>
@@ -73,7 +73,7 @@ const MyApplicationsPage = () => {
         </div>
       </div>
 
-      <ApplicationModal data={modalData} onClose={closeModal} />
+      <MyApplicationModal modalData={modalData} onClose={closeModal} />
     </div>
   );
 };
@@ -152,49 +152,70 @@ const row = css`
   & > div {
     text-align: center;
   }
-`;
 
-const cellEllipsis = css`
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  text-align: center;
-  text-decoration: underline;
-  cursor: pointer;
-`;
+  .cell-ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: center;
+    text-decoration: underline;
+    cursor: pointer;
+  }
 
-const badge = (tone) => css`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  height: 20px;
-  border-radius: 15px;
-  font-size: 13px;
-  ${tone === 'waiting' && `background:#FFF4C2; border:1px solid #F2E6A2; color:#6E5B08;`}
-  ${tone === 'rejected' && `background:#FFDFDF; border:1px solid #F4CACA; color:#7A3A3A;`}
-  ${tone === 'accepted' && `background:#CFE6E9; border:1px solid #B6D7DE; color:#2F5F66;`}
-  ${tone === 'cancelled' && `background:#DDEEDB; border:1px solid #C7E0C2; color:#3C6A43;`}
-  ${tone === 'closed' && `background:#E9E9E9; border:1px solid #D9D9D9; color:#666;`}
-`;
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 20px;
+    border-radius: 15px;
+    font-size: 13px;
+  }
 
-const action = css`
-  width: 80px;
-  height: 30px;
-  padding: 0;
-  border-radius: 15px;
-  border: 1px solid #b3b3b3;
-  background: #fff;
-  cursor: pointer;
-  font-family: 'nanumB', 'NanumSquareRound', sans-serif;
-  font-size: 13px;
-  color: #666666;
-`;
+  .tone-waiting {
+    background: #fff4c2;
+    border: 1px solid #f2e6a2;
+    color: #6e5b08;
+  }
+  .tone-rejected {
+    background: #ffdfdf;
+    border: 1px solid #f4caca;
+    color: #7a3a3a;
+  }
+  .tone-accepted {
+    background: #cfe6e9;
+    border: 1px solid #b6d7de;
+    color: #2f5f66;
+  }
+  .tone-cancelled {
+    background: #ddeedb;
+    border: 1px solid #c7e0c2;
+    color: #3c6a43;
+  }
+  .tone-closed {
+    background: #e9e9e9;
+    border: 1px solid #d9d9d9;
+    color: #666;
+  }
 
-const danger = css`
-  border-color: #b3b3b3;
-  background: #fff;
-  color: #666666;
+  .action-btn {
+    width: 80px;
+    height: 30px;
+    padding: 0;
+    border-radius: 15px;
+    border: 1px solid #b3b3b3;
+    background: #fff;
+    cursor: pointer;
+    font-family: 'nanumB', 'NanumSquareRound', sans-serif;
+    font-size: 13px;
+    color: #666666;
+  }
+
+  .action-btn.danger {
+    border-color: #b3b3b3;
+    background: #fff;
+    color: #666666;
+  }
 `;
 
 const empty = css`
