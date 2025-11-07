@@ -2,9 +2,8 @@ import React from 'react';
 import BallpitBackground from '../components/BallpitBackground';
 
 const ballColors = [
-  0xfcd514, // 노랑
-  0xfffeef, // 아이보리
-  0xf7a41a, // 주황
+  0xffffff, //검정
+  0x26422a, //초록
 ];
 
 function SigninPage() {
@@ -14,14 +13,14 @@ function SigninPage() {
         position: 'relative',
         width: '100vw',
         height: '100vh',
-        background: '#000000',
+        background: '#fffef9',
       }}
     >
       <div
         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }}
       >
         <BallpitBackground
-          count={150}
+          count={100}
           gravity={0}
           friction={0.99}
           wallBounce={0.95}
