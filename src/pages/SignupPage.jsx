@@ -68,10 +68,7 @@ const SignupPage = () => {
       navigate('/login');
     } catch (error) {
       console.error('Signup error:', error);
-      alert(
-        error.response?.data?.message ||
-          '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.'
-      );
+      alert(error.response?.data?.message || '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };
 
@@ -142,8 +139,7 @@ const SignupPage = () => {
       console.error('Send auth code error:', error);
       setEmailStatus({
         status: 'idle',
-        message:
-          error.response?.data?.message || '인증번호 발송에 실패했습니다.',
+        message: error.response?.data?.message || '인증번호 발송에 실패했습니다.',
       });
     }
   };
@@ -166,8 +162,7 @@ const SignupPage = () => {
       console.error('Confirm auth code error:', error);
       setEmailStatus({
         status: 'error',
-        message:
-          error.response?.data?.message || '인증번호가 일치하지 않습니다.',
+        message: error.response?.data?.message || '인증번호가 일치하지 않습니다.',
       });
     }
   };
@@ -200,8 +195,7 @@ const SignupPage = () => {
     }
   };
 
-  const isVerified =
-    emailStatus.status === 'success' && nicknameCheck.status === 'available';
+  const isVerified = emailStatus.status === 'success' && nicknameCheck.status === 'available';
 
   return (
     <div css={wrap}>
@@ -244,9 +238,7 @@ const SignupPage = () => {
               </button>
             </div>
             {nicknameFormatError && (
-              <div css={[messageStyle('danger'), messageWrap]}>
-                {nicknameFormatError}
-              </div>
+              <div css={[messageStyle('danger'), messageWrap]}>{nicknameFormatError}</div>
             )}
             {nicknameCheck.message && (
               <div css={[messageStyle(nicknameCheck.status), messageWrap]}>
@@ -304,8 +296,8 @@ const SignupPage = () => {
                     emailStatus.status === 'success'
                       ? 'available'
                       : emailStatus.status === 'error'
-                      ? 'danger'
-                      : 'idle'
+                        ? 'danger'
+                        : 'idle'
                   ),
                   messageWrap,
                 ]}
@@ -328,9 +320,7 @@ const SignupPage = () => {
               onChange={handlePasswordChange}
             />
             {passwordFormatError && (
-              <div css={[messageStyle('danger'), messageWrap]}>
-                {passwordFormatError}
-              </div>
+              <div css={[messageStyle('danger'), messageWrap]}>{passwordFormatError}</div>
             )}
             <input
               type="password"
@@ -341,9 +331,7 @@ const SignupPage = () => {
               onChange={handlePasswordConfirmChange}
             />
             {passwordMatchError && (
-              <div css={[messageStyle('danger'), messageWrap]}>
-                {passwordMatchError}
-              </div>
+              <div css={[messageStyle('danger'), messageWrap]}>{passwordMatchError}</div>
             )}
           </div>
 
@@ -352,7 +340,7 @@ const SignupPage = () => {
               가입하기
             </button>
             <div css={loginLink}>
-              <Link to="/singin">로그인 하기</Link>
+              <Link to="/signin">로그인 하기</Link>
             </div>
           </div>
         </form>
@@ -535,9 +523,9 @@ const messageStyle = (status) => css`
   color: ${status === 'available'
     ? colors.success
     : status === 'taken'
-    ? colors.danger
-    : status === 'danger'
-    ? colors.danger
-    : colors.muted};
+      ? colors.danger
+      : status === 'danger'
+        ? colors.danger
+        : colors.muted};
   font-family: 'nanumB', 'NanumSquareRound', sans-serif;
 `;
