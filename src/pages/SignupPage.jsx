@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { css } from '@emotion/react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const colors = {
   primary: '#FFCC00',
@@ -31,39 +32,47 @@ const SignupPage = () => {
     message: '',
   });
 
-  const [isSendingEmail, setIsSendingEmail] = useState(false);
-  const [isConfirmingCode, setIsConfirmingCode] = useState(false);
+  const [emailStatus, setEmailStatus] = useState({
+    status: 'idle',
+    message: '',
+  });
 
   const navigate = useNavigate();
 
   const nicknameRegex = /^[a-zA-Z가-힣0-9]{2,10}$/;
   const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]).{8,20}$/;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!nicknameRegex.test(nickname)) {
-      alert('닉네임 형식을 확인해주세요.');
+    if (nicknameCheck.status !== 'available' || emailStatus.status !== 'success') {
+      alert('필수 항목(닉네임 중복 확인, 이메일 인증)을 완료해주세요.');
       return;
     }
 
-    if (nicknameCheck.status !== 'available') {
-      alert('닉네임 중복 확인을 해주세요.');
+    if (nicknameFormatError || passwordFormatError || passwordMatchError) {
+      alert('입력 항목 중 오류가 있습니다. 확인해주세요.');
       return;
     }
 
-    if (!passwordRegex.test(password)) {
-      alert('비밀번호 형식이 올바르지 않습니다.');
+    if (!nickname || !email || !password || !passwordConfirm) {
+      alert('모든 항목을 입력해주세요.');
       return;
     }
 
-    if (password !== passwordConfirm) {
-      alert('비밀번호가 일치하지 않습니다.');
-      return;
-    }
+    try {
+      const payload = { nickname, email, password };
+      await axios.post('/api/signup', payload);
 
-    console.log({ nickname, email, authCode, password, passwordConfirm });
-    navigate('/');
+      alert('회원가입이 완료되었습니다.');
+      navigate('/login');
+    } catch (error) {
+      console.error('Signup error:', error);
+      alert(
+        error.response?.data?.message ||
+          '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.'
+      );
+    }
   };
 
   const handleCheckDuplicate = async () => {
@@ -77,21 +86,25 @@ const SignupPage = () => {
     }
 
     setNicknameCheck({ status: 'checking', message: '확인 중...' });
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const isTaken = Math.random() > 0.5;
-
-    if (isTaken) {
-      setNicknameCheck({
-        status: 'taken',
-        message: '이미 사용중인 닉네임입니다.',
-      });
-    } else {
+    try {
+      await axios.get(`/api/check-nickname?nickname=${nickname}`);
       setNicknameCheck({
         status: 'available',
         message: '사용가능한 닉네임입니다.',
       });
+    } catch (error) {
+      console.error('Nickname check error:', error);
+      if (error.response?.status === 409) {
+        setNicknameCheck({
+          status: 'taken',
+          message: '이미 사용중인 닉네임입니다.',
+        });
+      } else {
+        setNicknameCheck({
+          status: 'idle',
+          message: '오류가 발생했습니다. 다시 시도해주세요.',
+        });
+      }
     }
   };
 
@@ -107,18 +120,32 @@ const SignupPage = () => {
     }
   };
 
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    setEmailStatus({ status: 'idle', message: '' });
+  };
+
   const handleGetAuthCode = async () => {
     if (!email) {
       alert('이메일을 입력해주세요.');
       return;
     }
-    setIsSendingEmail(true);
+    setEmailStatus({ status: 'sending', message: '인증번호 발송 중...' });
 
-    console.log('인증 번호 받기', email);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    alert('인증번호가 발송되었습니다. 이메일을 확인해주세요.');
-    setIsSendingEmail(false);
+    try {
+      await axios.post('/api/send-auth-code', { email });
+      setEmailStatus({
+        status: 'sent',
+        message: '인증번호가 발송되었습니다. 이메일을 확인해주세요.',
+      });
+    } catch (error) {
+      console.error('Send auth code error:', error);
+      setEmailStatus({
+        status: 'idle',
+        message:
+          error.response?.data?.message || '인증번호 발송에 실패했습니다.',
+      });
+    }
   };
 
   const handleConfirmAuthCode = async () => {
@@ -126,13 +153,23 @@ const SignupPage = () => {
       alert('인증번호를 입력해주세요.');
       return;
     }
-    setIsConfirmingCode(true);
+    setEmailStatus((prev) => ({
+      ...prev,
+      status: 'confirming',
+      message: '인증번호 확인 중...',
+    }));
 
-    console.log('인증 번호 확인', authCode);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    alert('인증되었습니다.');
-    setIsConfirmingCode(false);
+    try {
+      await axios.post('/api/confirm-auth-code', { email, authCode });
+      setEmailStatus({ status: 'success', message: '인증되었습니다.' });
+    } catch (error) {
+      console.error('Confirm auth code error:', error);
+      setEmailStatus({
+        status: 'error',
+        message:
+          error.response?.data?.message || '인증번호가 일치하지 않습니다.',
+      });
+    }
   };
 
   const handlePasswordChange = (e) => {
@@ -163,6 +200,9 @@ const SignupPage = () => {
     }
   };
 
+  const isVerified =
+    emailStatus.status === 'success' && nicknameCheck.status === 'available';
+
   return (
     <div css={wrap}>
       <h1 css={logo}>
@@ -192,18 +232,21 @@ const SignupPage = () => {
                 value={nickname}
                 onChange={handleNicknameChange}
                 maxLength={10}
+                disabled={isVerified}
               />
               <button
                 type="button"
                 css={sideBtn}
                 onClick={handleCheckDuplicate}
-                disabled={nicknameCheck.status === 'checking'}
+                disabled={nicknameCheck.status === 'checking' || isVerified}
               >
                 {nicknameCheck.status === 'checking' ? '확인 중...' : '중복 확인'}
               </button>
             </div>
             {nicknameFormatError && (
-              <div css={[messageStyle('danger'), messageWrap]}>{nicknameFormatError}</div>
+              <div css={[messageStyle('danger'), messageWrap]}>
+                {nicknameFormatError}
+              </div>
             )}
             {nicknameCheck.message && (
               <div css={[messageStyle(nicknameCheck.status), messageWrap]}>
@@ -223,15 +266,16 @@ const SignupPage = () => {
                 css={flexInput}
                 placeholder="학교 공식 이메일 계정 입력"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleEmailChange}
+                disabled={isVerified}
               />
               <button
                 type="button"
                 css={sideBtn}
                 onClick={handleGetAuthCode}
-                disabled={isSendingEmail}
+                disabled={emailStatus.status === 'sending' || isVerified}
               >
-                {isSendingEmail ? '전송 중...' : '인증 번호 받기'}
+                {emailStatus.status === 'sending' ? '전송 중...' : '인증 번호 받기'}
               </button>
             </div>
             <div css={[inputWrap, { marginTop: '8px' }]}>
@@ -242,16 +286,33 @@ const SignupPage = () => {
                 placeholder="인증 번호 입력"
                 value={authCode}
                 onChange={(e) => setAuthCode(e.target.value)}
+                disabled={isVerified}
               />
               <button
                 type="button"
                 css={sideBtn}
                 onClick={handleConfirmAuthCode}
-                disabled={isConfirmingCode}
+                disabled={emailStatus.status === 'confirming' || isVerified}
               >
-                {isConfirmingCode ? '확인 중...' : '확인'}
+                {emailStatus.status === 'confirming' ? '확인 중...' : '확인'}
               </button>
             </div>
+            {emailStatus.message && (
+              <div
+                css={[
+                  messageStyle(
+                    emailStatus.status === 'success'
+                      ? 'available'
+                      : emailStatus.status === 'error'
+                      ? 'danger'
+                      : 'idle'
+                  ),
+                  messageWrap,
+                ]}
+              >
+                {emailStatus.message}
+              </div>
+            )}
           </div>
 
           <div css={fieldGroup}>
@@ -267,7 +328,9 @@ const SignupPage = () => {
               onChange={handlePasswordChange}
             />
             {passwordFormatError && (
-              <div css={[messageStyle('danger'), messageWrap]}>{passwordFormatError}</div>
+              <div css={[messageStyle('danger'), messageWrap]}>
+                {passwordFormatError}
+              </div>
             )}
             <input
               type="password"
@@ -278,7 +341,9 @@ const SignupPage = () => {
               onChange={handlePasswordConfirmChange}
             />
             {passwordMatchError && (
-              <div css={[messageStyle('danger'), messageWrap]}>{passwordMatchError}</div>
+              <div css={[messageStyle('danger'), messageWrap]}>
+                {passwordMatchError}
+              </div>
             )}
           </div>
 
@@ -287,7 +352,7 @@ const SignupPage = () => {
               가입하기
             </button>
             <div css={loginLink}>
-              <Link to="/login">로그인 하기</Link>
+              <Link to="/singin">로그인 하기</Link>
             </div>
           </div>
         </form>
@@ -388,6 +453,10 @@ const inputBase = css`
   &:focus {
     border-color: ${colors.primary};
   }
+  &:disabled {
+    background-color: #f5f5f5;
+    color: ${colors.muted};
+  }
 `;
 
 const flexInput = css`
@@ -466,9 +535,9 @@ const messageStyle = (status) => css`
   color: ${status === 'available'
     ? colors.success
     : status === 'taken'
-      ? colors.danger
-      : status === 'danger'
-        ? colors.danger
-        : colors.muted};
+    ? colors.danger
+    : status === 'danger'
+    ? colors.danger
+    : colors.muted};
   font-family: 'nanumB', 'NanumSquareRound', sans-serif;
 `;
