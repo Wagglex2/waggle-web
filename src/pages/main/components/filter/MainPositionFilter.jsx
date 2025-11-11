@@ -6,22 +6,52 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import { useState } from 'react';
 
 const MainPositionFilter = () => {
+  const [seletedPosition, setSelectedPosition] = useState([]); //선택된 포지션 리스트
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // 필터 드롭다운 열림 여부
+
+  // 드롭다운에서 원하는 옵션을 클릭 했을 때
+  function handleOptionSelect(newPosition) {
+    // 포지션 배열 업데이트
+    setSelectedPosition((prev) =>
+      prev.includes(newPosition)
+        ? prev.filter((pos) => pos !== newPosition)
+        : [...prev, newPosition]
+    );
+  }
+
   return (
     <div css={container}>
-      <button css={filterBtn}>
-        <span>포지션</span>
-        <ArrowDropDownIcon css={filterIcon} />
+      <button css={filterBtn} onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+        <div>
+          <span className="position-name">
+            {seletedPosition.length === 0 ? '포지션' : seletedPosition[0]}
+          </span>
+          {seletedPosition.length > 1 && <span>+{seletedPosition.length - 1}</span>}
+        </div>
+        {!isDropdownOpen ? (
+          <ArrowDropDownIcon css={filterIcon} />
+        ) : (
+          <ArrowDropUpIcon css={filterIcon} />
+        )}
       </button>
-      <ul css={optionBox}>
-        {positionOptions.map((option) => (
-          <li key={option}>
-            <CheckBoxOutlineBlankIcon className="check-box-icon" />
-            <span>{option}</span>
-          </li>
-        ))}
-      </ul>
+
+      {isDropdownOpen && (
+        <ul css={optionBox}>
+          {positionOptions.map((item) => (
+            <li key={item} onClick={() => handleOptionSelect(item)}>
+              {!seletedPosition.includes(item) ? (
+                <CheckBoxOutlineBlankIcon className="check-box-icon" />
+              ) : (
+                <CheckBoxIcon className="check-box-icon" />
+              )}
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
@@ -49,6 +79,10 @@ const filterBtn = css`
   align-items: center;
   padding-left: 15px;
   color: ${colors.primary};
+
+  .position-name {
+    padding-right: 5px;
+  }
 `;
 
 const filterIcon = css`

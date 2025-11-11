@@ -3,20 +3,40 @@ import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import { useState } from 'react';
+
+const purposeList = ['전체', '공모전', '해커톤', '사이드프로젝트', '토이프로젝트'];
 
 const MainPurposeFilter = () => {
+  const [purpose, setPurpose] = useState('목적'); // 선택된 목적
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // 필터 드롭다운 열림 여부
+
+  // 드롭다운에서 원하는 옵션을 클릭 했을 때
+  function handleDropdownOptionClick(selectedPurpose) {
+    setPurpose(selectedPurpose);
+    setIsDropdownOpen(false);
+  }
+
   return (
     <div css={container}>
-      <button css={filterBtn}>
-        <span>목적</span>
-        <ArrowDropDownIcon css={filterIcon} />
+      <button css={filterBtn} onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+        <p>{purpose}</p>
+        {!isDropdownOpen ? (
+          <ArrowDropDownIcon css={filterIcon} />
+        ) : (
+          <ArrowDropUpIcon css={filterIcon} />
+        )}
       </button>
-      <ul css={optionBox}>
-        <li>공모전</li>
-        <li>해커톤</li>
-        <li>사이드프로젝트</li>
-        <li>토이프로젝트</li>
-      </ul>
+
+      {isDropdownOpen && (
+        <ul css={optionBox}>
+          {purposeList.map((item, index) => (
+            <li key={index} onClick={() => handleDropdownOptionClick(item)}>
+              {item}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
@@ -45,6 +65,13 @@ const filterBtn = css`
   align-items: center;
   padding-left: 15px;
   color: ${colors.primary};
+
+  p {
+    width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;
 
 const filterIcon = css`
