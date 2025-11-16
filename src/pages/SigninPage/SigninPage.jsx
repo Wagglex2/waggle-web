@@ -1,5 +1,7 @@
 /** @jsxRuntime automatic */
 /** @jsxImportSource @emotion/react */
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { colors } from "@/styles/theme";
 import BackgroundBlob from './assets/background-blob.png';
 import LogoBlob from './assets/logo-blob.png';
@@ -91,6 +93,15 @@ const inputStyle = {
   },
 };
 
+const errorStyle = {
+  color: '#e53e3e',
+  fontFamily: 'nanumR',
+  fontSize: '13px',
+  textAlign: 'center',
+  height: '16px',
+  margin: '0 0 8px 0',
+};
+
 const loginButtonStyle = {
   width: '100%',
   padding: '14px',
@@ -143,6 +154,28 @@ const logoWaggleStyle = {
 };
 
 function SigninPage() {
+  const [id, setId] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
+
+  const handleLogin = (event) => {
+    event.preventDefault(); 
+    
+    if (id.trim() === '' || password.trim() === '') {
+      setErrorMessage('아이디와 비밀번호를 모두 입력해주세요.');
+      return;
+    }
+
+    if (id !== 'admin' || password !== '1234') {
+      setErrorMessage('아이디 또는 비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
+    setErrorMessage('');
+    navigate('/');
+  };
+
   return (
     <>
       <div css={pageWrapperStyle}>
@@ -161,7 +194,7 @@ function SigninPage() {
 
         <div css={contentWrapperStyle}>
           <div css={modalContainerStyle}>
-            <div css={formSectionStyle}>
+            <form css={formSectionStyle} onSubmit={handleLogin}>
               <h1 css={titleStyle}>로그인</h1>
               <div css={inputWrapperStyle}>
                 <label css={labelStyle}>아이디</label>
@@ -169,6 +202,11 @@ function SigninPage() {
                   css={inputStyle}
                   type="text"
                   placeholder="2~10자, 영문, 한영 가능"
+                  value={id}
+                  onChange={(e) => {
+                    setId(e.target.value);
+                    setErrorMessage('');
+                  }}
                 />
               </div>
               <div css={inputWrapperStyle}>
@@ -177,11 +215,23 @@ function SigninPage() {
                   css={inputStyle}
                   type="password"
                   placeholder="영문, 숫자, 특수문자 포함 8~20자"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setErrorMessage('');
+                  }}
                 />
               </div>
-              <button css={loginButtonStyle}>로그인 하기</button>
+
+              <p css={errorStyle}>
+                {errorMessage}
+              </p>
+
+              <button css={loginButtonStyle}>
+                로그인 하기
+              </button>
               <a css={signupLinkStyle}>회원가입</a>
-            </div>
+            </form>
 
             <div css={logoSectionStyle}>
               <img
