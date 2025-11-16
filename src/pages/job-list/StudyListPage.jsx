@@ -7,7 +7,7 @@ import FilterBar from "@/components/layout/FilterBar";
 import CardGrid from "@/components/layout/CardGrid";
 import Pagination from "@/components/common/Pagination";
 import StudyCard from "@/components/card/StudyCard";
-import EmptyStateMessage from "./components/EmptyStateMessage";
+import EmptyStateMessage from "../../components/common/EmptyStateMessage";
 
 import { useDropdown } from "@/components/filter/useDropdown";
 import {
