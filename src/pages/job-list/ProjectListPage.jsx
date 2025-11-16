@@ -7,6 +7,7 @@ import FilterBar from "@/components/layout/FilterBar";
 import CardGrid from "@/components/layout/CardGrid";
 import Pagination from "@/components/common/Pagination";
 import ProjectCard from "@/components/card/ProjectCard";
+import EmptyStateMessage from "./components/EmptyStateMessage";
 
 import { useDropdown } from "@/components/filter/useDropdown";
 import {
@@ -248,7 +249,6 @@ export default function ProjectListPage() {
   return (
     <PageWrapper>
       <PageHeader title="프로젝트" />
-      
       <FilterBar>
         <div css={dropdownContainerStyle} ref={el => dropdownRefs.current['purpose'] = el}>
           <button css={dropDownButtonStyle("120px", hasSelectedPurpose)} onClick={() => setOpenDropdown(openDropdown === "purpose" ? null : "purpose")}>
@@ -299,15 +299,22 @@ export default function ProjectListPage() {
           )}
         </div>
       </FilterBar>
-      
-      <CardGrid
-        items={currentItems}
-        itemsPerPage={itemsPerPage}
-        renderCard={(project) => <ProjectCard project={project} />}
-      />
-      
-      {totalPages > 0 && (
-        <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
+      {dummyProjects.length === 0 ? (
+        <EmptyStateMessage message="등록된 프로젝트가 없습니다." />
+      ) : totalItems === 0 ? (
+        <EmptyStateMessage message="일치하는 프로젝트가 없습니다." />
+      ) : (
+        <>
+          <CardGrid
+            items={currentItems}
+            itemsPerPage={itemsPerPage}
+            renderCard={(project) => <ProjectCard project={project} />}
+          />
+          
+          {totalPages > 0 && (
+            <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
+          )}
+        </>
       )}
     </PageWrapper>
   );
