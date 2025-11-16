@@ -7,6 +7,7 @@ import FilterBar from "@/components/layout/FilterBar";
 import CardGrid from "@/components/layout/CardGrid";
 import Pagination from "@/components/common/Pagination";
 import HwCard from "@/components/card/HwCard";
+import EmptyStateMessage from "../../components/common/EmptyStateMessage";
 
 import { useDropdown } from "@/components/filter/useDropdown";
 import {
@@ -22,17 +23,17 @@ const dummyHws = [
   { id: 1, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
   { id: 2, grade: "2학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
   { id: 3, grade: "3학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 4, grade: "4학년 이상", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
+  { id: 4, grade: "2학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
   { id: 6, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
   { id: 7, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
   { id: 8, grade: "2학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
   { id: 9, grade: "3학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 10, grade: "4학년 이상", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
+  { id: 10, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
   { id: 11, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
   { id: 12, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
   { id: 13, grade: "2학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
   { id: 14, grade: "3학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 15, grade: "4학년 이상", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
+  { id: 15, grade: "3학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
   { id: 16, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
 ];
 
@@ -91,19 +92,26 @@ export default function HwListPage() {
           )}
         </div>
       </FilterBar>
-      
-      <CardGrid
-        items={currentItems}
-        itemsPerPage={itemsPerPage}
-        renderCard={(hw) => <HwCard project={hw} />}
-      />
-      
-      {totalPages > 0 && (
-        <Pagination
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-        />
+      {dummyHws.length === 0 ? (
+        <EmptyStateMessage message="등록된 과제가 없습니다." />
+      ) : totalItems === 0 ? (
+        <EmptyStateMessage message="일치하는 과제가 없습니다." />
+      ) : (
+        <>
+          <CardGrid
+            items={currentItems}
+            itemsPerPage={itemsPerPage}
+            renderCard={(hw) => <HwCard project={hw} />}
+          />
+          
+          {totalPages > 0 && (
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </>
       )}
     </PageWrapper>
   );

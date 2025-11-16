@@ -7,6 +7,7 @@ import FilterBar from "@/components/layout/FilterBar";
 import CardGrid from "@/components/layout/CardGrid";
 import Pagination from "@/components/common/Pagination";
 import StudyCard from "@/components/card/StudyCard";
+import EmptyStateMessage from "../../components/common/EmptyStateMessage";
 
 import { useDropdown } from "@/components/filter/useDropdown";
 import {
@@ -91,19 +92,27 @@ export default function StudyListPage() {
           )}
         </div>
       </FilterBar>
-      
-      <CardGrid
-        items={currentItems}
-        itemsPerPage={itemsPerPage}
-        renderCard={(study) => <StudyCard project={study} />}
-      />
-      
-      {totalPages > 0 && (
-        <Pagination
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-        />
+    
+      {dummyStudies.length === 0 ? (
+        <EmptyStateMessage message="등록된 스터디가 없습니다." />
+      ) : totalItems === 0 ? (
+        <EmptyStateMessage message="일치하는 스터디가 없습니다." />
+      ) : (
+        <>
+          <CardGrid
+            items={currentItems}
+            itemsPerPage={itemsPerPage}
+            renderCard={(study) => <StudyCard project={study} />}
+          />
+          
+          {totalPages > 0 && (
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </>
       )}
     </PageWrapper>
   );
