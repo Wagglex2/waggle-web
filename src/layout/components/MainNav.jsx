@@ -5,6 +5,7 @@ import { Link, useLocation } from 'react-router-dom';
 import beeImg from '../../assets/img/nav/bee.png';
 import beehiveImg from '../../assets/img/nav/beehive.png';
 import honeyImg from '../../assets/img/nav/honey.png';
+import CreateJobModal from '@/layout/components/CreateJobModal';
 
 const MainNav = () => {
   const location = useLocation();
@@ -32,19 +33,22 @@ const MainNav = () => {
   ];
 
   return (
-    <div css={container}>
-      <div css={navBox}>
-        {navbarList.map((item) => (
-          <Link key={item.name} to={item.path}>
-            <p css={category(rootPath, item.root)}>
-              <img src={item.icon} />
-              {item.name}
-            </p>
-          </Link>
-        ))}
+    <>
+      <div css={container}>
+        <div css={navBox}>
+          {navbarList.map((item) => (
+            <Link key={item.name} to={item.path}>
+              <p css={category(rootPath, item.root)}>
+                <img src={item.icon} />
+                {item.name}
+              </p>
+            </Link>
+          ))}
+        </div>
+        <button css={createBtn}>공고등록하기</button>
       </div>
-      <button css={createBtn}>공고등록하기</button>
-    </div>
+      {/* <CreateJobModal /> */}
+    </>
   );
 };
 

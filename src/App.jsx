@@ -3,7 +3,6 @@ import SigninPage from './pages/SigninPage';
 import SignupPage from './pages/SignupPage';
 import MainPage from './pages/main/MainPage';
 import MainLayout from './layout/MainLayout';
-import MyPageLayout from './layout/MyPageLayout';
 import HomeworkCreatePage from './pages/job-create/HomeworkCreatePage';
 import ProjectCreatePage from './pages/job-create/ProjectCreatePage';
 import StudyCreatePage from './pages/job-create/StudyCreatePage';
@@ -46,14 +45,15 @@ function App() {
 
         <Route path="/notification" element={<NotificationPage />} />
         <Route path="/search-result" element={<SearchResult />} />
-      </Route>
-      <Route path="/my-page" element={<MyPageLayout />}>
-        <Route path="profile" element={<ProfilePage />} />
-        <Route path="profile/editpw" element={<PasswordEditPage />} />
-        <Route path="my-applications" element={<MyApplicationsPage />} />
-        <Route path="my-posted-job" element={<MyPostedJobsPage />} />
-        <Route path="my-team" element={<MyTeamPage />} />
-        <Route path="saved-job" element={<SavedJobPage />} />
+
+        <Route path="/my-page">
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="profile/editpw" element={<PasswordEditPage />} />
+          <Route path="my-applications" element={<MyApplicationsPage />} />
+          <Route path="my-posted-job" element={<MyPostedJobsPage />} />
+          <Route path="my-team" element={<MyTeamPage />} />
+          <Route path="saved-job" element={<SavedJobPage />} />
+        </Route>
       </Route>
     </Routes>
   );
