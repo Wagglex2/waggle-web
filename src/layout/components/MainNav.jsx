@@ -5,7 +5,6 @@ import { Link, useLocation } from 'react-router-dom';
 import beeImg from '../../assets/img/nav/bee.png';
 import beehiveImg from '../../assets/img/nav/beehive.png';
 import honeyImg from '../../assets/img/nav/honey.png';
-import CreateJobModal from '@/layout/components/CreateJobModal';
 
 const MainNav = () => {
   const location = useLocation();
@@ -47,7 +46,6 @@ const MainNav = () => {
         </div>
         <button css={createBtn}>공고등록하기</button>
       </div>
-      {/* <CreateJobModal /> */}
     </>
   );
 };
