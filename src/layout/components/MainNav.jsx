@@ -6,7 +6,7 @@ import beeImg from '../../assets/img/nav/bee.png';
 import beehiveImg from '../../assets/img/nav/beehive.png';
 import honeyImg from '../../assets/img/nav/honey.png';
 
-const MainNav = () => {
+const MainNav = ({ setOpenModal }) => {
   const location = useLocation();
   const rootPath = location.pathname.split('/').filter(Boolean)[0];
 
@@ -44,7 +44,9 @@ const MainNav = () => {
             </Link>
           ))}
         </div>
-        <button css={createBtn}>공고등록하기</button>
+        <button css={createBtn} onClick={() => setOpenModal(true)}>
+          공고등록하기
+        </button>
       </div>
     </>
   );
