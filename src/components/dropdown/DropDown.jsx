@@ -15,8 +15,9 @@ const DropDown = ({ label, options, buttonWidth, dropDownWidth }) => {
   };
 
   return (
-    <div css={dropDown(selected, label, buttonWidth)}>
+    <div css={dropDownBox(buttonWidth)}>
       <button
+        css={dropDownBtn(selected, label)}
         type="button"
         onClick={() => {
           setOpenModal(!openModal);
@@ -25,9 +26,9 @@ const DropDown = ({ label, options, buttonWidth, dropDownWidth }) => {
       >
         {selected}
         {openModal ? (
-          <ArrowDropUpIcon css={dropDownIcon} />
+          <ArrowDropUpIcon css={dropDownIcon(label)} />
         ) : (
-          <ArrowDropDownIcon css={dropDownIcon} />
+          <ArrowDropDownIcon css={dropDownIcon(label)} />
         )}
       </button>
 
@@ -46,30 +47,34 @@ const DropDown = ({ label, options, buttonWidth, dropDownWidth }) => {
 
 export default DropDown;
 
-const dropDown = (selected, label, buttonWidth) => css`
+const dropDownBox = (buttonWidth) => css`
   height: 33px;
   width: ${buttonWidth};
-
-  button {
-    width: 100%;
-    height: 100%;
-    text-align: left;
-    padding-left: 10px;
-    line-height: 30px;
-    background-color: #ffffff;
-
-    border-radius: 10px;
-    border: 1px solid ${colors.gray[300]};
-    font-family: 'nanumR';
-    font-size: 15px;
-    color: ${selected == label ? colors.gray[300] : '#000000'};
-  }
 `;
 
-const dropDownIcon = css`
+const dropDownBtn = (selected, label) => css`
+  width: 100%;
+  height: 100%;
+  text-align: left;
+  padding-left: 10px;
+  line-height: 30px;
+  background-color: ${label === '과제' || label === '스터디' || label === '멤버'
+    ? '#eeeeee'
+    : '#ffffff '};
+
+  border-radius: 10px;
+  border: 1px solid ${colors.gray[300]};
+  font-family: 'nanumR';
+  font-size: 15px;
+  color: ${selected == label ? colors.gray[300] : '#000000'};
+`;
+
+const dropDownIcon = (label) => css`
   float: right;
-  color: #3b3537;
-  padding-top: '3px';
+  color: ${label === '과제' || label === '스터디' || label === '멤버'
+    ? colors.gray[300]
+    : colors.secondary};
+  padding-top: 4px;
 `;
 
 const dropDownListBox = (width = '200px') => css`
