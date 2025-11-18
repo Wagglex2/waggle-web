@@ -97,4 +97,9 @@ const createBtn = css`
   border-radius: 10px;
   background-color: ${colors.primary};
   border: none;
+
+  &:hover {
+    background-color: ${colors.secondary};
+    color: #ffffff;
+  }
 `;
