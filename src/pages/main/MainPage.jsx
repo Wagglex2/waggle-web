@@ -4,6 +4,8 @@ import HexagonCard from './components/HexagonCard';
 import bgImg from '../../assets/img/main-bg.png';
 import MainPurposeFilter from './components/filter/MainPurposeFilter';
 import MainPositionFilter from './components/filter/MainPositionFilter';
+import { useState } from 'react';
+import UserInfoModal from '../../layout/components/UserInfoModal';
 
 const cardPositions = [
   // 1
@@ -202,6 +204,7 @@ const dummyProjects = [
 ];
 
 const MainPage = () => {
+  const [openModal, setOpenModal] = useState(true);
   return (
     <div css={container(bgImg)}>
       <div css={text}>
@@ -219,6 +222,7 @@ const MainPage = () => {
           </div>
         ))}
       </div>
+      openModal && <UserInfoModal></UserInfoModal>
     </div>
   );
 };
