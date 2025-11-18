@@ -18,16 +18,23 @@ const colors = {
 
 const SignupPage = () => {
   const [nickname, setNickname] = useState('');
+  const [id, setId] = useState('');
   const [email, setEmail] = useState('');
   const [authCode, setAuthCode] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
 
   const [nicknameFormatError, setNicknameFormatError] = useState('');
+  const [idFormatError, setIdFormatError] = useState('');
+
   const [passwordFormatError, setPasswordFormatError] = useState('');
   const [passwordMatchError, setPasswordMatchError] = useState('');
 
   const [nicknameCheck, setNicknameCheck] = useState({
+    status: 'idle',
+    message: '',
+  });
+  const [idCheck, setIdCheck] = useState({
     status: 'idle',
     message: '',
   });
@@ -40,22 +47,27 @@ const SignupPage = () => {
   const navigate = useNavigate();
 
   const nicknameRegex = /^[a-zA-Z가-힣0-9]{2,10}$/;
-  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]).{8,20}$/;
+  const idRegex = /^[a-zA-Z가-힣0-9]{2,10}$/;
+  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}[\]:;<>,.?~\\-]).{8,20}$/;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (nicknameCheck.status !== 'available' || emailStatus.status !== 'success') {
-      alert('필수 항목(닉네임 중복 확인, 이메일 인증)을 완료해주세요.');
+    if (
+      nicknameCheck.status !== 'available' ||
+      idCheck.status !== 'available' ||
+      emailStatus.status !== 'success'
+    ) {
+      alert('필수 항목(닉네임 중복 확인, 아이디 중복 확인, 이메일 인증)을 완료해주세요.');
       return;
     }
 
-    if (nicknameFormatError || passwordFormatError || passwordMatchError) {
+    if (nicknameFormatError || idFormatError || passwordFormatError || passwordMatchError) {
       alert('입력 항목 중 오류가 있습니다. 확인해주세요.');
       return;
     }
 
-    if (!nickname || !email || !password || !passwordConfirm) {
+    if (!nickname || !id || !email || !password || !passwordConfirm) {
       alert('모든 항목을 입력해주세요.');
       return;
     }
@@ -72,7 +84,7 @@ const SignupPage = () => {
     }
   };
 
-  const handleCheckDuplicate = async () => {
+  const handleCheckNicknameDuplicate = async () => {
     if (nicknameFormatError) {
       alert('닉네임 형식을 확인해주세요. (2~10자, 한글/영어/숫자)');
       return;
@@ -84,7 +96,7 @@ const SignupPage = () => {
 
     setNicknameCheck({ status: 'checking', message: '확인 중...' });
     try {
-      await axios.get(`/api/check-nickname?nickname=${nickname}`);
+      await axios.get(`apiApi/api/check-nickname?nickname=${nickname}`);
       setNicknameCheck({
         status: 'available',
         message: '사용가능한 닉네임입니다.',
@@ -105,6 +117,39 @@ const SignupPage = () => {
     }
   };
 
+  const handleCheckIdDuplicate = async () => {
+    if (idFormatError) {
+      alert('아이디 형식을 확인해주세요. (2~10자, 한글/영어/숫자)');
+      return;
+    }
+    if (!id) {
+      alert('아이디를 입력해주세요.');
+      return;
+    }
+
+    setIdCheck({ status: 'checking', message: '확인 중...' });
+    try {
+      await axios.get(`/api/check-id?id=${id}`);
+      setIdCheck({
+        status: 'available',
+        message: '사용가능한 아이디입니다.',
+      });
+    } catch (error) {
+      console.error('Id check error:', error);
+      if (error.response?.status === 409) {
+        setIdCheck({
+          status: 'taken',
+          message: '이미 사용중인 아이디입니다.',
+        });
+      } else {
+        setIdCheck({
+          status: 'idle',
+          message: '오류가 발생했습니다. 다시 시도해주세요.',
+        });
+      }
+    }
+  };
+
   const handleNicknameChange = (e) => {
     const newNickname = e.target.value;
     setNickname(newNickname);
@@ -114,6 +159,18 @@ const SignupPage = () => {
       setNicknameFormatError('2~10자, 한글/영문/숫자만 사용 가능합니다.');
     } else {
       setNicknameFormatError('');
+    }
+  };
+
+  const handleIdChange = (e) => {
+    const newId = e.target.value;
+    setId(newId);
+    setIdCheck({ status: 'idle', message: '' });
+
+    if (newId && !idRegex.test(newId)) {
+      setIdFormatError('2~10자, 한글/영문/숫자만 사용 가능합니다.');
+    } else {
+      setIdFormatError('');
     }
   };
 
@@ -130,7 +187,7 @@ const SignupPage = () => {
     setEmailStatus({ status: 'sending', message: '인증번호 발송 중...' });
 
     try {
-      await axios.post('/api/send-auth-code', { email });
+      await axios.post('apiUrl/api/v1/auth/email/code', { email });
       setEmailStatus({
         status: 'sent',
         message: '인증번호가 발송되었습니다. 이메일을 확인해주세요.',
@@ -214,6 +271,38 @@ const SignupPage = () => {
           `}
         >
           <div css={fieldGroup}>
+            <label css={label} htmlFor="id">
+              아이디
+            </label>
+            <div css={inputWrap}>
+              <input
+                type="text"
+                id="id"
+                css={flexInput}
+                placeholder="2~10자, 한글/영어/숫자만 사용가능"
+                value={id}
+                onChange={handleIdChange}
+                maxLength={10}
+                disabled={isVerified}
+              />
+              <button
+                type="button"
+                css={sideBtn}
+                onClick={handleCheckIdDuplicate}
+                disabled={nicknameCheck.status === 'checking' || isVerified}
+              >
+                {idCheck.status === 'checking' ? '확인 중...' : '중복 확인'}
+              </button>
+            </div>
+            {idFormatError && (
+              <div css={[messageStyle('danger'), messageWrap]}>{idFormatError}</div>
+            )}
+            {nicknameCheck.message && (
+              <div css={[messageStyle(idCheck.status), messageWrap]}>{idCheck.message}</div>
+            )}
+          </div>
+
+          <div css={fieldGroup}>
             <label css={label} htmlFor="nickname">
               닉네임
             </label>
@@ -231,7 +320,7 @@ const SignupPage = () => {
               <button
                 type="button"
                 css={sideBtn}
-                onClick={handleCheckDuplicate}
+                onClick={handleCheckNicknameDuplicate}
                 disabled={nicknameCheck.status === 'checking' || isVerified}
               >
                 {nicknameCheck.status === 'checking' ? '확인 중...' : '중복 확인'}
@@ -361,6 +450,7 @@ const wrap = css`
   justify-content: center;
   font-family: 'nanumR', 'NanumSquareRound', sans-serif;
   color: ${colors.text};
+  background-color: #fffef9;
 `;
 
 const logo = css`
@@ -368,7 +458,8 @@ const logo = css`
   font-size: 70px;
   font-weight: 400;
   color: ${colors.text};
-  margin-bottom: 24px;
+  margin-bottom: 34px;
+  margin-top: 15px;
   width: 250px;
   height: 77px;
   display: flex;
@@ -383,7 +474,7 @@ const yellow = css`
 
 const formBox = css`
   width: 760px;
-  height: 780px;
+  height: 880px;
   max-width: 100%;
   padding: 40px 50px;
   background: ${colors.white};
@@ -395,7 +486,7 @@ const formBox = css`
 `;
 
 const title = css`
-  font-size: 32px;
+  font-size: 27px;
   font-family: 'nanumEB', 'NanumSquareRound', sans-serif;
   font-weight: 800;
   text-align: center;
@@ -412,7 +503,7 @@ const fieldGroup = css`
 
 const label = css`
   display: block;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
   margin-bottom: 8px;
   font-family: 'nanumEB', 'NanumSquareRound', sans-serif;
