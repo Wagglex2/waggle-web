@@ -2,27 +2,32 @@
 import { css } from '@emotion/react';
 import { colors } from '../../styles/theme';
 import { Link } from 'react-router-dom';
+import SearchIcon from '@mui/icons-material/Search';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
 const MainHeader = () => {
   return (
-    <div>
-      <div css={container}>
-        <Link to={'/'}>
-          <p css={logo}>와글와글</p>
+    <div css={container}>
+      <Link to={'/'}>
+        <p css={logo}>와글와글</p>
+      </Link>
+      <div css={searchBar}>
+        <button css={dropdownBtn}>
+          프로젝트
+          <ArrowDropDownIcon css={dropDownIcon} />
+        </button>
+        <input type="text" placeholder="카테고리 선택 후 검색어를 입력하세요" />
+        <SearchIcon className="search-icon" />
+      </div>
+      <div css={btnBox}>
+        <Link to={'/notification'}>
+          <button>알림</button>
         </Link>
-        <div css={searchBar}>
-          <button>프로젝트</button>
-          <input type="text" placeholder="검색어를 입력하세요" />
-        </div>
-        <div css={btnBox}>
-          <Link to={'/notification'}>
-            <button>알림</button>
-          </Link>
-          <Link to={'/my-page/profile'}>
-            <button>마이페이지</button>
-          </Link>
-          <button>로그아웃</button>
-        </div>
+        <Link to={'/my-page/profile'}>
+          <button>마이페이지</button>
+        </Link>
+        <button>로그아웃</button>
       </div>
     </div>
   );
@@ -57,25 +62,45 @@ const searchBar = css`
     border-radius: 30px;
     border: 1px solid ${colors.gray[100]};
     padding-left: 105px;
+    padding-right: 37px;
   }
 
-  button {
-    height: 32px;
-    width: 90px;
-    border-radius: 30px;
-    border: none;
-    background-color: ${colors.primary};
+  .search-icon {
     position: absolute;
-    bottom: 4px;
-    left: 4px;
+    right: 12px;
+    top: 8px;
+    color: ${colors.gray[400]};
 
-    padding-top: 2px;
-    padding-left: 15px;
-
-    font-size: 14px;
-    font-family: 'nanumB';
-    text-align: left;
+    &:hover {
+      color: #000000;
+    }
   }
+`;
+
+const dropdownBtn = css`
+  height: 32px;
+  width: 95px;
+  border-radius: 30px;
+  border: none;
+  background-color: ${colors.primary};
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+
+  padding-top: 2px;
+  padding-left: 10px;
+
+  font-size: 14px;
+  font-family: 'nanumB';
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const dropDownIcon = css`
+  float: right;
+  color: #3b3537;
 `;
 
 const btnBox = css`
@@ -87,5 +112,9 @@ const btnBox = css`
     font-size: 12px;
     border-radius: 10px;
     border: 1px solid ${colors.gray[100]};
+
+    &:hover {
+      background-color: #ffffff;
+    }
   }
 `;
