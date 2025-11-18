@@ -11,7 +11,7 @@ const Editor = ({ editorValue, onChangeEditorValue }) => {
     [{ align: [] }],
     [{ list: 'ordered' }, { list: 'bullet' }],
     [{ indent: '-1' }, { indent: '+1' }],
-    ['link', 'image'],
+    ['link'],
   ];
 
   return (
