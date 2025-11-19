@@ -2,7 +2,7 @@
 import { css } from "@emotion/react";
 import React, { useState } from "react";
 import { colors } from "@/styles/theme";
-import { SiTypescript, SiReact, SiFigma } from 'react-icons/si';
+import techIcons from "@/data/techIcons";
 
 const cardStyle = css`
   display: flex;
@@ -90,6 +90,34 @@ const techStackIconBoxStyle = css`
   top: 150px;
   left: 15px;
   right: 15px;
+
+  span {
+    font-family: 'nanumEB';
+    padding-top: 3px;
+    margin-left: 6px;
+    color: ${colors.gray[400]}; 
+    font-size: 14px;
+  }
+`;
+
+const iconContainerStyle = css`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fff;
+  margin-left: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  &:first-of-type {margin-left: 0;}
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 const dividerStyle = css`
@@ -130,17 +158,6 @@ const nicknameStyle = css`
   line-height: 1.4;
 `;
 
-const iconStyle = css`
-  width: 40px;
-  height: 40px;
-  background: #fff;
-  border-radius: 50%;
-  padding: 0.5px;
-  margin-left: -8px;
-  &:first-of-type {margin-left: 0;}
-  border: 1px solid #e0e0e0;
-`;
-
 const HeartIcon = ({ isLiked }) => (
   <svg
     width="24"
@@ -156,17 +173,9 @@ const HeartIcon = ({ isLiked }) => (
   </svg>
 );
 
-const getTechIcons = (tags) => {
-  const iconMap = {
-    'TypeScript': <SiTypescript key="ts" color="#3178C6" css={iconStyle} />,
-    'React': <SiReact key="react" color="#61DAFB" css={iconStyle} />,
-    'Figma': <SiFigma key="figma" color="#F24E1E" css={iconStyle} />,
-  };
-  return tags ? tags.map(tag => iconMap[tag]).filter(Boolean) : null;
-};
+const MAX_TECH_DISPLAY = 3; 
 
 export default function StudyCard({ project, onUnlike }) {
-  const techIcons = getTechIcons(project.techStack);
   const [internalLiked, setInternalLiked] = useState(false);
   const isSavedPage = onUnlike !== undefined;
   const isLiked = isSavedPage ? true : internalLiked;
@@ -179,6 +188,9 @@ export default function StudyCard({ project, onUnlike }) {
       setInternalLiked(!internalLiked);
     }
   };
+
+  const displayedTechs = project.techStack ? project.techStack.slice(0, MAX_TECH_DISPLAY) : [];
+  const hiddenTechCount = project.techStack ? project.techStack.length - MAX_TECH_DISPLAY : 0;
 
   return (
     <div css={cardStyle}>
@@ -195,7 +207,20 @@ export default function StudyCard({ project, onUnlike }) {
 
       {project.techStack && (
         <div css={techStackIconBoxStyle}>
-          {techIcons}
+          {displayedTechs.map((tech) => {
+            const iconPath = techIcons[tech];
+            if (!iconPath) return null;
+
+            return (
+               <div key={tech} css={iconContainerStyle}>
+                  <img src={iconPath} alt={tech} />
+               </div>
+            );
+          })}
+           
+          {hiddenTechCount > 0 && (
+            <span>+{hiddenTechCount}</span>
+          )}
         </div>
       )}
 
