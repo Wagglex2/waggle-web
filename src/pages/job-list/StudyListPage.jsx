@@ -8,8 +8,8 @@ import CardGrid from "@/components/layout/CardGrid";
 import Pagination from "@/components/common/Pagination";
 import StudyCard from "@/components/card/StudyCard";
 import EmptyStateMessage from "../../components/common/EmptyStateMessage";
-
 import { useDropdown } from "@/components/filter/useDropdown";
+
 import {
   dropDownButtonStyle,
   ArrowIcon,
@@ -21,23 +21,24 @@ import {
 import { techStackOptions as importedTechStackOptions } from "@/data/options";
 
 const techOptions = [...importedTechStackOptions];
+
 const dummyStudies = [
-  { id: 1, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-  { id: 2, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-  { id: 3, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-  { id: 4, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-  { id: 5, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-  { id: 6, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-  { id: 7, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-  { id: 8, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-  { id: 9, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-  { id: 10, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-  { id: 11, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-  { id: 12, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-  { id: 13, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-  { id: 14, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-  { id: 15, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
-  { id: 16, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TypeScript", "React", "Figma"], author: "솔랑솔랑" },
+  { id: 1, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 2, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 3, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["JAVA", "SPRINGBOOT"], author: "솔랑솔랑" },
+  { id: 4, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["NODEJS", "EXPRESS"], author: "솔랑솔랑" },
+  { id: 5, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["PYTHON", "DJANGO"], author: "솔랑솔랑" },
+  { id: 6, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["C", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 7, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["CSS", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 8, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["CPP", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 9, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["CS", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 10, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["HTML", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 11, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["VUE", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 12, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["NEXTJS", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 13, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 14, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 15, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 16, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
 ];
 
 export default function StudyListPage() {
@@ -57,7 +58,17 @@ export default function StudyListPage() {
 
   const filteredStudies = useMemo(() => {
     return dummyStudies.filter(study =>
-      selectedTechs.length === 0 || selectedTechs.every(tech => study.techStack.includes(tech))
+      selectedTechs.length === 0 || selectedTechs.every(selectedTech => {
+        const searchTerms = selectedTech.split('/');
+        return searchTerms.some(term => {
+           let normalized = term.toUpperCase().trim();
+           if (normalized === 'C++') normalized = 'CPP';
+           else if (normalized === 'C#') normalized = 'CS';
+           else if (normalized === 'VUE.JS' || normalized === 'VUEJS') normalized = 'VUE';
+           else normalized = normalized.replace(/[\s.]/g, '');
+           return study.techStack.includes(normalized);
+        });
+      })
     );
   }, [selectedTechs]);
 
