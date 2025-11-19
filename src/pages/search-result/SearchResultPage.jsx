@@ -11,6 +11,7 @@ import Pagination from "@/components/common/Pagination";
 import ProjectCard from "@/components/card/ProjectCard";
 import HwCard from "@/components/card/HwCard";
 import StudyCard from "@/components/card/StudyCard";
+import EmptyStateMessage from "@/components/common/EmptyStateMessage";
 import { useDropdown } from "@/components/filter/useDropdown";
 import {
   dropDownButtonStyle,
@@ -143,6 +144,7 @@ const dummyStudies = [
   },
 ];
 
+
 const categoryMap = {
   project: "프로젝트",
   homework: "과제",
@@ -203,6 +205,7 @@ export default function SearchResultPage() {
     setSelectedProjectPositions(prev => prev.includes(position) ? prev.filter(p => p !== position) : [...prev, position]);
     setCurrentPage(1);
   };
+
 
   const filteredData = useMemo(() => {
     let rawData;
@@ -362,19 +365,25 @@ export default function SearchResultPage() {
       <FilterBar>
         {renderFilters()}
       </FilterBar>
-      
-      <CardGrid
-        items={currentItems}
-        itemsPerPage={itemsPerPage}
-        renderCard={renderCard}
-      />
-      
-      {totalPages > 0 && (
-        <Pagination
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-        />
+  
+      {totalItems === 0 ? (
+        <EmptyStateMessage message="일치하는 결과가 없습니다." />
+      ) : (
+        <>
+          <CardGrid
+            items={currentItems}
+            itemsPerPage={itemsPerPage}
+            renderCard={renderCard}
+          />
+          
+          {totalPages > 0 && (
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </>
       )}
     </PageWrapper>
   );
