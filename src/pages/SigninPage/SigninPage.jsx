@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { colors } from "@/styles/theme";
 import BackgroundBlob from './assets/background-blob.png';
 import LogoBlob from './assets/logo-blob.png';
+import { useAuthStore } from "@/store/useAuthStore";
 
 const pageWrapperStyle = {
   position: 'relative',
@@ -158,22 +159,49 @@ function SigninPage() {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
+  const login = useAuthStore((state) => state.login);
 
-  const handleLogin = (event) => {
-    event.preventDefault(); 
-    
+  const handleLogin = async (event) => {
+    event.preventDefault();
+  
     if (id.trim() === '' || password.trim() === '') {
       setErrorMessage('아이디와 비밀번호를 모두 입력해주세요.');
       return;
     }
 
-    if (id !== 'admin' || password !== '1234') {
-      setErrorMessage('아이디 또는 비밀번호가 일치하지 않습니다.');
-      return;
-    }
+    try {
+      const response = await fetch('http://3.34.53.87:8080/api/v1/auth/sign-in', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: id,
+          password: password,
+        }),
+      });
 
-    setErrorMessage('');
-    navigate('/');
+      if (response.ok) {
+        const accessToken = response.headers.get('Authorization');
+        
+        if (accessToken) {
+          login(accessToken);
+          
+          console.log("로그인 성공!! 토큰:", accessToken);
+          setErrorMessage('');
+          navigate('/'); 
+        } else {
+          console.error("토큰을 찾을 수 없습니다.");
+          setErrorMessage('로그인에 성공했으나 인증 정보를 불러오지 못했습니다.');
+        }
+      } else {
+        const errorData = await response.json();
+        setErrorMessage(errorData.message || '아이디 또는 비밀번호가 일치하지 않습니다.');
+      }
+    } catch (error) {
+      console.error('Login Error:', error);
+      setErrorMessage('서버 연결에 실패했습니다.');
+    }
   };
 
   return (
