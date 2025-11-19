@@ -238,6 +238,7 @@ export default function ProjectListPage() {
             let normalized = term.toUpperCase().trim();
             if (normalized === 'C++') normalized = 'CPP';
             else if (normalized === 'C#') normalized = 'CS';
+            else if (normalized === 'VUE.JS' || normalized === 'VUEJS') normalized = 'VUE';
             else {
                 normalized = normalized.replace(/[\s.]/g, ''); 
             }
