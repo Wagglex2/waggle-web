@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { colors } from "@/styles/theme";
 import BackgroundBlob from './assets/background-blob.png';
 import LogoBlob from './assets/logo-blob.png';
-import { useAuthStore } from "@/store/useAuthStore";
+import useAuthStore from "@/stores/useAuthStore";
 
 const pageWrapperStyle = {
   position: 'relative',
