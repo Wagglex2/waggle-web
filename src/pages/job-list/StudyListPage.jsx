@@ -58,7 +58,7 @@ export default function StudyListPage() {
 
   const filteredStudies = useMemo(() => {
     return dummyStudies.filter(study =>
-      selectedTechs.length === 0 || selectedTechs.every(selectedTech => {
+      selectedTechs.length === 0 || selectedTechs.some(selectedTech => {
         const searchTerms = selectedTech.split('/');
         return searchTerms.some(term => {
            let normalized = term.toUpperCase().trim();

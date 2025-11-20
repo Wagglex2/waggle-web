@@ -53,43 +53,164 @@ const gradeOptions = ["전체", "1학년", "2학년", "3학년", "4학년 이상
 const dummyProjects = [
   {
     id: 1,
-    purposeTag: "공모전",
-    methodTag: "온/오프라인",
-    deadline: "2025.12.15까지",
-    title: "웹 어쩌구저쩌구 함께할 팀원 구합니다.",
-    positions: ["기획", "디자인"],
-    techStack: ["TypeScript", "React", "Figma"],
-    author: "솔랑솔랑",
+    purposeTag: '공모전',
+    methodTag: '온/오프라인',
+    deadline: '2025.12.15까지',
+    title: '웹 어쩌구저쩌구 함께할 팀원 구합니다.',
+    positions: ['기획', '디자인'],
+    techStack: ['TYPESCRIPT', 'REACT', 'FIGMA'],
+    author: '솔랑솔랑',
   },
   {
     id: 2,
-    purposeTag: "사이드프로젝트",
-    methodTag: "오프라인",
-    deadline: "2025.12.15까지",
-    title: "웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다 웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다",
-    positions: ["기획", "디자인", "프론트엔드"],
-    techStack: ["TypeScript", "React", "Figma"],
-    author: "솔랑솔랑",
+    purposeTag: '사이드프로젝트',
+    methodTag: '오프라인',
+    deadline: '2025.12.15까지',
+    title:
+      '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다 웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다',
+    positions: ['기획', '디자인', '프론트엔드'],
+    techStack: ['JAVASCRIPT', 'NEXTJS', 'NOTION'],
+    author: '솔랑솔랑',
   },
   {
     id: 3,
-    purposeTag: "해커톤",
-    methodTag: "온라인",
-    deadline: "2025.12.15까지",
-    title: "웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.",
-    positions: ["기획", "디자인", "프론트엔드", "백엔드"],
-    techStack: ["TypeScript", "React", "Figma"],
-    author: "솔랑솔랑",
+    purposeTag: '해커톤',
+    methodTag: '온라인',
+    deadline: '2025.12.15까지',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
+    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
+    techStack: ['JAVA', 'SPRINGBOOT', 'MYSQL'],
+    author: '솔랑솔랑',
   },
   {
     id: 4,
-    purposeTag: "토이프로젝트",
-    methodTag: "온라인",
-    deadline: "2025.12.15까지",
-    title: "웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.",
-    positions: ["기획", "디자인", "프론트엔드", "백엔드"],
-    techStack: ["TypeScript", "React", "Figma"],
-    author: "솔랑솔랑",
+    purposeTag: '토이프로젝트',
+    methodTag: '온라인',
+    deadline: '2025.12.15까지',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
+    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
+    techStack: ['CS', 'UNITY'],
+    author: '솔랑솔랑',
+  },
+  {
+    id: 5,
+    purposeTag: '공모전',
+    methodTag: '온/오프라인',
+    deadline: '2025.12.15까지',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
+    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
+    techStack: ['PYTHON', 'DJANGO', 'POSTGRESQL'],
+    author: '솔랑솔랑',
+  },
+  {
+    id: 6,
+    purposeTag: '사이드프로젝트',
+    methodTag: '오프라인',
+    deadline: '2025.12.15까지',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
+    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
+    techStack: ['KOTLIN', 'SPRINGBOOT', 'MYSQL', 'SWIFT', 'NODEJS'],
+    author: '솔랑솔랑',
+  },
+  {
+    id: 7,
+    purposeTag: '사이드프로젝트',
+    methodTag: '오프라인',
+    deadline: '2025.12.15까지',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
+    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
+    techStack: ['SWIFT', 'NODEJS'],
+    author: '솔랑솔랑',
+  },
+  {
+    id: 8,
+    purposeTag: '사이드프로젝트',
+    methodTag: '온/오프라인',
+    deadline: '2025.12.15까지',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
+    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
+    techStack: ['C', 'UNREAL'],
+    author: '솔랑솔랑',
+  },
+  {
+    id: 9,
+    purposeTag: '사이드프로젝트',
+    methodTag: '오프라인',
+    deadline: '2025.12.15까지',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
+    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
+    techStack: ['EXPRESS', 'MONGODB'],
+    author: '솔랑솔랑',
+  },
+  {
+    id: 10,
+    purposeTag: '사이드프로젝트',
+    methodTag: '오프라인',
+    deadline: '2025.12.15까지',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
+    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
+    techStack: ['SCIKITLEARN', 'PANDAS', 'TENSORFLOW', 'PYTORCH'],
+    author: '솔랑솔랑',
+  },
+  {
+    id: 11,
+    purposeTag: '사이드프로젝트',
+    methodTag: '오프라인',
+    deadline: '2025.12.15까지',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
+    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
+    techStack: ['TENSORFLOW', 'PYTORCH'],
+    author: '솔랑솔랑',
+  },
+  {
+    id: 12,
+    purposeTag: '사이드프로젝트',
+    methodTag: '오프라인',
+    deadline: '2025.12.15까지',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
+    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
+    techStack: ['FLUTTER', 'FIGMA'],
+    author: '솔랑솔랑',
+  },
+  {
+    id: 13,
+    purposeTag: '사이드프로젝트',
+    methodTag: '오프라인',
+    deadline: '2025.12.15까지',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
+    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
+    techStack: ['HTML', 'VUE'],
+    author: '솔랑솔랑',
+  },
+  {
+    id: 14,
+    purposeTag: '사이드프로젝트',
+    methodTag: '오프라인',
+    deadline: '2025.12.15까지',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
+    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
+    techStack: ['GIT', 'GITHUBACTIONS'],
+    author: '솔랑솔랑',
+  },
+  {
+    id: 15,
+    purposeTag: '사이드프로젝트',
+    methodTag: '오프라인',
+    deadline: '2025.12.15까지',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
+    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
+    techStack: ['REDIS', 'DOCKER'],
+    author: '솔랑솔랑',
+  },
+  {
+    id: 16,
+    purposeTag: '사이드프로젝트',
+    methodTag: '오프라인',
+    deadline: '2025.12.15까지',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
+    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
+    techStack: ['JIRA', 'NOTION'],
+    author: '솔랑솔랑',
   },
 ];
 
@@ -125,23 +246,24 @@ const dummyHws = [
   },
 ];
 
+
 const dummyStudies = [
-  { 
-    id: 1, 
-    purposeTag: "스터디", 
-    deadline: "2025.12.15까지", 
-    title: "공부하자공부하자공부하자공부하자공부하자", 
-    techStack: ["TypeScript", "React", "Figma"], 
-    author: "솔랑솔랑" 
-  },
-  { 
-    id: 2, 
-    purposeTag: "스터디", 
-    deadline: "2025.12.15까지", 
-    title: "공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자", 
-    techStack: ["TypeScript", "React", "Figma"], 
-    author: "솔랑솔랑" 
-  },
+  { id: 1, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 2, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 3, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["JAVA", "SPRINGBOOT"], author: "솔랑솔랑" },
+  { id: 4, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["NODEJS", "EXPRESS"], author: "솔랑솔랑" },
+  { id: 5, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["PYTHON", "DJANGO"], author: "솔랑솔랑" },
+  { id: 6, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["C", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 7, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["CSS", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 8, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["CPP", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 9, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["CS", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 10, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["HTML", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 11, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["VUE", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 12, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["NEXTJS", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 13, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 14, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 15, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
+  { id: 16, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
 ];
 
 
@@ -227,13 +349,37 @@ export default function SearchResultPage() {
         break;
       case 'study':
         filtered = filtered.filter(study =>
-          selectedStudyTechs.length === 0 || selectedStudyTechs.every(tech => study.techStack.includes(tech))
+          selectedStudyTechs.length === 0 || selectedStudyTechs.some(selectedTech => {
+             const searchTerms = selectedTech.split('/');
+             return searchTerms.some(term => {
+                let normalized = term.toUpperCase().trim();
+                if (normalized === 'C++') normalized = 'CPP';
+                else if (normalized === 'C#') normalized = 'CS';
+                else if (normalized === 'VUE.JS' || normalized === 'VUEJS') normalized = 'VUE';
+                else normalized = normalized.replace(/[\s.]/g, '');
+                
+                return study.techStack.includes(normalized);
+             });
+          })
         );
         break;
       case 'project':
         filtered = filtered.filter(project => {
           const purposeMatch = !hasSelectedProjectPurpose || selectedProjectPurpose === '전체' || project.purposeTag === selectedProjectPurpose;
-          const techMatch = selectedProjectTechs.length === 0 || selectedProjectTechs.every(tech => project.techStack.includes(tech));
+
+          const techMatch = selectedProjectTechs.length === 0 || selectedProjectTechs.some(selectedTech => {
+             const searchTerms = selectedTech.split('/');
+             return searchTerms.some(term => {
+                let normalized = term.toUpperCase().trim();
+                if (normalized === 'C++') normalized = 'CPP';
+                else if (normalized === 'C#') normalized = 'CS';
+                else if (normalized === 'VUE.JS' || normalized === 'VUEJS') normalized = 'VUE';
+                else normalized = normalized.replace(/[\s.]/g, '');
+
+                return project.techStack.includes(normalized);
+             });
+          });
+
           const positionMatch = selectedProjectPositions.length === 0 || selectedProjectPositions.some(pos => project.positions.includes(pos));
           return purposeMatch && techMatch && positionMatch;
         });

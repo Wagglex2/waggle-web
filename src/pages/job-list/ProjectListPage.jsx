@@ -232,7 +232,8 @@ export default function ProjectListPage() {
   const filteredProjects = useMemo(() => {
     return dummyProjects.filter(project => {
       const purposeMatch = !hasSelectedPurpose || selectedPurpose === '전체' || project.purposeTag === selectedPurpose;
-      const techMatch = selectedTechs.length === 0 || selectedTechs.every(selectedTech => {
+      
+      const techMatch = selectedTechs.length === 0 || selectedTechs.some(selectedTech => {
         const searchTerms = selectedTech.split('/');
         return searchTerms.some(term => {
             let normalized = term.toUpperCase().trim();
@@ -246,6 +247,7 @@ export default function ProjectListPage() {
             return project.techStack.includes(normalized);
         });
       });
+      
       const positionMatch = selectedPositions.length === 0 || selectedPositions.some(pos => project.positions.includes(pos));
       return purposeMatch && techMatch && positionMatch;
     });
