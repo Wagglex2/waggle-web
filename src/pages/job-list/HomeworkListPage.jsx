@@ -1,15 +1,16 @@
 /** @jsxRuntime automatic */
 /** @jsxImportSource @emotion/react */
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import PageWrapper from "@/components/layout/PageWrapper";
 import PageHeader from "@/components/layout/PageHeader";
 import FilterBar from "@/components/layout/FilterBar";
 import CardGrid from "@/components/layout/CardGrid";
 import Pagination from "@/components/common/Pagination";
 import HwCard from "@/components/card/HwCard";
-import EmptyStateMessage from "../../components/common/EmptyStateMessage";
-
+import EmptyStateMessage from "@/components/common/EmptyStateMessage"; 
 import { useDropdown } from "@/components/filter/useDropdown";
+import useHomeworkStore from "@/stores/useHomeworkStore";
+
 import {
   dropDownButtonStyle,
   ArrowIcon,
@@ -19,6 +20,7 @@ import {
 } from "@/components/filter/dropdownStyles";
 
 const gradeOptions = ["전체", "1학년", "2학년", "3학년", "4학년 이상"];
+
 const dummyHws = [
   { id: 1, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
   { id: 2, grade: "2학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
@@ -40,20 +42,23 @@ const dummyHws = [
 export default function HwListPage() {
   const itemsPerPage = 9;
   const { openDropdown, setOpenDropdown, dropdownRefs } = useDropdown();
-  const [selectedGrade, setSelectedGrade] = useState("전체");
-  const [hasSelectedGrade, setHasSelectedGrade] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  
+  const {
+    selectedGrade,
+    hasSelectedGrade,
+    currentPage,
+    setGrade,
+    setPage,
+    reset
+  } = useHomeworkStore();
+
+  useEffect(() => {
+    return () => reset();
+  }, [reset]);
 
   const handleGradeSelect = (grade) => {
-    if (hasSelectedGrade && selectedGrade === grade) {
-      setSelectedGrade("전체");
-      setHasSelectedGrade(false);
-    } else {
-      setSelectedGrade(grade);
-      setHasSelectedGrade(true);
-    }
+    setGrade(grade);
     setOpenDropdown(null);
-    setCurrentPage(1);
   };
 
   const filteredHws = useMemo(() => {
@@ -64,10 +69,12 @@ export default function HwListPage() {
 
   const totalItems = filteredHws.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+  
   const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+    setPage(pageNumber);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = filteredHws.slice(startIndex, startIndex + itemsPerPage);
 
@@ -92,6 +99,7 @@ export default function HwListPage() {
           )}
         </div>
       </FilterBar>
+
       {dummyHws.length === 0 ? (
         <EmptyStateMessage message="등록된 과제가 없습니다." />
       ) : totalItems === 0 ? (
