@@ -1,14 +1,15 @@
 /** @jsxRuntime automatic */
 /** @jsxImportSource @emotion/react */
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import PageWrapper from "@/components/layout/PageWrapper";
 import PageHeader from "@/components/layout/PageHeader";
 import FilterBar from "@/components/layout/FilterBar";
 import CardGrid from "@/components/layout/CardGrid";
 import Pagination from "@/components/common/Pagination";
 import ProjectCard from "@/components/card/ProjectCard";
-import EmptyStateMessage from "../../components/common/EmptyStateMessage";
+import EmptyStateMessage from "@/components/common/EmptyStateMessage"; 
 import { useDropdown } from "@/components/filter/useDropdown";
+import useProjectStore from "@/stores/useProjectStore";
 
 import {
   dropDownButtonStyle,
@@ -46,8 +47,7 @@ const dummyProjects = [
     purposeTag: '사이드프로젝트',
     methodTag: '오프라인',
     deadline: '2025.12.15까지',
-    title:
-      '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다 웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
     positions: ['기획', '디자인', '프론트엔드'],
     techStack: ['JAVASCRIPT', 'NEXTJS', 'NOTION'],
     author: '솔랑솔랑',
@@ -197,40 +197,32 @@ const dummyProjects = [
 export default function ProjectListPage() {
   const itemsPerPage = 9;
   const { openDropdown, setOpenDropdown, dropdownRefs } = useDropdown();
-  const [selectedPurpose, setSelectedPurpose] = useState("전체");
-  const [hasSelectedPurpose, setHasSelectedPurpose] = useState(false);
-  const [selectedTechs, setSelectedTechs] = useState([]);
-  const [selectedPositions, setSelectedPositions] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
 
-  const handlePurposeSelect = (purpose) => {
-    if (hasSelectedPurpose && selectedPurpose === purpose) {
-      setSelectedPurpose("전체");
-      setHasSelectedPurpose(false);
-    } else {
-      setSelectedPurpose(purpose);
-      setHasSelectedPurpose(true);
-    }
+  const {
+    selectedPurpose,
+    hasSelectedPurpose,
+    selectedTechs,
+    selectedPositions,
+    currentPage,
+    setPurpose,
+    toggleTech,
+    togglePosition,
+    setPage,
+    reset
+  } = useProjectStore();
+
+  useEffect(() => {
+    return () => reset();
+  }, [reset]);
+
+  const handlePurposeClick = (option) => {
+    setPurpose(option);
     setOpenDropdown(null);
-    setCurrentPage(1);
-  };
-
-  const handleTechSelect = (tech) => {
-    setSelectedTechs(prev =>
-      prev.includes(tech) ? prev.filter(t => t !== tech) : [...prev, tech]
-    );
-    setCurrentPage(1);
-  };
-
-  const handlePositionSelect = (position) => {
-    setSelectedPositions(prev =>
-      prev.includes(position) ? prev.filter(p => p !== position) : [...prev, position]
-    );
-    setCurrentPage(1);
   };
 
   const filteredProjects = useMemo(() => {
     return dummyProjects.filter(project => {
+
       const purposeMatch = !hasSelectedPurpose || selectedPurpose === '전체' || project.purposeTag === selectedPurpose;
       
       const techMatch = selectedTechs.length === 0 || selectedTechs.some(selectedTech => {
@@ -243,22 +235,24 @@ export default function ProjectListPage() {
             else {
                 normalized = normalized.replace(/[\s.]/g, ''); 
             }
-
             return project.techStack.includes(normalized);
         });
       });
-      
+
       const positionMatch = selectedPositions.length === 0 || selectedPositions.some(pos => project.positions.includes(pos));
+      
       return purposeMatch && techMatch && positionMatch;
     });
   }, [selectedPurpose, selectedTechs, selectedPositions, hasSelectedPurpose]);
 
   const totalItems = filteredProjects.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+  
   const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+    setPage(pageNumber);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = filteredProjects.slice(startIndex, startIndex + itemsPerPage);
 
@@ -274,7 +268,7 @@ export default function ProjectListPage() {
           {openDropdown === 'purpose' && (
             <ul css={dropDownMenuStyle}>
               {purposeOptions.map(option => (
-                <li key={option} css={dropDownMenuItemStyle(selectedPurpose === option, false)} onClick={() => handlePurposeSelect(option)}>
+                <li key={option} css={dropDownMenuItemStyle(selectedPurpose === option, false)} onClick={() => handlePurposeClick(option)}>
                   {option}
                 </li>
               ))}
@@ -290,7 +284,7 @@ export default function ProjectListPage() {
           {openDropdown === 'tech' && (
             <ul css={techDropDownMenuStyle}>
               {techOptions.map(option => (
-                <li key={option} css={dropDownMenuItemStyle(selectedTechs.includes(option), true)} onClick={() => handleTechSelect(option)}>
+                <li key={option} css={dropDownMenuItemStyle(selectedTechs.includes(option), true)} onClick={() => toggleTech(option)}>
                   <input type="checkbox" css={customCheckboxStyle} checked={selectedTechs.includes(option)} readOnly />
                   <label>{option}</label>
                 </li>
@@ -307,7 +301,7 @@ export default function ProjectListPage() {
           {openDropdown === 'position' && (
             <ul css={dropDownMenuStyle}> 
               {positionOptions.map(option => (
-                <li key={option} css={dropDownMenuItemStyle(selectedPositions.includes(option), false)} onClick={() => handlePositionSelect(option)}>
+                <li key={option} css={dropDownMenuItemStyle(selectedPositions.includes(option), false)} onClick={() => togglePosition(option)}>
                   {option}
                 </li>
               ))}
