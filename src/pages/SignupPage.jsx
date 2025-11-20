@@ -26,6 +26,7 @@ const SignupPage = () => {
 
   const [nicknameFormatError, setNicknameFormatError] = useState('');
   const [idFormatError, setIdFormatError] = useState('');
+  const [emailFormatError, setEmailFormatError] = useState('');
 
   const [passwordFormatError, setPasswordFormatError] = useState('');
   const [passwordMatchError, setPasswordMatchError] = useState('');
@@ -48,6 +49,7 @@ const SignupPage = () => {
 
   const nicknameRegex = /^[a-zA-Z가-힣0-9]{2,10}$/;
   const idRegex = /^[a-zA-Z0-9]{4,10}$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}[\]:;<>,.?~\\-]).{8,20}$/;
 
   const handleSubmit = async (e) => {
@@ -62,7 +64,13 @@ const SignupPage = () => {
       return;
     }
 
-    if (nicknameFormatError || idFormatError || passwordFormatError || passwordMatchError) {
+    if (
+      nicknameFormatError ||
+      idFormatError ||
+      emailFormatError ||
+      passwordFormatError ||
+      passwordMatchError
+    ) {
       alert('입력 항목 중 오류가 있습니다. 확인해주세요.');
       return;
     }
@@ -73,13 +81,36 @@ const SignupPage = () => {
     }
 
     try {
-      const payload = { id, nickname, email, password };
-      await axios.post('/api/signup', payload);
+      const payload = {
+        username: id,
+        password: password,
+        nickname: nickname,
+        email: email,
+      };
 
-      alert('회원가입이 완료되었습니다.');
-      navigate('/login');
+      const response = await axios.post('/api/v1/auth/sign-up', payload);
+
+      alert(response.data.message || '회원가입이 완료되었습니다.');
+      navigate('/signin');
     } catch (error) {
       console.error('Signup error:', error);
+
+      if (error.response?.status === 400) {
+        const errorMessage =
+          error.response.data.errors?.[0]?.message ||
+          error.response.data.message ||
+          '입력 정보가 유효하지 않습니다.';
+        alert(errorMessage);
+        return;
+      }
+
+      if (error.response?.status === 409) {
+        alert(
+          error.response.data.message || '이미 사용 중인 정보(아이디/닉네임/이메일)가 있습니다.'
+        );
+        return;
+      }
+
       alert(error.response?.data?.message || '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };
@@ -96,13 +127,31 @@ const SignupPage = () => {
 
     setNicknameCheck({ status: 'checking', message: '확인 중...' });
     try {
-      await axios.get(`/api/check-nickname?nickname=${nickname}`);
-      setNicknameCheck({
-        status: 'available',
-        message: '사용가능한 닉네임입니다.',
-      });
+      const response = await axios.get(`/api/v1/users/nickname/check?nickname=${nickname}`);
+
+      if (response.data.data === true) {
+        setNicknameCheck({
+          status: 'available',
+          message: '사용가능한 닉네임입니다.',
+        });
+      } else {
+        setNicknameCheck({
+          status: 'taken',
+          message: '이미 사용중인 닉네임입니다.',
+        });
+      }
     } catch (error) {
       console.error('Nickname check error:', error);
+
+      if (error.response?.status === 400) {
+        const errorMessage =
+          error.response.data.errors?.[0]?.message || '닉네임 형식이 잘못되었습니다.';
+        setNicknameFormatError(errorMessage);
+        setNicknameCheck({ status: 'idle', message: '' });
+        alert(errorMessage);
+        return;
+      }
+
       if (error.response?.status === 409) {
         setNicknameCheck({
           status: 'taken',
@@ -111,7 +160,7 @@ const SignupPage = () => {
       } else {
         setNicknameCheck({
           status: 'idle',
-          message: '오류가 발생했습니다. 다시 시도해주세요.',
+          message: error.response?.data?.message || '오류가 발생했습니다. 다시 시도해주세요.',
         });
       }
     }
@@ -193,28 +242,54 @@ const SignupPage = () => {
   };
 
   const handleEmailChange = (e) => {
-    setEmail(e.target.value);
+    const newEmail = e.target.value;
+    setEmail(newEmail);
     setEmailStatus({ status: 'idle', message: '' });
+
+    if (newEmail && !emailRegex.test(newEmail)) {
+      setEmailFormatError('유효한 이메일 형식이 아닙니다.');
+    } else {
+      setEmailFormatError('');
+    }
   };
 
   const handleGetAuthCode = async () => {
-    if (!email) {
-      alert('이메일을 입력해주세요.');
+    if (!email || emailFormatError) {
+      alert('이메일 주소를 정확히 입력해주세요.');
       return;
     }
-    setEmailStatus({ status: 'sending', message: '인증번호 발송 중...' });
+
+    setEmailStatus({ status: 'checking_dup', message: '이메일 중복 확인 중...' });
 
     try {
-      await axios.post('/api/v1/auth/email/code', { email });
+      const checkResponse = await axios.get(`/api/v1/users/email/check?email=${email}`);
+
+      if (checkResponse.data.data === false) {
+        setEmailStatus({ status: 'error', message: '이미 사용 중인 이메일 주소입니다.' });
+        return;
+      }
+
+      setEmailStatus({ status: 'sending', message: '인증번호 발송 중...' });
+      const sendResponse = await axios.post('/api/v1/auth/email/code', { email });
+
       setEmailStatus({
         status: 'sent',
-        message: '인증번호가 발송되었습니다. 이메일을 확인해주세요.',
+        message: sendResponse.data.message || '인증번호가 발송되었습니다. 이메일을 확인해주세요.',
       });
     } catch (error) {
-      console.error('Send auth code error:', error);
+      console.error('Email process error:', error);
+
+      if (error.response?.status === 400) {
+        const errorMessage =
+          error.response.data.errors?.[0]?.message || '이메일 형식이 잘못되었습니다.';
+        alert(errorMessage);
+        setEmailStatus({ status: 'idle', message: '' });
+        return;
+      }
+
       setEmailStatus({
         status: 'idle',
-        message: error.response?.data?.message || '인증번호 발송에 실패했습니다.',
+        message: error.response?.data?.message || '처리 중 오류가 발생했습니다. 다시 시도해주세요.',
       });
     }
   };
@@ -231,13 +306,33 @@ const SignupPage = () => {
     }));
 
     try {
-      await axios.post('/api/confirm-auth-code', { email, authCode });
-      setEmailStatus({ status: 'success', message: '인증되었습니다.' });
+      const response = await axios.post('/api/v1/auth/email/verify', {
+        email: email,
+        inputCode: authCode,
+      });
+
+      setEmailStatus({
+        status: 'success',
+        message: response.data.message || '인증되었습니다.',
+      });
     } catch (error) {
       console.error('Confirm auth code error:', error);
+
+      if (error.response?.status === 400) {
+        const errorMessage =
+          error.response.data.errors?.[0]?.message ||
+          error.response.data.message ||
+          '인증번호가 일치하지 않거나 만료되었습니다.';
+        setEmailStatus({
+          status: 'error',
+          message: errorMessage,
+        });
+        return;
+      }
+
       setEmailStatus({
         status: 'error',
-        message: error.response?.data?.message || '인증번호가 일치하지 않습니다.',
+        message: error.response?.data?.message || '인증 중 오류가 발생했습니다. 다시 시도해주세요.',
       });
     }
   };
@@ -375,11 +470,22 @@ const SignupPage = () => {
                 type="button"
                 css={sideBtn}
                 onClick={handleGetAuthCode}
-                disabled={emailStatus.status === 'sending' || isVerified}
+                disabled={
+                  emailStatus.status === 'sending' ||
+                  emailStatus.status === 'checking_dup' ||
+                  isVerified
+                }
               >
-                {emailStatus.status === 'sending' ? '전송 중...' : '인증 번호 받기'}
+                {emailStatus.status === 'sending'
+                  ? '전송 중...'
+                  : emailStatus.status === 'checking_dup'
+                    ? '확인 중...'
+                    : '인증 번호 받기'}
               </button>
             </div>
+            {emailFormatError && (
+              <div css={[messageStyle('danger'), messageWrap]}>{emailFormatError}</div>
+            )}
             <div css={[inputWrap, { marginTop: '8px' }]}>
               <input
                 type="text"
@@ -632,12 +738,10 @@ const messageStyle = (status) => css`
   font-size: 13px;
   margin-top: 8px;
   padding-left: 4px;
-  color: ${status === 'available'
+  color: ${status === 'available' || status === 'success'
     ? colors.success
-    : status === 'taken'
+    : status === 'taken' || status === 'danger' || status === 'error'
       ? colors.danger
-      : status === 'danger'
-        ? colors.danger
-        : colors.muted};
+      : colors.muted};
   font-family: 'nanumB', 'NanumSquareRound', sans-serif;
 `;
