@@ -2,10 +2,10 @@
 /** @jsxImportSource @emotion/react */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { colors } from "@/styles/theme";
+import { colors } from '@/styles/theme';
 import BackgroundBlob from './assets/background-blob.png';
 import LogoBlob from './assets/logo-blob.png';
-import useAuthStore from "@/stores/useAuthStore";
+import useAuthStore from '@/stores/useAuthStore';
 
 const pageWrapperStyle = {
   position: 'relative',
@@ -161,16 +161,18 @@ function SigninPage() {
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
 
+  const apiKey = import.meta.env.VITE_API_KEY;
+
   const handleLogin = async (event) => {
     event.preventDefault();
-  
+
     if (id.trim() === '' || password.trim() === '') {
       setErrorMessage('아이디와 비밀번호를 모두 입력해주세요.');
       return;
     }
 
     try {
-      const response = await fetch('http://3.34.53.87:8080/api/v1/auth/sign-in', {
+      const response = await fetch(`${apiKey}/api/v1/auth/sign-in`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -183,15 +185,15 @@ function SigninPage() {
 
       if (response.ok) {
         const accessToken = response.headers.get('Authorization');
-        
+
         if (accessToken) {
           login(accessToken);
-          
-          console.log("로그인 성공!! 토큰:", accessToken);
+
+          console.log('로그인 성공!! 토큰:', accessToken);
           setErrorMessage('');
-          navigate('/'); 
+          navigate('/');
         } else {
-          console.error("토큰을 찾을 수 없습니다.");
+          console.error('토큰을 찾을 수 없습니다.');
           setErrorMessage('로그인에 성공했으나 인증 정보를 불러오지 못했습니다.');
         }
       } else {
@@ -212,8 +214,8 @@ function SigninPage() {
           alt="Background"
           css={{
             position: 'absolute',
-            top: '-10vh', 
-            left: '-10vw', 
+            top: '-10vh',
+            left: '-10vw',
             width: '800px',
             height: '1000px',
             zIndex: 1,
@@ -251,13 +253,9 @@ function SigninPage() {
                 />
               </div>
 
-              <p css={errorStyle}>
-                {errorMessage}
-              </p>
+              <p css={errorStyle}>{errorMessage}</p>
 
-              <button css={loginButtonStyle}>
-                로그인 하기
-              </button>
+              <button css={loginButtonStyle}>로그인 하기</button>
               <a css={signupLinkStyle}>회원가입</a>
             </form>
 
@@ -278,7 +276,7 @@ function SigninPage() {
                 css={{
                   display: 'flex',
                   flexDirection: 'column',
-                  alignItems: 'center', 
+                  alignItems: 'center',
                   marginLeft: '-150px',
                   position: 'relative',
                   zIndex: 2,
