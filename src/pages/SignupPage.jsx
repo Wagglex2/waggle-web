@@ -47,7 +47,7 @@ const SignupPage = () => {
   const navigate = useNavigate();
 
   const nicknameRegex = /^[a-zA-Z가-힣0-9]{2,10}$/;
-  const idRegex = /^[a-zA-Z가-힣0-9]{2,10}$/;
+  const idRegex = /^[a-zA-Z0-9]{4,10}$/;
   const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}[\]:;<>,.?~\\-]).{8,20}$/;
 
   const handleSubmit = async (e) => {
@@ -73,7 +73,7 @@ const SignupPage = () => {
     }
 
     try {
-      const payload = { nickname, email, password };
+      const payload = { id, nickname, email, password };
       await axios.post('/api/signup', payload);
 
       alert('회원가입이 완료되었습니다.');
@@ -96,7 +96,7 @@ const SignupPage = () => {
 
     setNicknameCheck({ status: 'checking', message: '확인 중...' });
     try {
-      await axios.get(`apiApi/api/check-nickname?nickname=${nickname}`);
+      await axios.get(`/api/check-nickname?nickname=${nickname}`);
       setNicknameCheck({
         status: 'available',
         message: '사용가능한 닉네임입니다.',
@@ -119,7 +119,7 @@ const SignupPage = () => {
 
   const handleCheckIdDuplicate = async () => {
     if (idFormatError) {
-      alert('아이디 형식을 확인해주세요. (2~10자, 한글/영어/숫자)');
+      alert('아이디 형식을 확인해주세요. (4~10자, 영어/숫자)');
       return;
     }
     if (!id) {
@@ -129,13 +129,31 @@ const SignupPage = () => {
 
     setIdCheck({ status: 'checking', message: '확인 중...' });
     try {
-      await axios.get(`/api/check-id?id=${id}`);
-      setIdCheck({
-        status: 'available',
-        message: '사용가능한 아이디입니다.',
-      });
+      const response = await axios.get(`/api/v1/users/username/check?username=${id}`);
+
+      if (response.data.data === true) {
+        setIdCheck({
+          status: 'available',
+          message: '사용가능한 아이디입니다.',
+        });
+      } else {
+        setIdCheck({
+          status: 'taken',
+          message: '이미 사용중인 아이디입니다.',
+        });
+      }
     } catch (error) {
       console.error('Id check error:', error);
+
+      if (error.response?.status === 400) {
+        const errorMessage =
+          error.response.data.errors?.[0]?.message || '아이디 형식이 잘못되었습니다.';
+        setIdFormatError(errorMessage);
+        setIdCheck({ status: 'idle', message: '' });
+        alert(errorMessage);
+        return;
+      }
+
       if (error.response?.status === 409) {
         setIdCheck({
           status: 'taken',
@@ -144,7 +162,7 @@ const SignupPage = () => {
       } else {
         setIdCheck({
           status: 'idle',
-          message: '오류가 발생했습니다. 다시 시도해주세요.',
+          message: error.response?.data?.message || '오류가 발생했습니다. 다시 시도해주세요.',
         });
       }
     }
@@ -168,7 +186,7 @@ const SignupPage = () => {
     setIdCheck({ status: 'idle', message: '' });
 
     if (newId && !idRegex.test(newId)) {
-      setIdFormatError('2~10자, 한글/영문/숫자만 사용 가능합니다.');
+      setIdFormatError('4~10자, 영문/숫자만 사용 가능합니다.');
     } else {
       setIdFormatError('');
     }
@@ -187,7 +205,7 @@ const SignupPage = () => {
     setEmailStatus({ status: 'sending', message: '인증번호 발송 중...' });
 
     try {
-      await axios.post('apiUrl/api/v1/auth/email/code', { email });
+      await axios.post('/api/v1/auth/email/code', { email });
       setEmailStatus({
         status: 'sent',
         message: '인증번호가 발송되었습니다. 이메일을 확인해주세요.',
@@ -252,7 +270,10 @@ const SignupPage = () => {
     }
   };
 
-  const isVerified = emailStatus.status === 'success' && nicknameCheck.status === 'available';
+  const isVerified =
+    emailStatus.status === 'success' &&
+    nicknameCheck.status === 'available' &&
+    idCheck.status === 'available';
 
   return (
     <div css={wrap}>
@@ -279,7 +300,7 @@ const SignupPage = () => {
                 type="text"
                 id="id"
                 css={flexInput}
-                placeholder="2~10자, 한글/영어/숫자만 사용가능"
+                placeholder="4~10자, 영어/숫자만 사용가능"
                 value={id}
                 onChange={handleIdChange}
                 maxLength={10}
@@ -289,7 +310,7 @@ const SignupPage = () => {
                 type="button"
                 css={sideBtn}
                 onClick={handleCheckIdDuplicate}
-                disabled={nicknameCheck.status === 'checking' || isVerified}
+                disabled={idCheck.status === 'checking' || isVerified}
               >
                 {idCheck.status === 'checking' ? '확인 중...' : '중복 확인'}
               </button>
@@ -297,7 +318,7 @@ const SignupPage = () => {
             {idFormatError && (
               <div css={[messageStyle('danger'), messageWrap]}>{idFormatError}</div>
             )}
-            {nicknameCheck.message && (
+            {idCheck.message && (
               <div css={[messageStyle(idCheck.status), messageWrap]}>{idCheck.message}</div>
             )}
           </div>
