@@ -1,14 +1,15 @@
 /** @jsxRuntime automatic */
 /** @jsxImportSource @emotion/react */
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import PageWrapper from "@/components/layout/PageWrapper";
 import PageHeader from "@/components/layout/PageHeader";
 import FilterBar from "@/components/layout/FilterBar";
 import CardGrid from "@/components/layout/CardGrid";
 import Pagination from "@/components/common/Pagination";
 import StudyCard from "@/components/card/StudyCard";
-import EmptyStateMessage from "../../components/common/EmptyStateMessage";
+import EmptyStateMessage from "@/components/common/EmptyStateMessage";
 import { useDropdown } from "@/components/filter/useDropdown";
+import useStudyStore from "@/stores/useStudyStore";
 
 import {
   dropDownButtonStyle,
@@ -44,16 +45,21 @@ const dummyStudies = [
 export default function StudyListPage() {
   const itemsPerPage = 9;
   const { openDropdown, setOpenDropdown, dropdownRefs } = useDropdown();
-  const [selectedTechs, setSelectedTechs] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
+
+  const {
+    selectedTechs,
+    currentPage,
+    toggleTech,
+    setPage,
+    reset
+  } = useStudyStore();
+
+  useEffect(() => {
+    return () => reset();
+  }, [reset]);
 
   const handleTechSelect = (tech) => {
-    setSelectedTechs(prev =>
-      prev.includes(tech)
-        ? prev.filter(t => t !== tech)
-        : [...prev, tech]
-    );
-    setCurrentPage(1);
+    toggleTech(tech); 
   };
 
   const filteredStudies = useMemo(() => {
@@ -74,10 +80,12 @@ export default function StudyListPage() {
 
   const totalItems = filteredStudies.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+  
   const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+    setPage(pageNumber);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+  
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = filteredStudies.slice(startIndex, startIndex + itemsPerPage);
 
