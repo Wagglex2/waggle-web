@@ -2,7 +2,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import { colors } from "@/styles/theme";
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import PageWrapper from "@/components/layout/PageWrapper";
 import FilterBar from "@/components/layout/FilterBar";
@@ -13,6 +13,8 @@ import HwCard from "@/components/card/HwCard";
 import StudyCard from "@/components/card/StudyCard";
 import EmptyStateMessage from "@/components/common/EmptyStateMessage";
 import { useDropdown } from "@/components/filter/useDropdown";
+import useSearchStore from "@/stores/useSearchStore";
+
 import {
   dropDownButtonStyle,
   ArrowIcon,
@@ -58,7 +60,7 @@ const dummyProjects = [
     deadline: '2025.12.15까지',
     title: '웹 어쩌구저쩌구 함께할 팀원 구합니다.',
     positions: ['기획', '디자인'],
-    techStack: ['TYPESCRIPT', 'REACT', 'FIGMA'],
+    techStack: ['CPP', 'REACT', 'FIGMA'],
     author: '솔랑솔랑',
   },
   {
@@ -66,8 +68,7 @@ const dummyProjects = [
     purposeTag: '사이드프로젝트',
     methodTag: '오프라인',
     deadline: '2025.12.15까지',
-    title:
-      '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다 웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다',
+    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
     positions: ['기획', '디자인', '프론트엔드'],
     techStack: ['JAVASCRIPT', 'NEXTJS', 'NOTION'],
     author: '솔랑솔랑',
@@ -215,57 +216,16 @@ const dummyProjects = [
 ];
 
 const dummyHws = [
-  { 
-    id: 1, grade: "1학년", 
-    purposeTag: "과제", 
-    department: "컴퓨터공학과", 
-    subjects: ["운영체제(1234)"], 
-    deadline: "2025.12.15까지", 
-    title: "운영체제 과제 같이 하실 분 구해요", 
-    author: "솔랑솔랑" 
-  },
-  { 
-    id: 2, 
-    grade: "2학년", 
-    purposeTag: "과제", 
-    department: "컴퓨터공학과", 
-    subjects: ["운영체제(1234)"], 
-    deadline: "2025.12.15까지", 
-    title: "운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요", 
-    author: "솔랑솔랑" 
-  },
-  { 
-    id: 3, 
-    grade: "3학년", 
-    purposeTag: "과제", 
-    department: "컴퓨터공학과", 
-    subjects: ["운영체제(1234)"], 
-    deadline: "2025.12.15까지", 
-    title: "운영체제 과제 같이 하실 분 구해요", 
-    author: "솔랑솔랑" 
-  },
+  { id: 1, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
+  { id: 2, grade: "2학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
+  { id: 3, grade: "3학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
 ];
-
 
 const dummyStudies = [
   { id: 1, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
   { id: 2, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
   { id: 3, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["JAVA", "SPRINGBOOT"], author: "솔랑솔랑" },
-  { id: 4, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["NODEJS", "EXPRESS"], author: "솔랑솔랑" },
-  { id: 5, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["PYTHON", "DJANGO"], author: "솔랑솔랑" },
-  { id: 6, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["C", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 7, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["CSS", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 8, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["CPP", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 9, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["CS", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 10, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["HTML", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 11, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["VUE", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 12, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["NEXTJS", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 13, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 14, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 15, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 16, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
 ];
-
 
 const categoryMap = {
   project: "프로젝트",
@@ -280,52 +240,40 @@ export default function SearchResultPage() {
   const category = searchParams.get('category') || 'project';
   const query = searchParams.get('q') || '';
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedGrade, setSelectedGrade] = useState("전체");
-  const [hasSelectedGrade, setHasSelectedGrade] = useState(false);
-  const [selectedStudyTechs, setSelectedStudyTechs] = useState([]);
-  const [selectedProjectPurpose, setSelectedProjectPurpose] = useState("전체");
-  const [hasSelectedProjectPurpose, setHasSelectedProjectPurpose] = useState(false);
-  const [selectedProjectTechs, setSelectedProjectTechs] = useState([]);
-  const [selectedProjectPositions, setSelectedProjectPositions] = useState([]);
+  const {
+    currentPage, setPage, reset,
+    selectedGrade, hasSelectedGrade, setGrade,
+    selectedStudyTechs, toggleStudyTech,
+    selectedProjectPurpose, hasSelectedProjectPurpose, setProjectPurpose,
+    selectedProjectTechs, toggleProjectTech,
+    selectedProjectPositions, toggleProjectPosition
+  } = useSearchStore();
+
+  useEffect(() => {
+    return () => reset();
+  }, [reset]);
 
   const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+    setPage(pageNumber);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
   const handleGradeSelect = (grade) => {
-    if (hasSelectedGrade && selectedGrade === grade) {
-      setSelectedGrade("전체");
-      setHasSelectedGrade(false);
-    } else {
-      setSelectedGrade(grade);
-      setHasSelectedGrade(true);
-    }
+    setGrade(grade);
     setOpenDropdown(null);
-    setCurrentPage(1);
   };
   const handleStudyTechSelect = (tech) => {
-    setSelectedStudyTechs(prev => prev.includes(tech) ? prev.filter(t => t !== tech) : [...prev, tech]);
-    setCurrentPage(1);
+    toggleStudyTech(tech);
   };
   const handleProjectPurposeSelect = (purpose) => {
-    if (hasSelectedProjectPurpose && selectedProjectPurpose === purpose) {
-      setSelectedProjectPurpose("전체");
-      setHasSelectedProjectPurpose(false);
-    } else {
-      setSelectedProjectPurpose(purpose);
-      setHasSelectedProjectPurpose(true);
-    }
+    setProjectPurpose(purpose);
     setOpenDropdown(null);
-    setCurrentPage(1);
   };
   const handleProjectTechSelect = (tech) => {
-    setSelectedProjectTechs(prev => prev.includes(tech) ? prev.filter(t => t !== tech) : [...prev, tech]);
-    setCurrentPage(1);
+    toggleProjectTech(tech);
   };
   const handleProjectPositionSelect = (position) => {
-    setSelectedProjectPositions(prev => prev.includes(position) ? prev.filter(p => p !== position) : [...prev, position]);
-    setCurrentPage(1);
+    toggleProjectPosition(position);
   };
 
 
