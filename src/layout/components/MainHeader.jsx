@@ -1,12 +1,32 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { colors } from '../../styles/theme';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import { logoutApi } from '@/api/auth';
+import useAuthStore from '@/stores/useAuthStore';
 
 const MainHeader = () => {
+  const logout = useAuthStore((state) => state.logout);
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+    if (!confirm('로그아웃 하시겠습니까?')) return;
+
+    try {
+      await logoutApi();
+    } catch (error) {
+      console.error('서버 로그아웃 실패', error);
+    } finally {
+      logout();
+      useAuthStore.persist.clearStorage();
+      alert('로그아웃되었습니다.');
+      navigate('/signin');
+    }
+  }
+
   return (
     <div css={container}>
       <Link to={'/'}>
@@ -27,7 +47,7 @@ const MainHeader = () => {
         <Link to={'/my-page/profile'}>
           <button>마이페이지</button>
         </Link>
-        <button>로그아웃</button>
+        <button onClick={handleLogout}>로그아웃</button>
       </div>
     </div>
   );

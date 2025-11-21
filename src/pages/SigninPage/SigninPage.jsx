@@ -6,6 +6,131 @@ import { colors } from '@/styles/theme';
 import BackgroundBlob from './assets/background-blob.png';
 import LogoBlob from './assets/logo-blob.png';
 import useAuthStore from '@/stores/useAuthStore';
+import { signinApi } from '@/api/auth';
+
+function SigninPage() {
+  const [id, setId] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
+  const login = useAuthStore((state) => state.login);
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    if (id.trim() === '' || password.trim() === '') {
+      setErrorMessage('아이디와 비밀번호를 모두 입력해주세요.');
+      return;
+    }
+
+    try {
+      const accessToken = await signinApi({
+        username: id,
+        password,
+      });
+
+      login(accessToken); // 토큰 저장
+      console.log('✨로그인 성공✨');
+
+      setErrorMessage('');
+      navigate('/');
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
+  };
+
+  return (
+    <>
+      <div css={pageWrapperStyle}>
+        <img
+          src={BackgroundBlob}
+          alt="Background"
+          css={{
+            position: 'absolute',
+            top: '-10vh',
+            left: '-10vw',
+            width: '800px',
+            height: '1000px',
+            zIndex: 1,
+          }}
+        />
+
+        <div css={contentWrapperStyle}>
+          <div css={modalContainerStyle}>
+            <form css={formSectionStyle} onSubmit={handleLogin}>
+              <h1 css={titleStyle}>로그인</h1>
+              <div css={inputWrapperStyle}>
+                <label css={labelStyle}>아이디</label>
+                <input
+                  css={inputStyle}
+                  type="text"
+                  placeholder="2~10자, 영문, 한영 가능"
+                  value={id}
+                  onChange={(e) => {
+                    setId(e.target.value);
+                    setErrorMessage('');
+                  }}
+                />
+              </div>
+              <div css={inputWrapperStyle}>
+                <label css={labelStyle}>비밀번호</label>
+                <input
+                  css={inputStyle}
+                  type="password"
+                  placeholder="영문, 숫자, 특수문자 포함 8~20자"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setErrorMessage('');
+                  }}
+                />
+              </div>
+
+              <p css={errorStyle}>{errorMessage}</p>
+
+              <button css={loginButtonStyle}>로그인 하기</button>
+              <a css={signupLinkStyle}>회원가입</a>
+            </form>
+
+            <div css={logoSectionStyle}>
+              <img
+                src={LogoBlob}
+                alt="Logo"
+                css={{
+                  position: 'absolute',
+                  right: '-200px',
+                  top: '-70px',
+                  width: '600px',
+                  height: '600px',
+                  zIndex: 1,
+                }}
+              />
+              <div
+                css={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  marginLeft: '-150px',
+                  position: 'relative',
+                  zIndex: 2,
+                }}
+              >
+                <p css={logoTextStyle}>경북 인재들이 모인 곳</p>
+                <div css={logoWaggleStyle}>
+                  <span>와</span>
+                  <span>글</span>
+                  <span>와</span>
+                  <span>글</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default SigninPage;
 
 const pageWrapperStyle = {
   position: 'relative',
@@ -153,149 +278,3 @@ const logoWaggleStyle = {
     color: colors.secondary,
   },
 };
-
-function SigninPage() {
-  const [id, setId] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const navigate = useNavigate();
-  const login = useAuthStore((state) => state.login);
-
-  const apiKey = import.meta.env.VITE_API_KEY;
-
-  const handleLogin = async (event) => {
-    event.preventDefault();
-
-    if (id.trim() === '' || password.trim() === '') {
-      setErrorMessage('아이디와 비밀번호를 모두 입력해주세요.');
-      return;
-    }
-
-    try {
-      const response = await fetch(`${apiKey}/api/v1/auth/sign-in`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: id,
-          password: password,
-        }),
-      });
-
-      if (response.ok) {
-        const accessToken = response.headers.get('Authorization');
-
-        if (accessToken) {
-          login(accessToken);
-
-          console.log('로그인 성공!! 토큰:', accessToken);
-          setErrorMessage('');
-          navigate('/');
-        } else {
-          console.error('토큰을 찾을 수 없습니다.');
-          setErrorMessage('로그인에 성공했으나 인증 정보를 불러오지 못했습니다.');
-        }
-      } else {
-        const errorData = await response.json();
-        setErrorMessage(errorData.message || '아이디 또는 비밀번호가 일치하지 않습니다.');
-      }
-    } catch (error) {
-      console.error('Login Error:', error);
-      setErrorMessage('서버 연결에 실패했습니다.');
-    }
-  };
-
-  return (
-    <>
-      <div css={pageWrapperStyle}>
-        <img
-          src={BackgroundBlob}
-          alt="Background"
-          css={{
-            position: 'absolute',
-            top: '-10vh',
-            left: '-10vw',
-            width: '800px',
-            height: '1000px',
-            zIndex: 1,
-          }}
-        />
-
-        <div css={contentWrapperStyle}>
-          <div css={modalContainerStyle}>
-            <form css={formSectionStyle} onSubmit={handleLogin}>
-              <h1 css={titleStyle}>로그인</h1>
-              <div css={inputWrapperStyle}>
-                <label css={labelStyle}>아이디</label>
-                <input
-                  css={inputStyle}
-                  type="text"
-                  placeholder="2~10자, 영문, 한영 가능"
-                  value={id}
-                  onChange={(e) => {
-                    setId(e.target.value);
-                    setErrorMessage('');
-                  }}
-                />
-              </div>
-              <div css={inputWrapperStyle}>
-                <label css={labelStyle}>비밀번호</label>
-                <input
-                  css={inputStyle}
-                  type="password"
-                  placeholder="영문, 숫자, 특수문자 포함 8~20자"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setErrorMessage('');
-                  }}
-                />
-              </div>
-
-              <p css={errorStyle}>{errorMessage}</p>
-
-              <button css={loginButtonStyle}>로그인 하기</button>
-              <a css={signupLinkStyle}>회원가입</a>
-            </form>
-
-            <div css={logoSectionStyle}>
-              <img
-                src={LogoBlob}
-                alt="Logo"
-                css={{
-                  position: 'absolute',
-                  right: '-200px',
-                  top: '-70px',
-                  width: '600px',
-                  height: '600px',
-                  zIndex: 1,
-                }}
-              />
-              <div
-                css={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  marginLeft: '-150px',
-                  position: 'relative',
-                  zIndex: 2,
-                }}
-              >
-                <p css={logoTextStyle}>경북 인재들이 모인 곳</p>
-                <div css={logoWaggleStyle}>
-                  <span>와</span>
-                  <span>글</span>
-                  <span>와</span>
-                  <span>글</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
-export default SigninPage;
