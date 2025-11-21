@@ -40,7 +40,7 @@ const SideBar = () => {
   return (
     <div css={sideBarListBox}>
       {sidebarList.map((item) => (
-        <Link to={item.path}>
+        <Link key={item.name} to={item.path}>
           <p css={currentCategory(item.current, lastPath)}>{item.name}</p>
         </Link>
       ))}

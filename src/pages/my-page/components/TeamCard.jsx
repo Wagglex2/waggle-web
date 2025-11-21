@@ -2,6 +2,8 @@
 /** @jsxRuntime automatic */
 import { css } from '@emotion/react';
 import { useTeamStore, currentUserId } from '../useTeamStore';
+import axios from 'axios';
+import api from '@/api/api';
 
 const colors = {
   border: '#eee6d6',
@@ -18,59 +20,93 @@ const colors = {
 
 const TeamCard = ({ team }) => {
   const { open, toggle, deleteMember, openReview, reviewedMembers } = useTeamStore();
+  //const apiKey = import.meta.env.VITE_API_KEY;
 
   const isOpen = open.has(team.id);
-  const leaderName = team.members.find((m) => m.grade === '리더')?.name || '리더';
-  const isProject = team.category === '프로젝트';
+  const leaderName = team.leaderNickname;
+  const isProject = team.category.name === 'PROJECT';
+
+  // 팀 멤버 삭제 axios 호출 함수
+  async function handleDeleteMember(e, teamId, targetId) {
+    e.stopPropagation();
+
+    if (confirm('정말 팀에서 삭제하시겠습니까?') === false) return;
+
+    try {
+      const res = await api.delete(`/api/v1/teams/${teamId}/members/${targetId}`);
+      if (res.status === 200) {
+        deleteMember(teamId, targetId);
+        alert('팀에서 멤버가 성공적으로 삭제되었습니다.');
+        //console.log(res);
+      }
+    } catch (error) {
+      console.error('멤버 삭제 중 오류가 발생했습니다:', error);
+      alert('멤버 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
+  }
+
+  const periodText =
+    team.period && typeof team.period === 'object'
+      ? `${team.period.startDate} ~ ${team.period.endDate}`
+      : team.period;
+
+  const statusValue =
+    team.status && typeof team.status === 'object' ? team.status.desc : team.status;
+
+  const titleValue =
+    team.recruitmentTitle && typeof team.recruitmentTitle === 'object'
+      ? team.recruitmentTitle.name || team.recruitmentTitle.desc
+      : team.recruitmentTitle;
 
   return (
     <section css={teamCard}>
-      <button css={teamHeader} onClick={() => toggle(team.id)} aria-expanded={isOpen}>
+      <button css={teamHeader} onClick={() => toggle(team.id)}>
         <div>
-          <div css={teamTitle}>{team.title}</div>
+          <div css={teamTitle}>{titleValue}</div>
           <div css={teamMeta}>
             <span>{leaderName}</span>
-            <span css={badge(team.status)}>{team.status}</span>
-            <span>{team.period}</span>
+            <span css={badge(statusValue)}>{statusValue}</span>
+            <span>{periodText}</span>
           </div>
         </div>
-        <span css={count}>{team.members.length}명</span>
+        <span css={count}>{team.memberCount}명</span>
         <span css={caret(isOpen)} />
       </button>
 
       {isOpen &&
-        team.members.map((member) => (
-          <div key={member.id} css={memberRow(isProject)}>
-            <div css={dot(member.color)} />
-            <div>
-              <div css={memberName}>{member.name}</div>
+        team.members.map((member) => {
+          return (
+            <div key={member.userId} css={memberRow(isProject)}>
+              <div css={dot(member.color)} />
+              <div>
+                <div css={memberName}>{member.nickname}</div>
+              </div>
+              <small css={subText}>{member.role.desc}</small>
+              {isProject && (
+                <small css={[subText, { textAlign: 'center' }]}>{member.position?.desc}</small>
+              )}
+              <div css={actions}>
+                {member.nickname !== leaderName ? (
+                  <button css={btn} onClick={(e) => handleDeleteMember(e, team.id, member.userId)}>
+                    삭제하기
+                  </button>
+                ) : (
+                  <button className="fake-btn"></button>
+                )}
+                <button
+                  css={[btn, reviewBtn]}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openReview(team, member);
+                  }}
+                  // style={{ visibility: member.userId !== currentUserId ? 'visible' : 'hidden' }}
+                >
+                  {reviewedMembers.has(`${team.id}_${member.userId}`) ? '리뷰수정' : '리뷰쓰기'}
+                </button>
+              </div>
             </div>
-            <small css={subText}>{member.grade}</small>
-            {isProject && <small css={[subText, { textAlign: 'center' }]}>{member.position}</small>}
-            <div css={actions}>
-              <button
-                css={btn}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteMember(team.id, member.id);
-                }}
-                style={{ visibility: member.id !== currentUserId ? 'visible' : 'hidden' }}
-              >
-                삭제하기
-              </button>
-              <button
-                css={[btn, reviewBtn]}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openReview(team, member);
-                }}
-                style={{ visibility: member.id !== currentUserId ? 'visible' : 'hidden' }}
-              >
-                {reviewedMembers.has(`${team.id}_${member.id}`) ? '리뷰수정' : '리뷰쓰기'}
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
     </section>
   );
 };
@@ -120,8 +156,8 @@ const badge = (status) => css`
   border-radius: 999px;
   font-size: 12px;
   border: 1px solid ${colors.border};
-  background: ${status === '종료' ? colors.dangerBg : colors.successBg};
-  color: ${status === '종료' ? colors.dangerText : colors.successText};
+  background: ${status === 'CLOSED' || status === 'COMPLETED' ? colors.dangerBg : colors.successBg};
+  color: ${status === 'CLOSED' || status === 'COMPLETED' ? colors.dangerText : colors.successText};
 `;
 
 const count = css`
@@ -174,6 +210,11 @@ const actions = css`
   display: flex;
   gap: 8px;
   justify-self: end;
+
+  .fake-btn {
+    width: 74px;
+    visibility: hidden;
+  }
 `;
 
 const btn = css`

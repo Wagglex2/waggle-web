@@ -1,10 +1,11 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
-import React, { useMemo, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { css } from '@emotion/react';
 import { useTeamStore } from './useTeamStore';
 import TeamCard from './components/TeamCard';
 import ReviewModal from './components/ReviewModal';
+import api from '@/api/api';
 
 const colors = {
   border: '#eee6d6',
@@ -15,11 +16,42 @@ const colors = {
   white: '#fff',
 };
 
+const TAB_MAP = {
+  프로젝트: 'PROJECT',
+  과제: 'ASSIGNMENT',
+  스터디: 'STUDY',
+};
+
 const MyTeamPage = () => {
   const [tab, setTab] = useState('프로젝트');
-  const { teams } = useTeamStore();
 
-  const filtered = useMemo(() => teams.filter((t) => t.category === tab), [teams, tab]);
+  const teams = useTeamStore((state) => state.teams);
+  const setTeams = useTeamStore((state) => state.setTeams);
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchTeams = async () => {
+      const apiCategory = TAB_MAP[tab];
+      if (!apiCategory) return;
+
+      setIsLoading(true);
+      try {
+        const response = await api.get(`/api/v1/teams/me?size=5&category=${apiCategory}`);
+
+        const fetchedTeams = response.data.data.content || [];
+        console.log('Fetched Teams:', fetchedTeams);
+        setTeams(fetchedTeams);
+      } catch (error) {
+        console.error('팀 데이터 불러오기 실패:', error);
+        setTeams([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTeams();
+  }, [tab, setTeams]);
 
   return (
     <div css={wrap}>
@@ -38,11 +70,13 @@ const MyTeamPage = () => {
           </button>
         </div>
 
-        {filtered.length === 0 && <div css={empty}>해당 카테고리의 팀이 없어요.</div>}
-
-        {filtered.map((team) => (
-          <TeamCard key={team.id} team={team} />
-        ))}
+        {isLoading ? (
+          <div css={empty}>데이터를 불러오는 중입니다...</div>
+        ) : teams.length === 0 ? (
+          <div css={empty}>해당 카테고리의 팀이 없어요.</div>
+        ) : (
+          teams.map((team) => <TeamCard key={team.id} team={team} />)
+        )}
 
         <ReviewModal />
       </div>
