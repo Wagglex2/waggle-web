@@ -1,8 +1,10 @@
+/** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react';
 import NotificationItem from './NotificationItem';
 
 const NotificationList = ({ notificationItems, handleDelete }) => {
   return (
-    <ul>
+    <ul css={container}>
       {notificationItems.map((item) => (
         <NotificationItem key={item.notificationId} item={item} handleDelete={handleDelete} />
       ))}
@@ -11,3 +13,9 @@ const NotificationList = ({ notificationItems, handleDelete }) => {
 };
 
 export default NotificationList;
+
+const container = css`
+  min-height: 480px;
+  border-bottom: 1px solid #dddddd;
+  margin-bottom: 10px;
+`;
