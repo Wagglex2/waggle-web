@@ -2,7 +2,7 @@
 /** @jsxRuntime automatic */
 import React, { useState, useEffect } from 'react';
 import { css } from '@emotion/react';
-import { useTeamStore } from './useTeamStore';
+import { useTeamStore } from '../../stores/useTeamStore';
 import TeamCard from './components/TeamCard';
 import ReviewModal from './components/ReviewModal';
 import api from '@/api/api';

@@ -21,8 +21,7 @@ const MyApplicationModal = ({ modalData, onClose }) => {
     return null;
   }
 
-  const applicant = modalData;
-  const category = modalData.category;
+  const { applicant, category } = modalData;
 
   return (
     <div css={overlay} onClick={onClose} role="dialog" aria-modal="true">

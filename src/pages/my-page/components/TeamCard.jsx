@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
 import { css } from '@emotion/react';
-import { useTeamStore, currentUserId } from '../useTeamStore';
+import { useTeamStore, currentUserId } from '../../../stores/useTeamStore';
 import axios from 'axios';
 import api from '@/api/api';
 

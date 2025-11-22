@@ -1,8 +1,8 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { css } from '@emotion/react';
-import { useApplicationStore, toneByStatus } from './useApplicationStore';
+import { useApplicationStore, toneByStatus } from '@/stores/useApplicationStore';
 import MyApplicationModal from './components/MyApplicationModal';
 
 const colors = {
@@ -14,8 +14,22 @@ const colors = {
 };
 
 const MyApplicationsPage = () => {
-  const { rows, modalData, removeRow, openModal, closeModal } = useApplicationStore();
+  const {
+    rows,
+    modalData,
+    loading,
+    error,
+    removeRow,
+    openModal,
+    closeModal,
+    fetchAllApplications,
+  } = useApplicationStore();
   const [tab, setTab] = useState('프로젝트');
+
+  // 페이지 로드시 전체 데이터 가져오기
+  useEffect(() => {
+    fetchAllApplications();
+  }, []); // 의존성 배열 비우기 - 한 번만 실행
 
   const filtered = useMemo(() => rows.filter((r) => r.category === tab), [rows, tab]);
 
@@ -46,30 +60,44 @@ const MyApplicationsPage = () => {
             <div>지원 취소</div>
           </div>
 
-          {filtered.length === 0 && <div css={empty}>해당 카테고리의 공고가 없습니다.</div>}
+          {loading && <div css={empty}>데이터를 불러오는 중...</div>}
+          {error && <div css={empty}>오류: {error}</div>}
+          {!loading && !error && filtered.length === 0 && (
+            <div css={empty}>해당 카테고리의 공고가 없습니다.</div>
+          )}
 
-          {filtered.map((r, i) => (
-            <div css={row} key={r.id}>
-              <div>{i + 1}</div>
-              <div className="cell-ellipsis" title={r.title}>
-                {r.title}
+          {!loading &&
+            !error &&
+            filtered.map((r, i) => (
+              <div css={row} key={r.id}>
+                <div>{i + 1}</div>
+                <div className="cell-ellipsis" title={r.title}>
+                  {r.title}
+                </div>
+                <div>{r.due}</div>
+                <div>
+                  <span className={`status-badge tone-${toneByStatus(r.status)}`}>{r.status}</span>
+                </div>
+                <div>
+                  <button className="action-btn" onClick={() => openModal(r)}>
+                    지원서
+                  </button>
+                </div>
+                <div>
+                  <button
+                    className="action-btn danger"
+                    onClick={() => removeRow(r.id)}
+                    disabled={r.status !== '대기중'}
+                    style={{
+                      opacity: r.status !== '대기중' ? 0.5 : 1,
+                      cursor: r.status !== '대기중' ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    취소하기
+                  </button>
+                </div>
               </div>
-              <div>{r.due}</div>
-              <div>
-                <span className={`status-badge tone-${toneByStatus(r.status)}`}>{r.status}</span>
-              </div>
-              <div>
-                <button className="action-btn" onClick={() => openModal(r)}>
-                  지원서
-                </button>
-              </div>
-              <div>
-                <button className="action-btn danger" onClick={() => removeRow(r.id)}>
-                  취소하기
-                </button>
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
 import { css } from '@emotion/react';
-import { useTeamStore } from '../useTeamStore';
+import { useTeamStore } from '../../../stores/useTeamStore';
 import api from '@/api/api';
 
 const colors = {
