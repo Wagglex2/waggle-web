@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export const currentUserId = 'm1';
+export const currentUserId = '1';
 
 export const useTeamStore = create((set) => ({
   teams: [],
@@ -10,7 +10,6 @@ export const useTeamStore = create((set) => ({
   reviewedMembers: new Set(),
   reviews: new Map(),
 
-  // API에서 받은 팀 목록을 저장하는 액션
   setTeams: (teamsData) => set({ teams: teamsData }),
 
   toggle: (id) =>
