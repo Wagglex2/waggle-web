@@ -20,7 +20,6 @@ const colors = {
 
 const TeamCard = ({ team }) => {
   const { open, toggle, deleteMember, openReview, reviewedMembers } = useTeamStore();
-  //const apiKey = import.meta.env.VITE_API_KEY;
 
   const isOpen = open.has(team.id);
   const leaderName = team.leaderNickname;
@@ -37,7 +36,6 @@ const TeamCard = ({ team }) => {
       if (res.status === 200) {
         deleteMember(teamId, targetId);
         alert('팀에서 멤버가 성공적으로 삭제되었습니다.');
-        //console.log(res);
       }
     } catch (error) {
       console.error('멤버 삭제 중 오류가 발생했습니다:', error);
@@ -75,6 +73,17 @@ const TeamCard = ({ team }) => {
 
       {isOpen &&
         team.members.map((member) => {
+          // 문자열/숫자 안전 비교
+          const isCurrentUser = String(member.userId) === String(currentUserId);
+          const isMemberLeader = member.nickname === leaderName;
+
+          // 현재 로그인한 사용자의 정보 찾기
+          const currentUserMember = team.members.find(
+            (m) => String(m.userId) === String(currentUserId)
+          );
+
+          const currentUserIsLeader = currentUserMember?.nickname === leaderName;
+
           return (
             <div key={member.userId} css={memberRow(isProject)}>
               <div css={dot(member.color)} />
@@ -86,23 +95,24 @@ const TeamCard = ({ team }) => {
                 <small css={[subText, { textAlign: 'center' }]}>{member.position?.desc}</small>
               )}
               <div css={actions}>
-                {member.nickname !== leaderName ? (
+                {/* 삭제하기: 리더만 볼 수 있고, 본인과 리더는 삭제 불가 */}
+                {currentUserIsLeader && !isCurrentUser && !isMemberLeader && (
                   <button css={btn} onClick={(e) => handleDeleteMember(e, team.id, member.userId)}>
                     삭제하기
                   </button>
-                ) : (
-                  <button className="fake-btn"></button>
                 )}
-                <button
-                  css={[btn, reviewBtn]}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openReview(team, member);
-                  }}
-                  // style={{ visibility: member.userId !== currentUserId ? 'visible' : 'hidden' }}
-                >
-                  {reviewedMembers.has(`${team.id}_${member.userId}`) ? '리뷰수정' : '리뷰쓰기'}
-                </button>
+                {/* 리뷰하기: 본인 제외 모두에게 보임 */}
+                {!isCurrentUser && (
+                  <button
+                    css={[btn, reviewBtn]}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openReview(team, member);
+                    }}
+                  >
+                    {reviewedMembers.has(`${team.id}_${member.userId}`) ? '리뷰수정' : '리뷰쓰기'}
+                  </button>
+                )}
               </div>
             </div>
           );
@@ -210,11 +220,8 @@ const actions = css`
   display: flex;
   gap: 8px;
   justify-self: end;
-
-  .fake-btn {
-    width: 74px;
-    visibility: hidden;
-  }
+  min-width: 180px; /* 버튼 2개 너비 고정 (삭제하기 + 리뷰쓰기) */
+  justify-content: flex-end;
 `;
 
 const btn = css`
