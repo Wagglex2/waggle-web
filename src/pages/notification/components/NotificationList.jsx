@@ -4,7 +4,7 @@ const NotificationList = ({ notificationItems, handleDelete }) => {
   return (
     <ul>
       {notificationItems.map((item) => (
-        <NotificationItem item={item} handleDelete={handleDelete} />
+        <NotificationItem key={item.notificationId} item={item} handleDelete={handleDelete} />
       ))}
     </ul>
   );
