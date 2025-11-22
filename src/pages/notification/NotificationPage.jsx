@@ -4,6 +4,8 @@ import { colors } from '@/styles/theme';
 import { useEffect, useState } from 'react';
 import NotificationList from './components/NotificationList';
 import api from '@/api/api';
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 
 const filterCatagory = [
   {
@@ -26,27 +28,27 @@ const filterCatagory = [
 
 const NotificationPage = () => {
   const [activeFilterIndex, setActiveFilterIndex] = useState(0);
-  const [allNotifications, setAllNotifications] = useState([]); // 알림 전체 원본
-  const [notifications, setNotifications] = useState([]); // 필터링된 알림 목록(default: 전체)
-  const [seletedPage, setSeletedPage] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // 알림 목록 조회 api
   useEffect(() => {
     async function getNotificationList() {
       try {
         const res = await api.get(
-          `/api/v1/notifications?category=${filterCatagory[activeFilterIndex].name}&page=${seletedPage}&size=20`
+          `/api/v1/notifications?category=${filterCatagory[activeFilterIndex].name}&page=${currentPage - 1}&size=8`
         );
         console.log('알림 결과', res);
-        setAllNotifications(res.data.data.content);
         setNotifications(res.data.data.content);
+        setTotalPages(res.data.data.page.totalPages);
       } catch (e) {
         console.error(e);
       }
     }
 
     getNotificationList();
-  }, [activeFilterIndex, seletedPage]);
+  }, [activeFilterIndex, currentPage]);
 
   // 전체 삭제, 카테고리별 전체 삭제 api
   async function deleteAllNotifications() {
@@ -83,25 +85,24 @@ const NotificationPage = () => {
   // 전체 삭제, 카테고리별 전체 삭제(ui)
   function handleDeleteAll() {
     setNotifications([]);
-    switch (activeFilterIndex) {
-      case 0:
-        setAllNotifications([]);
-        break;
-      case 1:
-        setAllNotifications(allNotifications.filter((item) => item.category.desc !== '프로젝트'));
-        break;
-      case 2:
-        setAllNotifications(allNotifications.filter((item) => item.category.desc !== '과제'));
-        break;
-      case 3:
-        setAllNotifications(allNotifications.filter((item) => item.category.desc !== '스터디'));
-    }
+    // switch (activeFilterIndex) {
+    //   case 0:
+    //     setNotifications([]);
+    //     break;
+    //   case 1:
+    //     setNotifications(notifications.filter((item) => item.category.desc !== '프로젝트'));
+    //     break;
+    //   case 2:
+    //     setNotifications(notifications.filter((item) => item.category.desc !== '과제'));
+    //     break;
+    //   case 3:
+    //     setNotifications(notifications.filter((item) => item.category.desc !== '스터디'));
+    // }
   }
 
   // 개별 삭제(ui)
   function handleDelete(itemId) {
     setNotifications(notifications.filter((item) => item.notificationId !== itemId));
-    setAllNotifications(allNotifications.filter((item) => item.notificationId !== itemId));
   }
 
   return (
@@ -127,7 +128,29 @@ const NotificationPage = () => {
       </header>
 
       {/* 알림내역 */}
-      <NotificationList notificationItems={notifications} handleDelete={handleDelete} />
+      {notifications.length === 0 ? (
+        <p css={noNotificationBox}>조회된 알림이 없습니다.</p>
+      ) : (
+        <NotificationList notificationItems={notifications} handleDelete={handleDelete} />
+      )}
+
+      {totalPages !== 0 && (
+        <Stack
+          spacing={2}
+          sx={{
+            alignItems: 'center',
+            mt: 2,
+          }}
+        >
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={(_, value) => {
+              setCurrentPage(value);
+            }}
+          />
+        </Stack>
+      )}
     </div>
   );
 };
@@ -204,4 +227,16 @@ const allDeleteBtn = css`
     cursor: pointer;
     color: #000000;
   }
+`;
+
+const noNotificationBox = css`
+  width: 662px;
+  height: 400px;
+  border: 1px dashed ${colors.gray[300]};
+  border-radius: 10px;
+  text-align: center;
+  line-height: 400px;
+  vertical-align: middle;
+  font-family: 'nanumR';
+  color: ${colors.gray[400]};
 `;
