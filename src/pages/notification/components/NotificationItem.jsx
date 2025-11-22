@@ -2,17 +2,34 @@
 import { css } from '@emotion/react';
 import { colors } from '@/styles/theme';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import api from '@/api/api';
 
 const NotificationItem = ({ item, handleDelete }) => {
+  // 알림 개별 삭제 api
+  function deleteNotification(notificationId) {
+    if (confirm('OOO알림을 삭제하시겠습니까?') === false) return;
+    try {
+      const res = api.delete(`/api/v1/notifications/${notificationId}`);
+      console.log(res);
+      handleDelete(notificationId); // 알림 목록 정리
+    } catch (e) {
+      alert('알림 삭제에 실패하였습니다. 다시 시도해 주세요.');
+      console.error(e);
+    }
+  }
+
   return (
-    <li css={notificationItemStyle(item.isRead)} key={item.id}>
+    <li css={notificationItemStyle(item.isRead)} key={item.notificationId}>
       <div css={notificationIconBox}>
         <NotificationsNoneIcon className="notification-icon" />
       </div>
-      <p className="msg-field">{item.message}</p>
-      <p className="category-field">{item.category}</p>
-      <p className="date-field">{item.date}</p>
-      <button className="notification-item-delete-btn" onClick={() => handleDelete(item.id)}>
+      <p className="msg-field">{item.senderNickname}</p>
+      <p className="category-field">{item.category.desc}</p>
+      <p className="date-field">{item.createdAt}</p>
+      <button
+        className="notification-item-delete-btn"
+        onClick={() => deleteNotification(item.notificationId)}
+      >
         X
       </button>
     </li>

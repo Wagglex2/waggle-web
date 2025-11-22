@@ -10,7 +10,6 @@ export const useTeamStore = create((set) => ({
   reviewedMembers: new Set(),
   reviews: new Map(),
 
-  // API에서 받은 팀 목록을 저장하는 액션
   setTeams: (teamsData) => set({ teams: teamsData }),
 
   toggle: (id) =>

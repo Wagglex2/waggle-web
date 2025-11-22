@@ -1,112 +1,108 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { colors } from '@/styles/theme';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import NotificationList from './components/NotificationList';
+import api from '@/api/api';
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 
-// 임시 더미 데이터
-const notificationList = [
+const filterCatagory = [
   {
-    id: 1,
-    message: '새로운 프로젝트 모집 공지가 등록되었습니다.',
-    date: '2025-09-20',
-    category: '프로젝트',
-    isRead: false,
+    name: '',
+    desc: '전체',
   },
   {
-    id: 2,
-    message: '이번 주 과제 제출 마감일이 다가옵니다.',
-    date: '2025-09-22',
-    category: '과제',
-    isRead: false,
+    name: 'project',
+    desc: '프로젝트',
   },
   {
-    id: 3,
-    message: '스터디 모임 일정이 변경되었습니다.',
-    date: '2025-09-25',
-    category: '스터디',
-    isRead: true,
+    name: 'assignment',
+    desc: '과제',
   },
   {
-    id: 4,
-    message: '프론트엔드 프로젝트 코드 리뷰가 완료되었습니다.',
-    date: '2025-09-26',
-    category: '프로젝트',
-    isRead: false,
-  },
-  {
-    id: 5,
-    message: '데이터베이스 과제 피드백이 등록되었습니다.',
-    date: '2025-09-27',
-    category: '과제',
-    isRead: true,
-  },
-  {
-    id: 6,
-    message: '알고리즘 스터디 자료가 업로드되었습니다.',
-    date: '2025-09-28',
-    category: '스터디',
-    isRead: false,
-  },
-];
-
-const filterItems = [
-  {
-    category: '전체',
-    length: 15,
-  },
-  {
-    category: '프로젝트',
-    length: 5,
-  },
-  {
-    category: '과제',
-    length: 5,
-  },
-  {
-    category: '스터디',
-    length: 5,
+    name: 'study',
+    desc: '스터디',
   },
 ];
 
 const NotificationPage = () => {
   const [activeFilterIndex, setActiveFilterIndex] = useState(0);
-  const [allNotifications, setAllNotifications] = useState(notificationList); // 알림 전체 원본
-  const [notifications, setNotifications] = useState(notificationList); // 필터링된 알림 목록
+  const [notifications, setNotifications] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // 필터링
-  function handleFilterChange(activeIndex, selectedCategory) {
-    setActiveFilterIndex(activeIndex);
-
-    if (selectedCategory === '전체') {
-      setNotifications(allNotifications);
-    } else {
-      setNotifications(allNotifications.filter((item) => item.category === selectedCategory));
+  // 알림 목록 조회 api
+  useEffect(() => {
+    async function getNotificationList() {
+      try {
+        const res = await api.get(
+          `/api/v1/notifications?category=${filterCatagory[activeFilterIndex].name}&page=${currentPage - 1}&size=8`
+        );
+        console.log('알림 결과', res);
+        setNotifications(res.data.data.content);
+        setTotalPages(res.data.data.page.totalPages);
+      } catch (e) {
+        console.error(e);
+      }
     }
-  }
 
-  // 전체 삭제, 카테고리별 전체 삭제
-  function handleDeleteAll() {
-    setNotifications([]);
+    getNotificationList();
+  }, [activeFilterIndex, currentPage]);
+
+  // 전체 삭제, 카테고리별 전체 삭제 api
+  async function deleteAllNotifications() {
+    const categoryName = filterCatagory[activeFilterIndex].name;
+    const categoryDesc = filterCatagory[activeFilterIndex].desc;
+
     switch (activeFilterIndex) {
       case 0:
-        setAllNotifications([]);
+        if (confirm('모든 알림을 삭제하시겠습니까?') === false) return;
         break;
       case 1:
-        setAllNotifications(allNotifications.filter((item) => item.category !== '프로젝트'));
-        break;
       case 2:
-        setAllNotifications(allNotifications.filter((item) => item.category !== '과제'));
-        break;
       case 3:
-        setAllNotifications(allNotifications.filter((item) => item.category !== '스터디'));
+        if (confirm(`${categoryDesc} 카테고리의 알림을 모두 삭제하시겠습니까?`) === false) return;
+        break;
+    }
+
+    try {
+      const res = await api.delete(`/api/v1/notifications?category=${categoryName}`);
+      const successMessage =
+        categoryName === ''
+          ? '알림이 모두 삭제되었습니다.'
+          : `${categoryDesc} 카테고리의 알림이 모두 삭제되었습니다.`;
+
+      alert(successMessage);
+      handleDeleteAll();
+      console.log(res);
+    } catch (e) {
+      console.log(e);
+      alert('알림 삭제에 실패하였습니다. 다시 시도해 주세요.');
     }
   }
 
-  // 개별 삭제
+  // 전체 삭제, 카테고리별 전체 삭제(ui)
+  function handleDeleteAll() {
+    setNotifications([]);
+    // switch (activeFilterIndex) {
+    //   case 0:
+    //     setNotifications([]);
+    //     break;
+    //   case 1:
+    //     setNotifications(notifications.filter((item) => item.category.desc !== '프로젝트'));
+    //     break;
+    //   case 2:
+    //     setNotifications(notifications.filter((item) => item.category.desc !== '과제'));
+    //     break;
+    //   case 3:
+    //     setNotifications(notifications.filter((item) => item.category.desc !== '스터디'));
+    // }
+  }
+
+  // 개별 삭제(ui)
   function handleDelete(itemId) {
-    setNotifications(notifications.filter((item) => item.id !== itemId));
-    setAllNotifications(allNotifications.filter((item) => item.id !== itemId));
+    setNotifications(notifications.filter((item) => item.notificationId !== itemId));
   }
 
   return (
@@ -116,23 +112,45 @@ const NotificationPage = () => {
       {/* 헤더: 필터링 박스 + 전체삭제 버튼 */}
       <header css={contentHeader}>
         <ul css={filterBox}>
-          {filterItems.map((item, i) => (
+          {filterCatagory.map((item, i) => (
             <li
               css={filterItemStyle(activeFilterIndex, i)}
-              key={i}
-              onClick={() => handleFilterChange(i, item.category)}
+              key={item.desc}
+              onClick={() => setActiveFilterIndex(i)}
             >
-              {item.category} ({item.length})
+              {item.desc} (1)
             </li>
           ))}
         </ul>
-        <button css={allDeleteBtn} onClick={handleDeleteAll}>
+        <button css={allDeleteBtn} onClick={deleteAllNotifications}>
           전체삭제
         </button>
       </header>
 
       {/* 알림내역 */}
-      <NotificationList notificationItems={notifications} handleDelete={handleDelete} />
+      {notifications.length === 0 ? (
+        <p css={noNotificationBox}>조회된 알림이 없습니다.</p>
+      ) : (
+        <NotificationList notificationItems={notifications} handleDelete={handleDelete} />
+      )}
+
+      {totalPages !== 0 && (
+        <Stack
+          spacing={2}
+          sx={{
+            alignItems: 'center',
+            mt: 2,
+          }}
+        >
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={(_, value) => {
+              setCurrentPage(value);
+            }}
+          />
+        </Stack>
+      )}
     </div>
   );
 };
@@ -209,4 +227,16 @@ const allDeleteBtn = css`
     cursor: pointer;
     color: #000000;
   }
+`;
+
+const noNotificationBox = css`
+  width: 662px;
+  height: 400px;
+  border: 1px dashed ${colors.gray[300]};
+  border-radius: 10px;
+  text-align: center;
+  line-height: 400px;
+  vertical-align: middle;
+  font-family: 'nanumR';
+  color: ${colors.gray[400]};
 `;
