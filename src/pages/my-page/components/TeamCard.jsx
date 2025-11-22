@@ -73,11 +73,9 @@ const TeamCard = ({ team }) => {
 
       {isOpen &&
         team.members.map((member) => {
-          // 문자열/숫자 안전 비교
           const isCurrentUser = String(member.userId) === String(currentUserId);
           const isMemberLeader = member.nickname === leaderName;
 
-          // 현재 로그인한 사용자의 정보 찾기
           const currentUserMember = team.members.find(
             (m) => String(m.userId) === String(currentUserId)
           );
@@ -95,13 +93,11 @@ const TeamCard = ({ team }) => {
                 <small css={[subText, { textAlign: 'center' }]}>{member.position?.desc}</small>
               )}
               <div css={actions}>
-                {/* 삭제하기: 리더만 볼 수 있고, 본인과 리더는 삭제 불가 */}
                 {currentUserIsLeader && !isCurrentUser && !isMemberLeader && (
                   <button css={btn} onClick={(e) => handleDeleteMember(e, team.id, member.userId)}>
                     삭제하기
                   </button>
                 )}
-                {/* 리뷰하기: 본인 제외 모두에게 보임 */}
                 {!isCurrentUser && (
                   <button
                     css={[btn, reviewBtn]}
