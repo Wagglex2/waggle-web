@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export const currentUserId = 'm1';
+export const currentUserId = '1';
 
 export const useTeamStore = create((set) => ({
   teams: [],
