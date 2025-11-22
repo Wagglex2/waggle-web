@@ -1,7 +1,9 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { css } from '@emotion/react';
+import { useNavigate } from 'react-router-dom';
+import { usePostedJobsStore } from '@/stores/usePostedJobsStore';
 import ApplicantModal from './components/ApplicationModal';
 import PostedJobCard from './components/PostedJobCard';
 
@@ -15,104 +17,17 @@ const colors = {
   primary: '#FFCC00',
 };
 
-const samplePosts = [
-  {
-    id: 1,
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    content:
-      '웹 애플리케이션 개발 프로젝트에 참여할 프론트엔드 개발자를 찾습니다. React, TypeScript 경험이 있으신 분 환영합니다.',
-    type: '프로젝트',
-    deadline: '2025.03.15',
-    applicants: [
-      {
-        id: 'a1',
-        name: '짱구',
-        color: '#f5c24b',
-        applicationDate: '2025.01.15 14:30',
-        mode: '온라인',
-        year: '3학년',
-        position: '프론트',
-        stack: 'ts, react, figma',
-        detail: '어쩌구\n.\n.\n.\n저쩌구',
-      },
-      {
-        id: 'a2',
-        name: '짱아',
-        color: '#c9a7ff',
-        applicationDate: '2025.01.16 09:15',
-        mode: '온라인',
-        year: '4학년',
-        position: '백엔드',
-        stack: 'node, prisma',
-        detail: '간단 자기소개와 참여 의사',
-      },
-      {
-        id: 'a3',
-        name: '맹구',
-        color: '#8ee7f2',
-        applicationDate: '2025.01.17 16:45',
-        mode: '오프라인',
-        year: '2학년',
-        position: '디자인',
-        stack: 'figma, ai',
-        detail: '디자인 포트폴리오 보유',
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: '알고리즘 스터디 모임',
-    content:
-      '매주 토요일 오후 2시에 진행하는 알고리즘 스터디입니다. 백준, 프로그래머스 문제를 함께 풀어보고 토론합니다.',
-    type: '스터디',
-    deadline: '2025.03.20',
-    applicants: [
-      {
-        id: 'a4',
-        name: '훈이',
-        color: '#ffd482',
-        applicationDate: '2025.01.18 11:20',
-        mode: '온라인',
-        year: '3학년',
-        detail: '매주 토요일 참여 가능',
-      },
-      {
-        id: 'a5',
-        name: '유리',
-        color: '#ffa3b8',
-        applicationDate: '2025.01.19 13:10',
-        mode: '온라인',
-        year: '1학년',
-        detail: '기초 알고리즘 학습 중',
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: '운영체제 과제 같이 하실 분 구합니다.',
-    content:
-      '개인 포트폴리오 웹사이트를 제작하는 과제입니다. HTML, CSS, JavaScript를 활용하여 반응형 웹사이트를 만들어보세요.',
-    type: '과제',
-    deadline: '2025.03.25',
-    applicants: [
-      {
-        id: 'a6',
-        name: '철수',
-        color: '#b3e5ff',
-        applicationDate: '2025.01.20 15:30',
-        mode: '오프라인',
-        year: '2학년',
-        detail: '과제 일정 맞춰 진행 가능',
-      },
-    ],
-  },
-];
-
 const MyPostedJobsPage = () => {
+  const navigate = useNavigate();
   const [tab, setTab] = useState('프로젝트');
-  const [posts, setPosts] = useState(samplePosts);
   const [open, setOpen] = useState(() => new Set());
   const [appModal, setAppModal] = useState(null);
+  const { posts, loading, error, fetchAllPosts, deletePost, acceptApplicant, rejectApplicant } =
+    usePostedJobsStore();
+
+  useEffect(() => {
+    fetchAllPosts();
+  }, [fetchAllPosts]);
 
   const toggle = (id) => {
     setOpen((prev) => {
@@ -122,48 +37,29 @@ const MyPostedJobsPage = () => {
     });
   };
 
-  const handleEdit = (postId) => {
-    alert(`공고 ${postId} 수정하기`);
+  const handleEdit = (postId, postType) => {
+    const routes = {
+      프로젝트: `/edit-project/${postId}`,
+      과제: `/edit-assignment/${postId}`,
+      스터디: `/edit-study/${postId}`,
+    };
+    navigate(routes[postType]);
   };
 
-  const handleDelete = (postId) => {
-    if (window.confirm('정말 이 공고를 삭제하시겠습니까?')) {
-      setPosts((prev) => prev.filter((post) => post.id !== postId));
-    }
+  const handleDelete = async (postId, postType) => {
+    await deletePost(postId, postType);
   };
 
-  const handleReject = (postId, applicantId) => {
+  const handleReject = async (postId, applicantId) => {
     if (appModal) setAppModal(null);
-
-    if (window.confirm('정말 이 지원자를 거절하시겠습니까?')) {
-      setPosts((prevPosts) =>
-        prevPosts.map((post) => {
-          if (post.id === postId) {
-            return {
-              ...post,
-              applicants: post.applicants.filter((app) => app.id !== applicantId),
-            };
-          }
-          return post;
-        })
-      );
-    }
+    await rejectApplicant(postId, applicantId);
   };
 
-  const acceptApplicant = (postId, applicantId) => {
-    alert('수락되었습니다.');
-    setAppModal(null);
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id === postId) {
-          return {
-            ...post,
-            applicants: post.applicants.filter((app) => app.id !== applicantId),
-          };
-        }
-        return post;
-      })
-    );
+  const handleAccept = async (postId, applicantId) => {
+    const success = await acceptApplicant(postId, applicantId);
+    if (success && appModal) {
+      setAppModal(null);
+    }
   };
 
   const handleViewApplication = (applicant, postType) => {
@@ -186,7 +82,7 @@ const MyPostedJobsPage = () => {
 
   const handleModalAccept = () => {
     if (!appModal) return;
-    acceptApplicant(findPostIdByApplicantId(appModal.id), appModal.id);
+    handleAccept(findPostIdByApplicantId(appModal.id), appModal.id);
   };
 
   return (
@@ -206,24 +102,30 @@ const MyPostedJobsPage = () => {
           </button>
         </div>
 
-        {filteredPosts.length === 0 && <div css={empty}>해당 카테고리의 공고가 없어요.</div>}
+        {loading && <div css={empty}>데이터를 불러오는 중...</div>}
+        {error && <div css={empty}>오류: {error}</div>}
+        {!loading && !error && filteredPosts.length === 0 && (
+          <div css={empty}>해당 카테고리의 공고가 없어요.</div>
+        )}
 
-        {filteredPosts.map((post) => {
-          const isOpen = open.has(post.id);
+        {!loading &&
+          !error &&
+          filteredPosts.map((post) => {
+            const isOpen = open.has(post.id);
 
-          return (
-            <PostedJobCard
-              key={post.id}
-              post={post}
-              isOpen={isOpen}
-              onToggle={() => toggle(post.id)}
-              onEdit={() => handleEdit(post.id)}
-              onDelete={() => handleDelete(post.id)}
-              onRejectApplicant={(applicantId) => handleReject(post.id, applicantId)}
-              onViewApplicant={(applicant) => handleViewApplication(applicant, post.type)}
-            />
-          );
-        })}
+            return (
+              <PostedJobCard
+                key={post.id}
+                post={post}
+                isOpen={isOpen}
+                onToggle={() => toggle(post.id)}
+                onEdit={() => handleEdit(post.id, post.type)}
+                onDelete={() => handleDelete(post.id, post.type)}
+                onRejectApplicant={(applicantId) => handleReject(post.id, applicantId)}
+                onViewApplicant={(applicant) => handleViewApplication(applicant, post.type)}
+              />
+            );
+          })}
       </div>
 
       <ApplicantModal
