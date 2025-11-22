@@ -2,6 +2,7 @@
 /** @jsxRuntime automatic */
 import { css } from '@emotion/react';
 import { useTeamStore } from '../useTeamStore';
+import api from '@/api/api';
 
 const colors = {
   border: '#eee6d6',
@@ -27,13 +28,31 @@ const ReviewModal = () => {
     deleteReview,
   } = useTeamStore();
 
+  //console.log('유저 id', reviewTarget.member?.userId);
+
+  async function handlesubmitReview() {
+    try {
+      const res = await api.post('/api/v1/reviews', {
+        revieweeId: reviewTarget.member.userId,
+        content: reviewText,
+      });
+
+      console.log(res);
+      alert('리뷰가 성공적으로 저장되었습니다.');
+      saveReview();
+    } catch (error) {
+      console.error('리뷰 저장 중 오류가 발생했습니다:', error);
+      alert('리뷰 저장에 실패했습니다. 다시 시도해주세요.');
+    }
+  }
+
   const maxChars = 200;
 
   if (!reviewTarget) {
     return null;
   }
 
-  const isEditing = reviewedMembers.has(`${reviewTarget.team.id}_${reviewTarget.member.id}`);
+  const isEditing = reviewedMembers.has(`${reviewTarget.team.id}_${reviewTarget.member.userId}`);
 
   return (
     <div css={overlay} onClick={closeReview}>
@@ -62,7 +81,7 @@ const ReviewModal = () => {
           id="review-detail"
           css={textArea}
           maxLength={maxChars}
-          placeholder={`${reviewTarget.member.name}님에 대한 솔직한 피드백을 남겨주세요.`}
+          placeholder={`${reviewTarget.member.nickname}님에 대한 솔직한 피드백을 남겨주세요.`}
           value={reviewText}
           onChange={(e) => setReviewText(e.target.value)}
         />
@@ -91,7 +110,7 @@ const ReviewModal = () => {
               </button>
             </>
           ) : (
-            <button css={largeSaveBtn} onClick={saveReview}>
+            <button css={largeSaveBtn} onClick={handlesubmitReview}>
               저장하기
             </button>
           )}
