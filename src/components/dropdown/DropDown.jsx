@@ -35,8 +35,8 @@ const DropDown = ({ label, options, buttonWidth, dropDownWidth }) => {
       {openModal && (
         <ul css={dropDownListBox(dropDownWidth)}>
           {options.map((option) => (
-            <li key={option} onClick={() => handleSelect(option)}>
-              {option}
+            <li key={option.value} onClick={() => handleSelect(option.desc)}>
+              {option.desc}
             </li>
           ))}
         </ul>

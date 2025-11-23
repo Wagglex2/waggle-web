@@ -38,13 +38,13 @@ const MultiSelectDropDown = ({ label, options, buttonWidth }) => {
       {openModal && (
         <ul css={dropDownListBox}>
           {options.map((option) => (
-            <li key={option}>
+            <li key={option.value}>
               <input
                 type="checkbox"
-                checked={selected.includes(option)}
-                onChange={() => handleSelect(option)}
+                checked={selected.includes(option.desc)}
+                onChange={() => handleSelect(option.desc)}
               />
-              <span>{option}</span>
+              <span>{option.desc}</span>
             </li>
           ))}
         </ul>
