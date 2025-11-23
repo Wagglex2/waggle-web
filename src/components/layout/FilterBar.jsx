@@ -23,7 +23,7 @@ const toggleContainerStyle = css`
   justify-content: flex-end;
   align-items: center;
   gap: 8px;
-  margin-bottom: -30px;
+  margin-bottom: -30px; 
 `;
 
 const toggleTextStyle = css`
@@ -32,7 +32,7 @@ const toggleTextStyle = css`
   font-family: 'nanumR';
 `;
 
-export default function FilterBar({ children }) {
+export default function FilterBar({ children, isClosed, onToggle }) {
   return (
     <div css={filterSectionStyle}>
       <div css={dropDownsContainerStyle}>
@@ -40,7 +40,8 @@ export default function FilterBar({ children }) {
       </div>
       <div css={toggleContainerStyle}>
         <span css={toggleTextStyle}>마감된 공고만</span>
-        <ToggleSwitch />
+
+        <ToggleSwitch isToggled={isClosed} onToggle={onToggle} />
       </div>
     </div>
   );
