@@ -5,13 +5,13 @@ import PageWrapper from "@/components/layout/PageWrapper";
 import PageHeader from "@/components/layout/PageHeader";
 import FilterBar from "@/components/layout/FilterBar";
 import CardGrid from "@/components/layout/CardGrid";
-import Pagination from "@/components/common/Pagination";
 import ProjectCard from "@/components/card/ProjectCard";
 import EmptyStateMessage from "@/components/common/EmptyStateMessage"; 
 import { useDropdown } from "@/components/filter/useDropdown";
 import useProjectStore from "@/stores/useProjectStore";
 import api from '@/api/api'; 
-import { css } from '@emotion/react';
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 
 import {
   dropDownButtonStyle,
@@ -76,10 +76,11 @@ const purposeOptions = Object.keys(PURPOSE_MAP);
 export default function ProjectListPage() {
   const itemsPerPage = 9;
   const { openDropdown, setOpenDropdown, dropdownRefs } = useDropdown();
+
   const [projects, setProjects] = useState([]); 
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [isClosed, setIsClosed] = useState(false);
+  const [isClosed, setIsClosed] = useState(false); 
 
   const {
     selectedPurpose,
@@ -140,7 +141,8 @@ export default function ProjectListPage() {
         const response = await api.get('/api/v1/projects', { params });
         
         const content = response.data.data?.content || [];
-        const totalPageCount = response.data.data?.totalPages || 0;
+        
+        const totalPageCount = response.data.data?.page?.totalPages || response.data.data?.totalPages || 0;
 
         const mappedProjects = content.map((item) => {
            const extractValue = (data) => {
@@ -188,16 +190,11 @@ export default function ProjectListPage() {
   }, [currentPage, selectedPurpose, selectedTechs, selectedPositions, hasSelectedPurpose, setPage, isClosed]);
 
 
-  const handlePageChange = (pageNumber) => {
-    setPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
     <PageWrapper>
       <PageHeader title="프로젝트" />
+      
       <FilterBar isClosed={isClosed} onToggle={handleToggle}>
-        
         <div css={dropdownContainerStyle} ref={el => dropdownRefs.current['purpose'] = el}>
           <button css={dropDownButtonStyle("120px", hasSelectedPurpose)} onClick={() => setOpenDropdown(openDropdown === "purpose" ? null : "purpose")}>
             <span>{hasSelectedPurpose ? selectedPurpose : '목적'}</span>
@@ -261,7 +258,16 @@ export default function ProjectListPage() {
           />
           
           {totalPages > 0 && (
-            <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
+            <Stack spacing={2} sx={{ alignItems: 'center', mt: 4, mb: 4 }}>
+              <Pagination 
+                count={totalPages} 
+                page={currentPage} 
+                onChange={(_, value) => {
+                  setPage(value);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }} 
+              />
+            </Stack>
           )}
         </>
       )}
