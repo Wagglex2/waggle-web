@@ -33,7 +33,7 @@ const MainHeader = () => {
       alert('검색어를 입력해주세요.');
       return;
     }
-    navigate(`/search?category=${currentCategory.value}&q=${keyword}`);
+    navigate(`/search-result?category=${currentCategory.value}&q=${keyword}`);
   };
 
   const handleKeyDown = (e) => {
