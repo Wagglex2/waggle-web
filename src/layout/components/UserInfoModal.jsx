@@ -3,8 +3,6 @@
 import { css } from '@emotion/react';
 import { useState, useRef, useEffect } from 'react';
 
-// import { positionOptions, techStackOptions } from '@/data/options';
-
 const positionOptions = [
   '백엔드',
   '프론트엔드',
@@ -190,17 +188,49 @@ const MultiSelectDropDown = ({
 };
 
 const UserInfoModal = ({ setOpenModal, onSave }) => {
-  const [isVisible, setIsVisible] = useState(true);
-
+  const [isVisible, setIsVisible] = useState(false);
   const [selectedGrade, setSelectedGrade] = useState(null);
   const [intro, setIntro] = useState('');
   const [positions, setPositions] = useState([]);
   const [techStack, setTechStack] = useState([]);
-
   const [showWarning, setShowWarning] = useState(false);
 
   const textareaRef = useRef(null);
   const grades = [1, 2, 3, 4];
+
+  useEffect(() => {
+    const checkUserInfo = async () => {
+      try {
+        const response = await fetch('/api/v1/users/basic-info', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const isMissingInfo = !data.grade || !data.position || data.position.length === 0;
+
+          if (isMissingInfo) {
+            setIsVisible(true);
+          } else {
+            setIsVisible(false);
+            if (setOpenModal) setOpenModal(false);
+          }
+
+          if (data.grade) setSelectedGrade(data.grade);
+          if (data.shortIntro) setIntro(data.shortIntro);
+        } else {
+          setIsVisible(true);
+        }
+      } catch (error) {
+        setIsVisible(true);
+      }
+    };
+
+    checkUserInfo();
+  }, [setOpenModal]);
 
   const handleIntroChange = (e) => {
     setIntro(e.target.value);
@@ -219,21 +249,70 @@ const UserInfoModal = ({ setOpenModal, onSave }) => {
       return;
     }
 
-    const userData = {
-      grade: selectedGrade,
-      positions: positions,
-      techStack: techStack,
-      intro: intro,
+    const positionMap = {
+      백엔드: 'BACK_END',
+      프론트엔드: 'FRONT_END',
+      풀스택: 'FULL_STACK',
+      데이터: 'DATA',
+      AI: 'AI',
+      게임: 'GAME',
+      기획: 'PLANNING',
+      디자인: 'DESIGN',
     };
 
-    if (onSave) {
-      await onSave(userData);
-    }
+    const toServerEnum = (str) => {
+      const specialMap = {
+        'C/C++': 'C_CPP',
+        'C#': 'CSHARP',
+      };
+      if (specialMap[str]) return specialMap[str];
+      return str.toUpperCase().replace(/[\s.]/g, '_');
+    };
 
-    if (setOpenModal) {
-      setOpenModal(false);
+    const userData = {
+      grade: selectedGrade,
+      position: positionMap[positions[0]],
+      skills: techStack.map((skill) => toServerEnum(skill)),
+      shortIntro: intro,
+    };
+
+    try {
+      const response = await fetch('/api/v1/users/basic-info', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        try {
+          const errorData = JSON.parse(errorText);
+          alert(errorData.message || '저장에 실패했습니다.');
+        } catch (e) {
+          alert('저장에 실패했습니다.');
+        }
+        return;
+      }
+
+      const responseText = await response.text();
+      const result = responseText ? JSON.parse(responseText) : {};
+
+      console.log('Success:', result);
+
+      if (onSave) {
+        await onSave(userData);
+      }
+
+      if (setOpenModal) {
+        setOpenModal(false);
+      }
+      setIsVisible(false);
+    } catch (error) {
+      console.error('Network Error:', error);
+      alert('서버 오류가 발생했습니다.');
     }
-    setIsVisible(false);
   };
 
   if (!isVisible) return null;

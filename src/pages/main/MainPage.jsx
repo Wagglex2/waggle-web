@@ -204,7 +204,7 @@ const dummyProjects = [
 ];
 
 const MainPage = () => {
-  const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState(true);
   return (
     <div css={container(bgImg)}>
       <div css={text}>
