@@ -2,18 +2,19 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import { colors } from "@/styles/theme";
-import React, { useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import PageWrapper from "@/components/layout/PageWrapper";
 import FilterBar from "@/components/layout/FilterBar";
 import CardGrid from "@/components/layout/CardGrid";
-import Pagination from "@/components/common/Pagination";
 import ProjectCard from "@/components/card/ProjectCard";
 import HwCard from "@/components/card/HwCard";
 import StudyCard from "@/components/card/StudyCard";
 import EmptyStateMessage from "@/components/common/EmptyStateMessage";
 import { useDropdown } from "@/components/filter/useDropdown";
 import useSearchStore from "@/stores/useSearchStore";
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 
 import {
   dropDownButtonStyle,
@@ -52,193 +53,30 @@ const positionOptions = [...importedPositionOptions];
 const techOptions = [...importedTechStackOptions];
 const gradeOptions = ["전체", "1학년", "2학년", "3학년", "4학년 이상"];
 
-const dummyProjects = [
-  {
-    id: 1,
-    purposeTag: '공모전',
-    methodTag: '온/오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인'],
-    techStack: ['CPP', 'REACT', 'FIGMA'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 2,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드'],
-    techStack: ['JAVASCRIPT', 'NEXTJS', 'NOTION'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 3,
-    purposeTag: '해커톤',
-    methodTag: '온라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['JAVA', 'SPRINGBOOT', 'MYSQL'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 4,
-    purposeTag: '토이프로젝트',
-    methodTag: '온라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['CS', 'UNITY'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 5,
-    purposeTag: '공모전',
-    methodTag: '온/오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['PYTHON', 'DJANGO', 'POSTGRESQL'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 6,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['KOTLIN', 'SPRINGBOOT', 'MYSQL', 'SWIFT', 'NODEJS'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 7,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['SWIFT', 'NODEJS'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 8,
-    purposeTag: '사이드프로젝트',
-    methodTag: '온/오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['C', 'UNREAL'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 9,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['EXPRESS', 'MONGODB'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 10,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['SCIKITLEARN', 'PANDAS', 'TENSORFLOW', 'PYTORCH'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 11,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['TENSORFLOW', 'PYTORCH'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 12,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['FLUTTER', 'FIGMA'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 13,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['HTML', 'VUE'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 14,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['GIT', 'GITHUBACTIONS'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 15,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['REDIS', 'DOCKER'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 16,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['JIRA', 'NOTION'],
-    author: '솔랑솔랑',
-  },
-];
-
-const dummyHws = [
-  { id: 1, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 2, grade: "2학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 3, grade: "3학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-];
-
-const dummyStudies = [
-  { id: 1, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 2, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 3, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["JAVA", "SPRINGBOOT"], author: "솔랑솔랑" },
-];
-
 const categoryMap = {
   project: "프로젝트",
   homework: "과제",
   study: "스터디",
 };
 
+const GRADE_MAP = {
+  "1학년": 1,
+  "2학년": 2,
+  "3학년": 3,
+  "4학년 이상": 4
+};
+
 export default function SearchResultPage() {
   const itemsPerPage = 9;
   const { openDropdown, setOpenDropdown, dropdownRefs } = useDropdown();
   const [searchParams] = useSearchParams();
+  
   const category = searchParams.get('category') || 'project';
   const query = searchParams.get('q') || '';
+
+  const [data, setData] = useState([]); 
+  const [totalPages, setTotalPages] = useState(0); 
+  const [isLoading, setIsLoading] = useState(false); 
 
   const {
     currentPage, setPage, reset,
@@ -253,99 +91,66 @@ export default function SearchResultPage() {
     return () => reset();
   }, [reset]);
 
-  const handlePageChange = (pageNumber) => {
-    setPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  useEffect(() => {
+    setPage(1);
+  }, [category, query, setPage]);
 
-  const handleGradeSelect = (grade) => {
-    setGrade(grade);
-    setOpenDropdown(null);
-  };
-  const handleStudyTechSelect = (tech) => {
-    toggleStudyTech(tech);
-  };
-  const handleProjectPurposeSelect = (purpose) => {
-    setProjectPurpose(purpose);
-    setOpenDropdown(null);
-  };
-  const handleProjectTechSelect = (tech) => {
-    toggleProjectTech(tech);
-  };
-  const handleProjectPositionSelect = (position) => {
-    toggleProjectPosition(position);
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const params = {
+          page: currentPage - 1,
+          size: itemsPerPage,
+          keyword: query,
+        };
 
+        if (category === 'homework') {
+            if (hasSelectedGrade && selectedGrade !== '전체') {
+                params.grades = GRADE_MAP[selectedGrade];
+            }
+        } else if (category === 'study') {
+            if (selectedStudyTechs.length > 0) {
+                params.techStacks = selectedStudyTechs.join(',');
+            }
+        } else if (category === 'project') {
+            if (hasSelectedProjectPurpose && selectedProjectPurpose !== '전체') {
+                params.purposes = selectedProjectPurpose;
+            }
+            if (selectedProjectTechs.length > 0) {
+                params.techStacks = selectedProjectTechs.join(',');
+            }
+            if (selectedProjectPositions.length > 0) {
+                params.positions = selectedProjectPositions.join(',');
+            }
+        }
 
-  const filteredData = useMemo(() => {
-    let rawData;
-    switch (category) {
-      case 'homework': rawData = dummyHws; break;
-      case 'study': rawData = dummyStudies; break;
-      case 'project': default: rawData = dummyProjects; break;
-    }
+        setTimeout(() => {
+            console.log("API 호출 파라미터 확인용:", params); 
+            setData([]); 
+            setTotalPages(0);
+            setIsLoading(false); 
+        }, 500);
 
-    let filtered = rawData.filter(item => 
-      item.title.toLowerCase().includes(query.toLowerCase())
-    );
+      } catch (error) {
+        console.error("오류 발생:", error);
+        setData([]);
+        setIsLoading(false);
+      }
+    };
 
-    switch (category) {
-      case 'homework':
-        filtered = filtered.filter(hw => 
-          !hasSelectedGrade || selectedGrade === '전체' || hw.grade === selectedGrade
-        );
-        break;
-      case 'study':
-        filtered = filtered.filter(study =>
-          selectedStudyTechs.length === 0 || selectedStudyTechs.some(selectedTech => {
-             const searchTerms = selectedTech.split('/');
-             return searchTerms.some(term => {
-                let normalized = term.toUpperCase().trim();
-                if (normalized === 'C++') normalized = 'CPP';
-                else if (normalized === 'C#') normalized = 'CS';
-                else if (normalized === 'VUE.JS' || normalized === 'VUEJS') normalized = 'VUE';
-                else normalized = normalized.replace(/[\s.]/g, '');
-                
-                return study.techStack.includes(normalized);
-             });
-          })
-        );
-        break;
-      case 'project':
-        filtered = filtered.filter(project => {
-          const purposeMatch = !hasSelectedProjectPurpose || selectedProjectPurpose === '전체' || project.purposeTag === selectedProjectPurpose;
-
-          const techMatch = selectedProjectTechs.length === 0 || selectedProjectTechs.some(selectedTech => {
-             const searchTerms = selectedTech.split('/');
-             return searchTerms.some(term => {
-                let normalized = term.toUpperCase().trim();
-                if (normalized === 'C++') normalized = 'CPP';
-                else if (normalized === 'C#') normalized = 'CS';
-                else if (normalized === 'VUE.JS' || normalized === 'VUEJS') normalized = 'VUE';
-                else normalized = normalized.replace(/[\s.]/g, '');
-
-                return project.techStack.includes(normalized);
-             });
-          });
-
-          const positionMatch = selectedProjectPositions.length === 0 || selectedProjectPositions.some(pos => project.positions.includes(pos));
-          return purposeMatch && techMatch && positionMatch;
-        });
-        break;
-      default: break;
-    }
-    return filtered;
+    fetchData();
   }, [
-    category, query, 
-    selectedGrade, hasSelectedGrade, 
-    selectedStudyTechs, 
-    selectedProjectPurpose, hasSelectedProjectPurpose, selectedProjectTechs, selectedProjectPositions
+    category, query, currentPage, 
+    selectedGrade, selectedStudyTechs, 
+    selectedProjectPurpose, selectedProjectTechs, selectedProjectPositions
   ]);
 
-  const totalItems = filteredData.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = filteredData.slice(startIndex, startIndex + itemsPerPage);
+  const handleGradeSelect = (grade) => { setGrade(grade); setOpenDropdown(null); setPage(1); };
+  const handleStudyTechSelect = (tech) => { toggleStudyTech(tech); setPage(1); };
+  const handleProjectPurposeSelect = (purpose) => { setProjectPurpose(purpose); setOpenDropdown(null); setPage(1); };
+  const handleProjectTechSelect = (tech) => { toggleProjectTech(tech); setPage(1); };
+  const handleProjectPositionSelect = (position) => { toggleProjectPosition(position); setPage(1); };
 
   const renderCard = (item) => {
     switch (category) {
@@ -460,22 +265,29 @@ export default function SearchResultPage() {
         {renderFilters()}
       </FilterBar>
   
-      {totalItems === 0 ? (
+      {isLoading ? (
+        <EmptyStateMessage message="데이터를 불러오는 중입니다." />
+      ) : data.length === 0 ? (
         <EmptyStateMessage message="일치하는 결과가 없습니다." />
       ) : (
         <>
           <CardGrid
-            items={currentItems}
+            items={data}
             itemsPerPage={itemsPerPage}
             renderCard={renderCard}
           />
           
           {totalPages > 0 && (
-            <Pagination
-              totalPages={totalPages}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-            />
+            <Stack spacing={2} sx={{ alignItems: 'center', mt: 4, mb: 4 }}>
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={(_, value) => {
+                  setPage(value);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              />
+            </Stack>
           )}
         </>
       )}
