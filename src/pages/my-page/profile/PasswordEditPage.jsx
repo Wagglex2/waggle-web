@@ -1,52 +1,138 @@
 /** @jsxImportSource @emotion/react */
+import api from '@/api/api';
 import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
 
 const PasswordEditPage = () => {
-  const [pw, setPw] = useState('');
-  const [confirmPw, setConfirmPw] = useState('');
-  const [confirmPwMsg, setConfirmPwMsg] = useState('');
+  const [currentPw, setCurrentPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [newPwConfirm, setNewPwConfirm] = useState('');
 
+  const [newPwMsg, setNewPwMsg] = useState(''); // #2 밑 경고 메시지
+  const [confirmPwMsg, setConfirmPwMsg] = useState(''); // #3 밑 경고 메시지
+  const [disabled, setDisabled] = useState(true); // 변경 버튼 상태
+
+  const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,20}$/;
+
+  // 비밀번호 변경 api
+  async function postPassword(e) {
+    e.preventDefault();
+
+    try {
+      const res = await api.post('/api/v1/users/me/password-change', {
+        old: currentPw,
+        newPassword: newPw,
+        passwordConfirm: newPwConfirm,
+      });
+
+      setCurrentPw('');
+      setNewPw('');
+      setNewPwConfirm('');
+
+      console.log(res);
+      alert('비밀번호가 변경되었습니다.');
+    } catch (e) {
+      console.error(e);
+      if (e.status === 400) {
+        alert('현재 비밀번호가 잘못되었습니다. 다시 시도해 주세요.');
+        setCurrentPw('');
+      } else {
+        alert('변경에 실패하였습니다. 다시 시도해 주세요.');
+      }
+    }
+  }
+
+  // #2 경고 메시지 (우선순위 적용)
   useEffect(() => {
-    if (pw !== confirmPw) {
-      setConfirmPwMsg('비밀번호가 일치하지 않습니다.');
+    if (!newPw) {
+      setNewPwMsg('');
+      return;
+    }
+
+    if (currentPw && currentPw === newPw) {
+      setNewPwMsg('*현재 비밀번호와 다른 비밀번호를 입력해 주세요.');
+      return;
+    }
+
+    if (!pwRegex.test(newPw)) {
+      setNewPwMsg('*비밀번호 형식이 맞지 않습니다. (영문/숫자/특수문자 포함 8~20자)');
+      return;
+    }
+
+    setNewPwMsg('');
+  }, [currentPw, newPw]);
+
+  // #3 경고 메시지 (비밀번호 확인)
+  useEffect(() => {
+    if (!newPwConfirm) {
+      setConfirmPwMsg('');
+      return;
+    }
+
+    if (newPw !== newPwConfirm) {
+      setConfirmPwMsg('*비밀번호가 일치하지 않습니다.');
     } else {
       setConfirmPwMsg('');
     }
-  }, [pw, confirmPw]);
+  }, [newPw, newPwConfirm]);
+
+  // 변경하기 버튼 활성화 조건
+  useEffect(() => {
+    const isValid =
+      currentPw.length > 0 &&
+      newPw.length > 0 &&
+      newPwConfirm.length > 0 &&
+      newPwMsg === '' && // #2 문제 없음
+      confirmPwMsg === ''; // #3 문제 없음
+
+    setDisabled(!isValid);
+  }, [currentPw, newPw, newPwConfirm, newPwMsg, confirmPwMsg]);
 
   return (
     <form css={wrap}>
       <h2 css={pageTitle}>비밀번호 변경</h2>
-      <div css={inputPwBox}>
-        <p className="current-pw">현재 비밀번호</p>
-        <input type="text" placeholder="현재 비밀번호를 입력해 주세요" />
+
+      <div>
+        {/* 현재 비밀번호 (#1) */}
+        <div css={inputPwBox}>
+          <p className="current-pw">현재 비밀번호</p>
+          <input
+            type="password"
+            value={currentPw}
+            onChange={(e) => setCurrentPw(e.target.value)}
+            placeholder="현재 비밀번호를 입력해 주세요"
+          />
+        </div>
+
+        {/* 새 비밀번호 (#2) */}
+        <div css={inputPwBox}>
+          <p>새 비밀번호</p>
+          <input
+            type="password"
+            value={newPw}
+            onChange={(e) => setNewPw(e.target.value)}
+            placeholder="영문자, 숫자, 특수문자 포함 8~20자"
+          />
+        </div>
+        {newPwMsg && <p css={confirmPwMsgStyle}>{newPwMsg}</p>}
+
+        {/* 새 비밀번호 확인 (#3) */}
+        <div css={inputPwBox}>
+          <p>비밀번호 확인</p>
+          <input
+            type="password"
+            value={newPwConfirm}
+            onChange={(e) => setNewPwConfirm(e.target.value)}
+            placeholder="비밀번호를 확인해 주세요"
+          />
+        </div>
+        {confirmPwMsg && <p css={confirmPwMsgStyle}>{confirmPwMsg}</p>}
       </div>
-      <div css={inputPwBox}>
-        <p>새 비밀번호</p>
-        <input
-          type="password"
-          value={pw}
-          onChange={(e) => {
-            setPw(e.target.value);
-          }}
-          placeholder="새 비밀번호를 입력해 주세요"
-        />
-      </div>
-      <div css={inputPwBox}>
-        <p>비밀번호 확인</p>
-        <input
-          type="password"
-          value={confirmPw}
-          onChange={(e) => {
-            setConfirmPw(e.target.value);
-          }}
-          placeholder="새 비밀번호를 입력해 주세요"
-        />
-      </div>
-      <p css={confirmPwMsgStyle}>{confirmPwMsg}</p>
-      <button css={passwordUpdateBtn}>변경하기</button>
+
+      <button type="submit" css={passwordUpdateBtn} disabled={disabled} onClick={postPassword}>
+        변경하기
+      </button>
     </form>
   );
 };
@@ -84,6 +170,7 @@ const inputPwBox = css`
   input {
     height: 50px;
     width: 500px;
+    border-radius: 10px;
     border: none;
     padding: 0 10px 0 120px;
   }
@@ -110,20 +197,19 @@ const inputPwBox = css`
 `;
 
 const passwordUpdateBtn = css`
-  padding: 7px 30px;
+  margin-top: 15px;
+  margin-left: auto;
+  padding: 12px 30px;
   border: 1px solid ${colors.gray[300]};
   border-radius: 10px;
   background-color: #fef7d4;
   font-family: 'nanumB';
-
-  position: absolute;
-  bottom: 30px;
-  right: 30px;
 `;
 
 const confirmPwMsgStyle = css`
-  color: #eb0000;
+  color: #dc3545;
   margin-top: 3px;
   margin-bottom: 10px;
+  margin-left: 5px;
   align-self: flex-end;
 `;
