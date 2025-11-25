@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { css } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
-import { usePostedJobsStore } from '@/stores/usePostedJobsStore';
+import { usePostedJobsStore } from '../../stores/usePostedJobsStore';
 import ApplicantModal from './components/ApplicationModal';
 import PostedJobCard from './components/PostedJobCard';
 
@@ -29,6 +29,17 @@ const MyPostedJobsPage = () => {
     fetchAllPosts();
   }, [fetchAllPosts]);
 
+  const { posts, loading, error, fetchAllPosts, deletePost, acceptApplicant, rejectApplicant } =
+    usePostedJobsStore();
+
+  useEffect(() => {
+    fetchAllPosts();
+  }, [fetchAllPosts]);
+
+  useEffect(() => {
+    setOpen(new Set());
+  }, [tab]);
+
   const toggle = (id) => {
     setOpen((prev) => {
       const next = new Set(prev);
@@ -39,20 +50,37 @@ const MyPostedJobsPage = () => {
 
   const handleEdit = (postId, postType) => {
     const routes = {
-      프로젝트: `/edit-project/${postId}`,
-      과제: `/edit-assignment/${postId}`,
-      스터디: `/edit-study/${postId}`,
+
+      프로젝트: '/create-project',
+      과제: '/create-hw',
+      스터디: '/create-study',
     };
-    navigate(routes[postType]);
+
+    const target = routes[postType];
+    if (target) {
+      navigate(target, {
+        state: {
+          editMode: true,
+          postId: postId,
+        },
+      });
+    } else {
+      alert('수정 페이지 경로를 찾을 수 없습니다.');
+    }
   };
 
   const handleDelete = async (postId, postType) => {
-    await deletePost(postId, postType);
+    if (window.confirm('정말 삭제하시겠습니까?')) {
+      await deletePost(postId, postType);
+    }
+
   };
 
   const handleReject = async (postId, applicantId) => {
     if (appModal) setAppModal(null);
-    await rejectApplicant(postId, applicantId);
+    if (window.confirm('지원자를 거절하시겠습니까?')) {
+      await rejectApplicant(postId, applicantId);
+    }
   };
 
   const handleAccept = async (postId, applicantId) => {
@@ -178,7 +206,7 @@ const tabButton = (isActive) => css`
   align-items: center;
   justify-content: center;
   &:hover {
-    background: ${isActive ? '' : colors.btnHover};
+    background: ${isActive ? colors.tabActive : colors.btnHover};
   }
 `;
 
