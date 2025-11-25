@@ -3,15 +3,31 @@ import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const MultiSelectDropDown = ({ label, options, buttonWidth }) => {
+const MultiSelectDropDown = ({ label, options, buttonWidth, onChange, prevData }) => {
   const [openModal, setOpenModal] = useState(false);
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState(prevData?.map((item) => item.desc) || []);
+
+  useEffect(() => {
+    if (prevData && prevData.length > 0) {
+      setSelected(prevData.map((item) => item.desc));
+    }
+  }, [prevData]);
 
   const handleSelect = (option) => {
+    // ui
     setSelected((prev) =>
-      prev.includes(option) ? prev.filter((item) => item !== option) : [...prev, option]
+      prev.includes(option.desc)
+        ? prev.filter((item) => item !== option.desc)
+        : [...prev, option.desc]
+    );
+
+    // api 요청 데이터
+    onChange((prev) =>
+      prev.some((item) => item.name === option.name)
+        ? prev.filter((item) => item.name !== option.name)
+        : [...prev, option]
     );
   };
 
@@ -38,11 +54,11 @@ const MultiSelectDropDown = ({ label, options, buttonWidth }) => {
       {openModal && (
         <ul css={dropDownListBox}>
           {options.map((option) => (
-            <li key={option.value}>
+            <li key={option.name}>
               <input
                 type="checkbox"
                 checked={selected.includes(option.desc)}
-                onChange={() => handleSelect(option.desc)}
+                onChange={() => handleSelect(option)}
               />
               <span>{option.desc}</span>
             </li>

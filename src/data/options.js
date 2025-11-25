@@ -1,200 +1,200 @@
 export const purposeOptions = [
   {
-    value: 'CONTEST',
+    name: 'CONTEST',
     desc: '공모전',
   },
   {
-    value: 'HACKATHON',
+    name: 'HACKATHON',
     desc: '해커톤',
   },
   {
-    value: 'TOY_PROJECT',
+    name: 'TOY_PROJECT',
     desc: '사이드프로젝트',
   },
   {
-    value: 'SIDE_PROJECT',
+    name: 'SIDE_PROJECT',
     desc: '토이프로젝트',
   },
 ];
 
 export const positionOptions = [
   {
-    value: 'BACK_END',
+    name: 'BACK_END',
     desc: '백엔드',
   },
   {
-    value: 'FRONT_END',
+    name: 'FRONT_END',
     desc: '프론트엔드',
   },
   {
-    value: 'FULL_STACK',
+    name: 'FULL_STACK',
     desc: '풀스택',
   },
   {
-    value: 'DATA',
+    name: 'DATA',
     desc: '데이터',
   },
   {
-    value: 'AI',
+    name: 'AI',
     desc: 'AI',
   },
   {
-    value: 'GAME',
+    name: 'GAME',
     desc: '게임',
   },
   {
-    value: 'PLANNER',
+    name: 'PLANNER',
     desc: '기획',
   },
   {
-    value: 'DESIGNER',
+    name: 'DESIGNER',
     desc: '디자인',
   },
 ];
 
 export const techStackOptions = [
   {
-    value: 'JAVA',
+    name: 'JAVA',
     desc: 'Java',
   },
   {
-    value: 'C',
+    name: 'C',
     desc: 'C',
   },
   {
-    value: 'CPP',
+    name: 'CPP',
     desc: 'C++',
   },
   {
-    value: 'CSHARP',
+    name: 'CSHARP',
     desc: 'C#',
   },
   {
-    value: 'HTML',
+    name: 'HTML',
     desc: 'HTML',
   },
   {
-    value: 'CSS',
+    name: 'CSS',
     desc: 'CSS',
   },
   {
-    value: 'TYPESCRIPT',
+    name: 'TYPESCRIPT',
     desc: 'TypeScript',
   },
   {
-    value: 'JAVASCRIPT',
+    name: 'JAVASCRIPT',
     desc: 'JavaScript',
   },
   {
-    value: 'KOTLIN',
+    name: 'KOTLIN',
     desc: 'Kotlin',
   },
   {
-    value: 'SWIFT',
+    name: 'SWIFT',
     desc: 'Swift',
   },
   {
-    value: 'PYTHON',
+    name: 'PYTHON',
     desc: 'Python',
   },
   {
-    value: 'EXPRESS',
+    name: 'EXPRESS',
     desc: 'Express',
   },
   {
-    value: 'VUE_JS',
+    name: 'VUE_JS',
     desc: 'Vue.js',
   },
   {
-    value: 'NEXT_JS',
+    name: 'NEXT_JS',
     desc: 'Next.js',
   },
   {
-    value: 'REACT',
+    name: 'REACT',
     desc: 'React',
   },
   {
-    value: 'NODE_JS',
+    name: 'NODE_JS',
     desc: 'Node.js',
   },
   {
-    value: 'SPRING_BOOT',
+    name: 'SPRING_BOOT',
     desc: 'Spring Boot',
   },
   {
-    value: 'DJANGO',
+    name: 'DJANGO',
     desc: 'Django',
   },
   {
-    value: 'FLUTTER',
+    name: 'FLUTTER',
     desc: 'Flutter',
   },
   {
-    value: 'PANDAS',
+    name: 'PANDAS',
     desc: 'Pandas',
   },
   {
-    value: 'SCIKIT_LEARN',
+    name: 'SCIKIT_LEARN',
     desc: 'scikit-learn',
   },
   {
-    value: 'TENSORFLOW',
+    name: 'TENSORFLOW',
     desc: 'TensorFlow',
   },
   {
-    value: 'PYTORCH',
+    name: 'PYTORCH',
     desc: 'PyTorch',
   },
   {
-    value: 'UNITY',
+    name: 'UNITY',
     desc: 'Unity',
   },
   {
-    value: 'UNREAL',
+    name: 'UNREAL',
     desc: 'Unreal',
   },
   {
-    value: 'POSTGRESQL',
+    name: 'POSTGRESQL',
     desc: 'PostgreSQL',
   },
   {
-    value: 'MYSQL',
+    name: 'MYSQL',
     desc: 'MySQL',
   },
   {
-    value: 'MONGODB',
+    name: 'MONGODB',
     desc: 'MongoDB',
   },
   {
-    value: 'REDIS',
+    name: 'REDIS',
     desc: 'Redis',
   },
   {
-    value: 'GIT',
+    name: 'GIT',
     desc: 'Git',
   },
   {
-    value: 'GITHUB',
+    name: 'GITHUB',
     desc: 'GitHub',
   },
   {
-    value: 'GITHUB_ACTIONS',
+    name: 'GITHUB_ACTIONS',
     desc: 'GitHub Actions',
   },
   {
-    value: 'DOCKER',
+    name: 'DOCKER',
     desc: 'Docker',
   },
   {
-    value: 'FIGMA',
+    name: 'FIGMA',
     desc: 'Figma',
   },
   {
-    value: 'NOTION',
+    name: 'NOTION',
     desc: 'Notion',
   },
   {
-    value: 'JIRA',
+    name: 'JIRA',
     desc: 'Jira',
   },
 ];

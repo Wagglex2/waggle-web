@@ -3,14 +3,19 @@ import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const DropDown = ({ label, options, buttonWidth, dropDownWidth }) => {
+const DropDown = ({ label, options, buttonWidth, dropDownWidth, onChange, prevData }) => {
   const [openModal, setOpenModal] = useState(false);
-  const [selected, setSelected] = useState(label);
+  const [selected, setSelected] = useState(prevData?.desc || label);
+
+  useEffect(() => {
+    if (prevData) setSelected(prevData.desc);
+  }, [prevData]);
 
   const handleSelect = (option) => {
-    setSelected(option);
+    setSelected(option.desc);
+    onChange(option);
     setOpenModal(false);
   };
 
@@ -35,7 +40,7 @@ const DropDown = ({ label, options, buttonWidth, dropDownWidth }) => {
       {openModal && (
         <ul css={dropDownListBox(dropDownWidth)}>
           {options.map((option) => (
-            <li key={option.value} onClick={() => handleSelect(option.desc)}>
+            <li key={option.name} onClick={() => handleSelect(option)}>
               {option.desc}
             </li>
           ))}
