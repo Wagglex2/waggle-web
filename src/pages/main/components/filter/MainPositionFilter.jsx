@@ -41,13 +41,13 @@ const MainPositionFilter = () => {
       {isDropdownOpen && (
         <ul css={optionBox}>
           {positionOptions.map((item) => (
-            <li key={item} onClick={() => handleOptionSelect(item)}>
-              {!seletedPosition.includes(item) ? (
+            <li key={item.name} onClick={() => handleOptionSelect(item.desc)}>
+              {!seletedPosition.includes(item.desc) ? (
                 <CheckBoxOutlineBlankIcon className="check-box-icon" />
               ) : (
                 <CheckBoxIcon className="check-box-icon" />
               )}
-              <span>{item}</span>
+              <span>{item.desc}</span>
             </li>
           ))}
         </ul>
