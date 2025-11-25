@@ -1,15 +1,17 @@
 /** @jsxRuntime automatic */
 /** @jsxImportSource @emotion/react */
-import React, { useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import PageWrapper from "@/components/layout/PageWrapper";
 import PageHeader from "@/components/layout/PageHeader";
 import FilterBar from "@/components/layout/FilterBar";
 import CardGrid from "@/components/layout/CardGrid";
-import Pagination from "@/components/common/Pagination";
 import HwCard from "@/components/card/HwCard";
 import EmptyStateMessage from "@/components/common/EmptyStateMessage"; 
 import { useDropdown } from "@/components/filter/useDropdown";
 import useHomeworkStore from "@/stores/useHomeworkStore";
+import api from '@/api/api'; 
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 
 import {
   dropDownButtonStyle,
@@ -19,30 +21,22 @@ import {
   dropDownMenuItemStyle
 } from "@/components/filter/dropdownStyles";
 
+const GRADE_MAP = {
+  "1학년": 1,
+  "2학년": 2,
+  "3학년": 3,
+  "4학년 이상": 4
+};
 const gradeOptions = ["전체", "1학년", "2학년", "3학년", "4학년 이상"];
-
-const dummyHws = [
-  { id: 1, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 2, grade: "2학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 3, grade: "3학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 4, grade: "2학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 6, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 7, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 8, grade: "2학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 9, grade: "3학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 10, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 11, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 12, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 13, grade: "2학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요 운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 14, grade: "3학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 15, grade: "3학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-  { id: 16, grade: "1학년", purposeTag: "과제", department: "컴퓨터공학과", subjects: ["운영체제(1234)"], deadline: "2025.12.15까지", title: "운영체제 과제 같이 하실 분 구해요", author: "솔랑솔랑" },
-];
 
 export default function HwListPage() {
   const itemsPerPage = 9;
   const { openDropdown, setOpenDropdown, dropdownRefs } = useDropdown();
-  
+  const [homeworks, setHomeworks] = useState([]); 
+  const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
+
   const {
     selectedGrade,
     hasSelectedGrade,
@@ -59,30 +53,68 @@ export default function HwListPage() {
   const handleGradeSelect = (grade) => {
     setGrade(grade);
     setOpenDropdown(null);
+    setPage(1); 
   };
 
-  const filteredHws = useMemo(() => {
-    return dummyHws.filter(hw => {
-      return !hasSelectedGrade || selectedGrade === '전체' || hw.grade === selectedGrade;
-    });
-  }, [selectedGrade, hasSelectedGrade]);
-
-  const totalItems = filteredHws.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  
-  const handlePageChange = (pageNumber) => {
-    setPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const handleToggle = (newState) => {
+    setIsClosed(newState);
+    setPage(1);
   };
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = filteredHws.slice(startIndex, startIndex + itemsPerPage);
+  useEffect(() => {
+    const fetchHomeworks = async () => {
+      setIsLoading(true);
+      try {
+        const params = {
+          page: currentPage - 1,
+          size: itemsPerPage,
+        };
+
+        if (isClosed) {
+          params.status = 'CLOSED';
+        }
+
+        if (hasSelectedGrade && selectedGrade !== '전체') {
+          params.grades = GRADE_MAP[selectedGrade];
+        }
+
+        const response = await api.get('/api/v1/assignments', { params });
+        
+        const content = response.data.data?.content || [];
+
+        const totalPageCount = response.data.data?.page?.totalPages || response.data.data?.totalPages || 0;
+
+        const mappedHomeworks = content.map((item) => ({
+          id: item.recruitmentId, 
+          title: item.title,
+          deadline: item.deadline,
+          author: item.authorNickname || "익명",
+          purposeTag: "과제",
+          grade: item.grade ? `${item.grade}학년` : "학년 무관", 
+          department: item.department || "전공 무관", 
+          subjects: item.subjects || [], 
+        }));
+
+        setHomeworks(mappedHomeworks);
+        setTotalPages(totalPageCount);
+
+      } catch (error) {
+        console.error("과제 목록 불러오기 실패:", error);
+        setHomeworks([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchHomeworks();
+
+  }, [currentPage, selectedGrade, hasSelectedGrade, setPage, isClosed]);
+
 
   return (
     <PageWrapper>
       <PageHeader title="과제" />
-      
-      <FilterBar>
+      <FilterBar isClosed={isClosed} onToggle={handleToggle}>
         <div css={dropdownContainerStyle} ref={el => dropdownRefs.current['grade'] = el}>
           <button css={dropDownButtonStyle("120px", hasSelectedGrade)} onClick={() => setOpenDropdown(openDropdown === "grade" ? null : "grade")}>
             <span>{hasSelectedGrade ? selectedGrade : "학년"}</span>
@@ -100,24 +132,29 @@ export default function HwListPage() {
         </div>
       </FilterBar>
 
-      {dummyHws.length === 0 ? (
-        <EmptyStateMessage message="등록된 과제가 없습니다." />
-      ) : totalItems === 0 ? (
-        <EmptyStateMessage message="일치하는 과제가 없습니다." />
+      {isLoading ? (
+        <EmptyStateMessage message="데이터를 불러오는 중입니다." />
+      ) : homeworks.length === 0 ? (
+        <EmptyStateMessage message="일치하는 과제 공고가 없습니다." />
       ) : (
         <>
           <CardGrid
-            items={currentItems}
+            items={homeworks}
             itemsPerPage={itemsPerPage}
             renderCard={(hw) => <HwCard project={hw} />}
           />
           
           {totalPages > 0 && (
-            <Pagination
-              totalPages={totalPages}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-            />
+            <Stack spacing={2} sx={{ alignItems: 'center', mt: 4, mb: 4 }}>
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={(_, value) => {
+                  setPage(value);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              />
+            </Stack>
           )}
         </>
       )}

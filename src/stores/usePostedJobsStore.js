@@ -130,6 +130,7 @@ export const usePostedJobsStore = create((set, get) => ({
     } catch (error) {
       console.error(error);
       alert('거절 처리 중 오류가 발생했습니다.');
+
       return false;
     }
   },

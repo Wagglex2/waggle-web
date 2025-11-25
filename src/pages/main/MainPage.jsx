@@ -58,7 +58,7 @@ const dummyProjects = [
     title:
       '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다 웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다',
     positions: ['기획', '디자인', '프론트엔드'],
-    techStack: ['JAVASCRIPT', 'NEXTJS', 'NOTION'],
+    techStack: ['JAVASCRIPT', 'NEXT_JS', 'NOTION'],
     author: '솔랑솔랑',
   },
   {
@@ -68,7 +68,7 @@ const dummyProjects = [
     deadline: '2025.12.15까지',
     title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
     positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['JAVA', 'SPRINGBOOT', 'MYSQL'],
+    techStack: ['JAVA', 'SPRING_BOOT', 'MYSQL'],
     author: '솔랑솔랑',
   },
   {
@@ -78,7 +78,7 @@ const dummyProjects = [
     deadline: '2025.12.15까지',
     title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
     positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['CS', 'UNITY'],
+    techStack: ['CSHARP', 'UNITY'],
     author: '솔랑솔랑',
   },
   {
@@ -98,7 +98,7 @@ const dummyProjects = [
     deadline: '2025.12.15까지',
     title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
     positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['KOTLIN', 'SPRINGBOOT', 'MYSQL', 'SWIFT', 'NODEJS'],
+    techStack: ['KOTLIN', 'SPRING_BOOT', 'MYSQL', 'SWIFT', 'NODE_JS'],
     author: '솔랑솔랑',
   },
   {
@@ -108,7 +108,7 @@ const dummyProjects = [
     deadline: '2025.12.15까지',
     title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
     positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['SWIFT', 'NODEJS'],
+    techStack: ['SWIFT', 'NODE_JS'],
     author: '솔랑솔랑',
   },
   {
@@ -138,7 +138,7 @@ const dummyProjects = [
     deadline: '2025.12.15까지',
     title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
     positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['SCIKITLEARN', 'PANDAS', 'TENSORFLOW', 'PYTORCH'],
+    techStack: ['SCIKIT_LEARN', 'PANDAS', 'TENSORFLOW', 'PYTORCH'],
     author: '솔랑솔랑',
   },
   {

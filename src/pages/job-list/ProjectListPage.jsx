@@ -1,15 +1,17 @@
 /** @jsxRuntime automatic */
 /** @jsxImportSource @emotion/react */
-import React, { useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import PageWrapper from "@/components/layout/PageWrapper";
 import PageHeader from "@/components/layout/PageHeader";
 import FilterBar from "@/components/layout/FilterBar";
 import CardGrid from "@/components/layout/CardGrid";
-import Pagination from "@/components/common/Pagination";
 import ProjectCard from "@/components/card/ProjectCard";
 import EmptyStateMessage from "@/components/common/EmptyStateMessage"; 
 import { useDropdown } from "@/components/filter/useDropdown";
 import useProjectStore from "@/stores/useProjectStore";
+import api from '@/api/api'; 
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 
 import {
   dropDownButtonStyle,
@@ -21,182 +23,64 @@ import {
   dropDownMenuItemStyle
 } from "@/components/filter/dropdownStyles";
 
-import { 
-  purposeOptions as importedPurposeOptions, 
-  positionOptions as importedPositionOptions, 
-  techStackOptions as importedTechStackOptions 
-} from "@/data/options";
+const POSITION_MAP = {
+  '전체': '',
+  '프론트엔드': 'FRONT_END',
+  '백엔드': 'BACK_END',
+  '풀스택': 'FULL_STACK',
+  '데이터': 'DATA',
+  'AI': 'AI',
+  '게임': 'GAME',
+  '기획': 'PLANNER',
+  '디자인': 'DESIGNER',
+};
+const positionOptions = Object.keys(POSITION_MAP).filter(k => k !== '전체');
 
-const purposeOptions = ["전체", ...importedPurposeOptions];
-const positionOptions = [...importedPositionOptions];
-const techOptions = [...importedTechStackOptions];
-
-const dummyProjects = [
-  {
-    id: 1,
-    purposeTag: '공모전',
-    methodTag: '온/오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인'],
-    techStack: ['TYPESCRIPT', 'REACT', 'FIGMA'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 2,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드'],
-    techStack: ['JAVASCRIPT', 'NEXTJS', 'NOTION'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 3,
-    purposeTag: '해커톤',
-    methodTag: '온라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['JAVA', 'SPRINGBOOT', 'MYSQL'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 4,
-    purposeTag: '토이프로젝트',
-    methodTag: '온라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['CS', 'UNITY'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 5,
-    purposeTag: '공모전',
-    methodTag: '온/오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['PYTHON', 'DJANGO', 'POSTGRESQL'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 6,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['KOTLIN', 'SPRINGBOOT', 'MYSQL', 'SWIFT', 'NODEJS'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 7,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['SWIFT', 'NODEJS'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 8,
-    purposeTag: '사이드프로젝트',
-    methodTag: '온/오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['C', 'UNREAL'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 9,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['EXPRESS', 'MONGODB'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 10,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['SCIKITLEARN', 'PANDAS', 'TENSORFLOW', 'PYTORCH'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 11,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['TENSORFLOW', 'PYTORCH'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 12,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['FLUTTER', 'FIGMA'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 13,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['HTML', 'VUE'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 14,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['GIT', 'GITHUBACTIONS'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 15,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['REDIS', 'DOCKER'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 16,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['JIRA', 'NOTION'],
-    author: '솔랑솔랑',
-  },
+const TECH_STACK_LIST = [
+  "HTML", "CSS", "JAVASCRIPT", "JAVA", "KOTLIN", "PYTHON", "SWIFT", 
+  "C", "CPP", "CSHARP", "TYPESCRIPT", "REACT", "NODE_JS", "EXPRESS", 
+  "VUE_JS", "NEXT_JS", "SPRING_BOOT", "DJANGO", "PANDAS", "SCIKIT_LEARN", 
+  "PYTORCH", "TENSORFLOW", "FLUTTER", "MYSQL", "REDIS", "MONGODB", 
+  "POSTGRESQL", "GIT", "GITHUB", "GITHUB_ACTIONS", "FIGMA", "NOTION", 
+  "JIRA", "DOCKER", "UNITY", "UNREAL"
 ];
+
+const TECH_STACK_DISPLAY_MAP = {
+  "HTML": "HTML", "CSS": "CSS", "JAVASCRIPT": "JavaScript", "JAVA": "Java", 
+  "KOTLIN": "Kotlin", "PYTHON": "Python", "SWIFT": "Swift", 
+  "C": "C", "CPP": "C++", "CSHARP": "C#", "TYPESCRIPT": "TypeScript", 
+  "REACT": "React", "NODE_JS": "Node.js", "EXPRESS": "Express", 
+  "VUE_JS": "Vue.js", "NEXT_JS": "Next.js", "SPRING_BOOT": "Spring Boot", 
+  "DJANGO": "Django", "PANDAS": "Pandas", "SCIKIT_LEARN": "Scikit-learn", 
+  "PYTORCH": "PyTorch", "TENSORFLOW": "TensorFlow", "FLUTTER": "Flutter", 
+  "MYSQL": "MySQL", "REDIS": "Redis", "MONGODB": "MongoDB", 
+  "POSTGRESQL": "PostgreSQL", "GIT": "Git", "GITHUB": "GitHub", 
+  "GITHUB_ACTIONS": "GitHub Actions", "FIGMA": "Figma", "NOTION": "Notion", 
+  "JIRA": "Jira", "DOCKER": "Docker", "UNITY": "Unity", "UNREAL": "Unreal Engine"
+};
+
+const TECH_ICON_MAP = {
+  'CSHARP': 'CSHARP', 
+  'CPP': 'CPP',
+};
+
+const PURPOSE_MAP = {
+  '전체': '',
+  '공모전': 'CONTEST',
+  '해커톤': 'HACKATHON',
+  '토이프로젝트': 'TOY_PROJECT',
+  '사이드프로젝트': 'SIDE_PROJECT',
+};
+const purposeOptions = Object.keys(PURPOSE_MAP);
 
 export default function ProjectListPage() {
   const itemsPerPage = 9;
   const { openDropdown, setOpenDropdown, dropdownRefs } = useDropdown();
+
+  const [projects, setProjects] = useState([]); 
+  const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isClosed, setIsClosed] = useState(false); 
 
   const {
     selectedPurpose,
@@ -218,48 +102,99 @@ export default function ProjectListPage() {
   const handlePurposeClick = (option) => {
     setPurpose(option);
     setOpenDropdown(null);
+    setPage(1); 
   };
 
-  const filteredProjects = useMemo(() => {
-    return dummyProjects.filter(project => {
+  const handleToggle = (newState) => {
+    setIsClosed(newState); 
+    setPage(1);
+  };
 
-      const purposeMatch = !hasSelectedPurpose || selectedPurpose === '전체' || project.purposeTag === selectedPurpose;
-      
-      const techMatch = selectedTechs.length === 0 || selectedTechs.some(selectedTech => {
-        const searchTerms = selectedTech.split('/');
-        return searchTerms.some(term => {
-            let normalized = term.toUpperCase().trim();
-            if (normalized === 'C++') normalized = 'CPP';
-            else if (normalized === 'C#') normalized = 'CS';
-            else if (normalized === 'VUE.JS' || normalized === 'VUEJS') normalized = 'VUE';
-            else {
-                normalized = normalized.replace(/[\s.]/g, ''); 
-            }
-            return project.techStack.includes(normalized);
+  useEffect(() => {
+    const fetchProjects = async () => {
+      setIsLoading(true);
+      try {
+        const params = {
+          page: currentPage - 1,
+          size: itemsPerPage,
+        };
+
+        if (isClosed) {
+          params.status = 'CLOSED';
+        }
+
+        if (hasSelectedPurpose && selectedPurpose !== '전체') {
+          params.purpose = PURPOSE_MAP[selectedPurpose];
+        }
+
+        if (selectedTechs.length > 0) {
+          params.skills = selectedTechs.join(',');
+        }
+
+        if (selectedPositions.length > 0) {
+          const posParams = selectedPositions
+            .map(pos => POSITION_MAP[pos])
+            .join(',');
+          params.positions = posParams;
+        }
+
+        const response = await api.get('/api/v1/projects', { params });
+        
+        const content = response.data.data?.content || [];
+        
+        const totalPageCount = response.data.data?.page?.totalPages || response.data.data?.totalPages || 0;
+
+        const mappedProjects = content.map((item) => {
+           const extractValue = (data) => {
+             if (!data) return null;
+             if (typeof data === 'object') return data.desc || data.name;
+             return data;
+           };
+
+           const normalizeTech = (tech) => {
+              if (!tech) return "";
+              let rawName = (typeof tech === 'object' ? tech.name : tech) || "";
+              rawName = rawName.toString().toUpperCase(); 
+              if (TECH_ICON_MAP[rawName]) return TECH_ICON_MAP[rawName];
+              return rawName; 
+           };
+
+           const techStack = item.skills ? item.skills.map(normalizeTech).filter(t => t !== "") : [];
+           
+           return {
+            id: item.id,
+            title: item.title,
+            deadline: item.deadline,
+            author: item.authorNickname,
+            purposeTag: extractValue(item.category) || "미정", 
+            methodTag: extractValue(item.meetingType) || "미정",
+            status: item.status?.name || "RECRUITING", 
+            positions: item.positions ? item.positions.map(extractValue).filter(p => p) : [], 
+            techStack: techStack,
+          };
         });
-      });
 
-      const positionMatch = selectedPositions.length === 0 || selectedPositions.some(pos => project.positions.includes(pos));
-      
-      return purposeMatch && techMatch && positionMatch;
-    });
-  }, [selectedPurpose, selectedTechs, selectedPositions, hasSelectedPurpose]);
+        setProjects(mappedProjects);
+        setTotalPages(totalPageCount);
 
-  const totalItems = filteredProjects.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  
-  const handlePageChange = (pageNumber) => {
-    setPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+      } catch (error) {
+        console.error("프로젝트 목록 불러오기 실패:", error);
+        setProjects([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = filteredProjects.slice(startIndex, startIndex + itemsPerPage);
+    fetchProjects();
+
+  }, [currentPage, selectedPurpose, selectedTechs, selectedPositions, hasSelectedPurpose, setPage, isClosed]);
+
 
   return (
     <PageWrapper>
       <PageHeader title="프로젝트" />
-      <FilterBar>
+      
+      <FilterBar isClosed={isClosed} onToggle={handleToggle}>
         <div css={dropdownContainerStyle} ref={el => dropdownRefs.current['purpose'] = el}>
           <button css={dropDownButtonStyle("120px", hasSelectedPurpose)} onClick={() => setOpenDropdown(openDropdown === "purpose" ? null : "purpose")}>
             <span>{hasSelectedPurpose ? selectedPurpose : '목적'}</span>
@@ -283,10 +218,10 @@ export default function ProjectListPage() {
           </button>
           {openDropdown === 'tech' && (
             <ul css={techDropDownMenuStyle}>
-              {techOptions.map(option => (
-                <li key={option} css={dropDownMenuItemStyle(selectedTechs.includes(option), true)} onClick={() => toggleTech(option)}>
+              {TECH_STACK_LIST.map(option => (
+                <li key={option} css={dropDownMenuItemStyle(selectedTechs.includes(option), true)} onClick={() => { toggleTech(option); setPage(1); }}>
                   <input type="checkbox" css={customCheckboxStyle} checked={selectedTechs.includes(option)} readOnly />
-                  <label>{option}</label>
+                  <label>{TECH_STACK_DISPLAY_MAP[option] || option}</label>
                 </li>
               ))}
             </ul>
@@ -301,7 +236,7 @@ export default function ProjectListPage() {
           {openDropdown === 'position' && (
             <ul css={dropDownMenuStyle}> 
               {positionOptions.map(option => (
-                <li key={option} css={dropDownMenuItemStyle(selectedPositions.includes(option), false)} onClick={() => togglePosition(option)}>
+                <li key={option} css={dropDownMenuItemStyle(selectedPositions.includes(option), false)} onClick={() => { togglePosition(option); setPage(1); }}>
                   {option}
                 </li>
               ))}
@@ -309,20 +244,30 @@ export default function ProjectListPage() {
           )}
         </div>
       </FilterBar>
-      {dummyProjects.length === 0 ? (
-        <EmptyStateMessage message="등록된 프로젝트가 없습니다." />
-      ) : totalItems === 0 ? (
+
+      {isLoading ? (
+        <EmptyStateMessage message="데이터를 불러오는 중입니다." />
+      ) : projects.length === 0 ? (
         <EmptyStateMessage message="일치하는 프로젝트가 없습니다." />
       ) : (
         <>
           <CardGrid
-            items={currentItems}
+            items={projects}
             itemsPerPage={itemsPerPage}
             renderCard={(project) => <ProjectCard project={project} />}
           />
           
           {totalPages > 0 && (
-            <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
+            <Stack spacing={2} sx={{ alignItems: 'center', mt: 4, mb: 4 }}>
+              <Pagination 
+                count={totalPages} 
+                page={currentPage} 
+                onChange={(_, value) => {
+                  setPage(value);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }} 
+              />
+            </Stack>
           )}
         </>
       )}
