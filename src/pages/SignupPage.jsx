@@ -1,9 +1,17 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { css } from '@emotion/react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+
+import {
+  signupApi,
+  checkUsernameDuplicateApi,
+  checkNicknameDuplicateApi,
+  checkEmailDuplicateApi,
+  sendEmailCodeApi,
+  verifyEmailCodeApi,
+} from '@/api/auth';
 
 const colors = {
   primary: '#FFCC00',
@@ -84,34 +92,17 @@ const SignupPage = () => {
       const payload = {
         username: id,
         password: password,
+        passwordConfirm: passwordConfirm, // ✅ 여기 추가됨
         nickname: nickname,
         email: email,
       };
 
-      const response = await axios.post('/api/v1/auth/sign-up', payload);
+      const response = await signupApi(payload);
 
-      alert(response.data.message || '회원가입이 완료되었습니다.');
+      alert(response || '회원가입이 완료되었습니다.');
       navigate('/signin');
     } catch (error) {
-      console.error('Signup error:', error);
-
-      if (error.response?.status === 400) {
-        const errorMessage =
-          error.response.data.errors?.[0]?.message ||
-          error.response.data.message ||
-          '입력 정보가 유효하지 않습니다.';
-        alert(errorMessage);
-        return;
-      }
-
-      if (error.response?.status === 409) {
-        alert(
-          error.response.data.message || '이미 사용 중인 정보(아이디/닉네임/이메일)가 있습니다.'
-        );
-        return;
-      }
-
-      alert(error.response?.data?.message || '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+      alert(error.message);
     }
   };
 
@@ -127,9 +118,9 @@ const SignupPage = () => {
 
     setNicknameCheck({ status: 'checking', message: '확인 중...' });
     try {
-      const response = await axios.get(`/api/v1/users/nickname/check?nickname=${nickname}`);
+      const isDuplicate = await checkNicknameDuplicateApi(nickname);
 
-      if (response.data.data === true) {
+      if (isDuplicate === false) {
         setNicknameCheck({
           status: 'available',
           message: '사용가능한 닉네임입니다.',
@@ -141,27 +132,14 @@ const SignupPage = () => {
         });
       }
     } catch (error) {
-      console.error('Nickname check error:', error);
-
-      if (error.response?.status === 400) {
-        const errorMessage =
-          error.response.data.errors?.[0]?.message || '닉네임 형식이 잘못되었습니다.';
-        setNicknameFormatError(errorMessage);
-        setNicknameCheck({ status: 'idle', message: '' });
-        alert(errorMessage);
-        return;
-      }
-
-      if (error.response?.status === 409) {
-        setNicknameCheck({
-          status: 'taken',
-          message: '이미 사용중인 닉네임입니다.',
-        });
-      } else {
-        setNicknameCheck({
-          status: 'idle',
-          message: error.response?.data?.message || '오류가 발생했습니다. 다시 시도해주세요.',
-        });
+      setNicknameCheck({
+        status: 'idle',
+        message: error.message,
+      });
+      if (error.message.includes('형식')) {
+        setNicknameFormatError(error.message);
+      } else if (error.message.includes('이미 사용')) {
+        setNicknameCheck({ status: 'taken', message: error.message });
       }
     }
   };
@@ -178,9 +156,9 @@ const SignupPage = () => {
 
     setIdCheck({ status: 'checking', message: '확인 중...' });
     try {
-      const response = await axios.get(`/api/v1/users/username/check?username=${id}`);
+      const isDuplicate = await checkUsernameDuplicateApi(id);
 
-      if (response.data.data === true) {
+      if (isDuplicate === false) {
         setIdCheck({
           status: 'available',
           message: '사용가능한 아이디입니다.',
@@ -192,27 +170,14 @@ const SignupPage = () => {
         });
       }
     } catch (error) {
-      console.error('Id check error:', error);
-
-      if (error.response?.status === 400) {
-        const errorMessage =
-          error.response.data.errors?.[0]?.message || '아이디 형식이 잘못되었습니다.';
-        setIdFormatError(errorMessage);
-        setIdCheck({ status: 'idle', message: '' });
-        alert(errorMessage);
-        return;
-      }
-
-      if (error.response?.status === 409) {
-        setIdCheck({
-          status: 'taken',
-          message: '이미 사용중인 아이디입니다.',
-        });
-      } else {
-        setIdCheck({
-          status: 'idle',
-          message: error.response?.data?.message || '오류가 발생했습니다. 다시 시도해주세요.',
-        });
+      setIdCheck({
+        status: 'idle',
+        message: error.message,
+      });
+      if (error.message.includes('형식')) {
+        setIdFormatError(error.message);
+      } else if (error.message.includes('이미 사용')) {
+        setIdCheck({ status: 'taken', message: error.message });
       }
     }
   };
@@ -262,35 +227,29 @@ const SignupPage = () => {
     setEmailStatus({ status: 'checking_dup', message: '이메일 중복 확인 중...' });
 
     try {
-      const checkResponse = await axios.get(`/api/v1/users/email/check?email=${email}`);
+      const isDuplicate = await checkEmailDuplicateApi(email);
 
-      if (checkResponse.data.data === false) {
+      if (isDuplicate === true) {
         setEmailStatus({ status: 'error', message: '이미 사용 중인 이메일 주소입니다.' });
         return;
       }
 
       setEmailStatus({ status: 'sending', message: '인증번호 발송 중...' });
-      const sendResponse = await axios.post('/api/v1/auth/email/code', { email });
+
+      const message = await sendEmailCodeApi(email);
 
       setEmailStatus({
         status: 'sent',
-        message: sendResponse.data.message || '인증번호가 발송되었습니다. 이메일을 확인해주세요.',
+        message: message,
       });
     } catch (error) {
-      console.error('Email process error:', error);
-
-      if (error.response?.status === 400) {
-        const errorMessage =
-          error.response.data.errors?.[0]?.message || '이메일 형식이 잘못되었습니다.';
-        alert(errorMessage);
-        setEmailStatus({ status: 'idle', message: '' });
-        return;
-      }
-
       setEmailStatus({
         status: 'idle',
-        message: error.response?.data?.message || '처리 중 오류가 발생했습니다. 다시 시도해주세요.',
+        message: error.message,
       });
+      if (error.message.includes('형식')) {
+        alert(error.message);
+      }
     }
   };
 
@@ -306,33 +265,16 @@ const SignupPage = () => {
     }));
 
     try {
-      const response = await axios.post('/api/v1/auth/email/verify', {
-        email: email,
-        inputCode: authCode,
-      });
+      const message = await verifyEmailCodeApi(email, authCode);
 
       setEmailStatus({
         status: 'success',
-        message: response.data.message || '인증되었습니다.',
+        message: message,
       });
     } catch (error) {
-      console.error('Confirm auth code error:', error);
-
-      if (error.response?.status === 400) {
-        const errorMessage =
-          error.response.data.errors?.[0]?.message ||
-          error.response.data.message ||
-          '인증번호가 일치하지 않거나 만료되었습니다.';
-        setEmailStatus({
-          status: 'error',
-          message: errorMessage,
-        });
-        return;
-      }
-
       setEmailStatus({
         status: 'error',
-        message: error.response?.data?.message || '인증 중 오류가 발생했습니다. 다시 시도해주세요.',
+        message: error.message,
       });
     }
   };
