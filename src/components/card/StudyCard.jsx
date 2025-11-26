@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { colors } from "@/styles/theme";
 import techIcons from "@/data/techIcons";
 
@@ -176,6 +177,8 @@ const HeartIcon = ({ isLiked }) => (
 const MAX_TECH_DISPLAY = 3; 
 
 export default function StudyCard({ project, onUnlike }) {
+  const navigate = useNavigate();
+
   const [internalLiked, setInternalLiked] = useState(false);
   const isSavedPage = onUnlike !== undefined;
   const isLiked = isSavedPage ? true : internalLiked;
@@ -193,7 +196,7 @@ export default function StudyCard({ project, onUnlike }) {
   const hiddenTechCount = project.techStack ? project.techStack.length - MAX_TECH_DISPLAY : 0;
 
   return (
-    <div css={cardStyle}>
+    <div css={cardStyle} onClick={() => navigate(`/study-list/${project.id}`)}>
       <div css={headerTopStyle}>
         <div css={tagGroupStyle}>
           {project.purposeTag && (
@@ -217,7 +220,7 @@ export default function StudyCard({ project, onUnlike }) {
                </div>
             );
           })}
-           
+            
           {hiddenTechCount > 0 && (
             <span>+{hiddenTechCount}</span>
           )}
