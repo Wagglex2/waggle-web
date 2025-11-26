@@ -2,6 +2,7 @@
 /** @jsxRuntime automatic */
 import React, { useMemo, useState, useEffect } from 'react';
 import { css } from '@emotion/react';
+import { useNavigate } from 'react-router-dom';
 import { useApplicationStore, toneByStatus } from '@/stores/useApplicationStore';
 import MyApplicationModal from './components/MyApplicationModal';
 
@@ -14,6 +15,7 @@ const colors = {
 };
 
 const MyApplicationsPage = () => {
+  const navigate = useNavigate();
   const {
     rows,
     modalData,
@@ -26,12 +28,30 @@ const MyApplicationsPage = () => {
   } = useApplicationStore();
   const [tab, setTab] = useState('프로젝트');
 
-  // 페이지 로드시 전체 데이터 가져오기
   useEffect(() => {
     fetchAllApplications();
-  }, []); // 의존성 배열 비우기 - 한 번만 실행
+  }, []);
 
   const filtered = useMemo(() => rows.filter((r) => r.category === tab), [rows, tab]);
+
+  const handleTitleClick = (item) => {
+    // 캡처해주신 데이터에 boardId가 없으므로 item.id를 사용합니다.
+    const targetId = item.id;
+
+    switch (item.category) {
+      case '프로젝트':
+        navigate(`/project-list/${targetId}`);
+        break;
+      case '과제':
+        navigate(`/hw-list/${targetId}`);
+        break;
+      case '스터디':
+        navigate(`/study-list/${targetId}`);
+        break;
+      default:
+        navigate(`/project-list/${targetId}`);
+    }
+  };
 
   return (
     <div css={wrap}>
@@ -71,7 +91,7 @@ const MyApplicationsPage = () => {
             filtered.map((r, i) => (
               <div css={row} key={r.id}>
                 <div>{i + 1}</div>
-                <div className="cell-ellipsis" title={r.title}>
+                <div className="cell-ellipsis" title={r.title} onClick={() => handleTitleClick(r)}>
                   {r.title}
                 </div>
                 <div>{r.due}</div>
@@ -188,6 +208,9 @@ const row = css`
     text-align: center;
     text-decoration: underline;
     cursor: pointer;
+    &:hover {
+      color: #0056b3;
+    }
   }
 
   .status-badge {
