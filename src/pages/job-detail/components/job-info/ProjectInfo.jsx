@@ -5,7 +5,6 @@ import RecruitmentStatus from './info-data/Recruitmentstatus';
 import Details from './info-data/Details';
 
 const ProjectInfo = (props) => {
-  //console.log(props);
   const { meta, bookMarked, changeBookMark, summary, detail } = props;
 
   return (

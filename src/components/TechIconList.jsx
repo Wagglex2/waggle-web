@@ -4,7 +4,6 @@ import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
 
 const TechIconList = ({ teches, techMaxLength }) => {
-  console.log(teches);
   return (
     <div css={jobTech}>
       {teches.slice(0, techMaxLength).map((tech) => {

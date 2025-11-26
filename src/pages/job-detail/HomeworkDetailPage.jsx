@@ -44,7 +44,7 @@ const HomeworkDetailPage = () => {
     async function getHomeworkInfo() {
       try {
         const res = await api.get(`/api/v1/assignments/${params.id}`);
-        console.log(res);
+        //console.log(res);
         const homeworkInfo = res.data.data;
         setMataData({
           imgUrl: defaultImgUrl,
@@ -71,8 +71,6 @@ const HomeworkDetailPage = () => {
         });
 
         setHomeworkDetail(homeworkInfo.content);
-
-        console.log(res);
       } catch (e) {
         console.error(e);
       }
