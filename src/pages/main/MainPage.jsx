@@ -4,8 +4,9 @@ import HexagonCard from './components/HexagonCard';
 import bgImg from '../../assets/img/main-bg.png';
 import MainPurposeFilter from './components/filter/MainPurposeFilter';
 import MainPositionFilter from './components/filter/MainPositionFilter';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import UserInfoModal from '../../layout/components/UserInfoModal';
+import api from '@/api/api';
 
 const cardPositions = [
   // 1
@@ -204,7 +205,59 @@ const dummyProjects = [
 ];
 
 const MainPage = () => {
-  const [openModal, setOpenModal] = useState(true);
+  const [openModal, setOpenModal] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    const checkUserInfo = async () => {
+      try {
+        const response = await api.get('/api/v1/users/me');
+        const data = response.data.data;
+
+        console.log('User info:', data);
+
+        const hasGrade = data.grade && data.grade > 0;
+        const hasPosition = data.position && data.position.name;
+        const hasSkills = data.skills && data.skills.length > 0;
+        const hasIntro = data.shortIntro && data.shortIntro.trim() !== '';
+
+        const isMissingInfo = !hasGrade || !hasPosition || !hasSkills || !hasIntro;
+
+        console.log('Missing info check:', {
+          hasGrade,
+          hasPosition,
+          hasSkills,
+          hasIntro,
+          isMissingInfo,
+        });
+
+        setOpenModal(isMissingInfo);
+      } catch (error) {
+        console.error('User info fetch error:', error);
+        setOpenModal(true);
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
+    checkUserInfo();
+  }, []);
+
+  const handleModalClose = () => {
+    setOpenModal(false);
+  };
+
+  if (isChecking) {
+    return (
+      <div css={container(bgImg)}>
+        <div css={text}>
+          <p>꿀벌의 춤을 따라</p>
+          <p>빛나는 꿈을 향해</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div css={container(bgImg)}>
       <div css={text}>
@@ -222,7 +275,7 @@ const MainPage = () => {
           </div>
         ))}
       </div>
-      {openModal && <UserInfoModal />}
+      {openModal && <UserInfoModal setOpenModal={setOpenModal} onSave={handleModalClose} />}
     </div>
   );
 };

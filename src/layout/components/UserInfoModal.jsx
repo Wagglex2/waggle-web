@@ -190,7 +190,6 @@ const MultiSelectDropDown = ({
 };
 
 const UserInfoModal = ({ setOpenModal, onSave }) => {
-  const [isVisible, setIsVisible] = useState(false);
   const [selectedGrade, setSelectedGrade] = useState(null);
   const [intro, setIntro] = useState('');
   const [positions, setPositions] = useState([]);
@@ -201,30 +200,22 @@ const UserInfoModal = ({ setOpenModal, onSave }) => {
   const grades = [1, 2, 3, 4];
 
   useEffect(() => {
-    const checkUserInfo = async () => {
+    const loadUserInfo = async () => {
       try {
         const response = await api.get('/api/v1/users/basic-info');
-        const data = response.data;
+        const data = response.data.data || response.data;
 
-        const isMissingInfo = !data.grade || !data.position || data.position.length === 0;
-
-        if (isMissingInfo) {
-          setIsVisible(true);
-        } else {
-          setIsVisible(false);
-          if (setOpenModal) setOpenModal(false);
-        }
+        console.log('Loading user info in modal:', data);
 
         if (data.grade) setSelectedGrade(data.grade);
         if (data.shortIntro) setIntro(data.shortIntro);
       } catch (error) {
         console.error('User info fetch error:', error);
-        setIsVisible(true);
       }
     };
 
-    checkUserInfo();
-  }, [setOpenModal]);
+    loadUserInfo();
+  }, []);
 
   const handleIntroChange = (e) => {
     setIntro(e.target.value);
@@ -282,7 +273,6 @@ const UserInfoModal = ({ setOpenModal, onSave }) => {
       if (setOpenModal) {
         setOpenModal(false);
       }
-      setIsVisible(false);
     } catch (error) {
       console.error('Network Error:', error);
 
@@ -293,8 +283,6 @@ const UserInfoModal = ({ setOpenModal, onSave }) => {
       }
     }
   };
-
-  if (!isVisible) return null;
 
   return (
     <ModalLayout>
