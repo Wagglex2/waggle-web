@@ -3,7 +3,6 @@ import { css } from '@emotion/react';
 
 export const jobInfoBox = css`
   margin-right: 10px;
-  margin-left: 150px;
 `;
 
 export const infoBox = css`
