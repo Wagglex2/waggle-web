@@ -149,7 +149,7 @@ const ProfilePage = () => {
   async function patchUserData(e) {
     e.preventDefault();
 
-    const nicknameTosend = nickname === originalUserData.nickname ? '' : nickname;
+    const nicknameTosend = nickname === originalUserData.nickname ? null : nickname;
     const techStackTosend = techStack.map((tech) => tech.name);
 
     console.log(nicknameTosend, grade + 1, position.name, techStackTosend, shortIntro);

@@ -31,7 +31,6 @@ const navBtn = css`
   font-size: 13px;
   font-family: 'nanumB';
   padding: 10px 10px;
-  //margin-left: 310px;
   display: flex;
   align-items: center;
 `;

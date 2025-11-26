@@ -20,7 +20,7 @@ const PasswordEditPage = () => {
     e.preventDefault();
 
     try {
-      const res = await api.post('/api/v1/users/me/password-change', {
+      await api.post('/api/v1/users/me/password-change', {
         old: currentPw,
         newPassword: newPw,
         passwordConfirm: newPwConfirm,
@@ -30,7 +30,7 @@ const PasswordEditPage = () => {
       setNewPw('');
       setNewPwConfirm('');
 
-      console.log(res);
+      //console.log(res);
       alert('비밀번호가 변경되었습니다.');
     } catch (e) {
       console.error(e);

@@ -7,8 +7,6 @@ const SideBar = () => {
   const location = useLocation();
   const lastPath = location.pathname.split('/').filter(Boolean).pop();
 
-  console.log(lastPath); // "my-posted-job"
-
   const sidebarList = [
     {
       path: '/my-page/profile',

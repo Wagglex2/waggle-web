@@ -43,6 +43,7 @@ const StudyDetailPage = () => {
     async function getProjectInfo() {
       try {
         const res = await api.get(`/api/v1/studies/${params.id}`);
+        //console.log(res);
         const studyInfo = res.data.data;
         setMataData({
           imgUrl: defaultImgUrl,
@@ -68,8 +69,6 @@ const StudyDetailPage = () => {
         });
 
         setProjectDetail(studyInfo.content);
-
-        console.log(res);
       } catch (e) {
         console.error(e);
       }

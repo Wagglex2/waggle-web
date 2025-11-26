@@ -46,7 +46,7 @@ const ProjectDetailPage = () => {
     async function getProjectInfo() {
       try {
         const res = await api.get(`/api/v1/projects/${params.id}`);
-        console.log(res);
+        //console.log(res);
         const projectInfo = res.data.data;
         setMataData({
           imgUrl: defaultImgUrl,
@@ -75,8 +75,6 @@ const ProjectDetailPage = () => {
         });
 
         setProjectDetail(projectInfo.content);
-
-        console.log(res);
       } catch (e) {
         console.error(e);
       }

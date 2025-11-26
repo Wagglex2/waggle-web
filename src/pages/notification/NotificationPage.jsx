@@ -39,7 +39,7 @@ const NotificationPage = () => {
         const res = await api.get(
           `/api/v1/notifications?category=${filterCatagory[activeFilterIndex].name}&page=${currentPage - 1}&size=8`
         );
-        console.log('알림 결과', res);
+        //console.log('알림 결과', res);
         setNotifications(res.data.data.content);
         setTotalPages(res.data.data.page.totalPages);
       } catch (e) {
@@ -67,7 +67,7 @@ const NotificationPage = () => {
     }
 
     try {
-      const res = await api.delete(`/api/v1/notifications?category=${categoryName}`);
+      await api.delete(`/api/v1/notifications?category=${categoryName}`);
       const successMessage =
         categoryName === ''
           ? '알림이 모두 삭제되었습니다.'
@@ -75,7 +75,7 @@ const NotificationPage = () => {
 
       alert(successMessage);
       handleDeleteAll();
-      console.log(res);
+      //console.log(res);
     } catch (e) {
       console.log(e);
       alert('알림 삭제에 실패하였습니다. 다시 시도해 주세요.');
@@ -85,19 +85,6 @@ const NotificationPage = () => {
   // 전체 삭제, 카테고리별 전체 삭제(ui)
   function handleDeleteAll() {
     setNotifications([]);
-    // switch (activeFilterIndex) {
-    //   case 0:
-    //     setNotifications([]);
-    //     break;
-    //   case 1:
-    //     setNotifications(notifications.filter((item) => item.category.desc !== '프로젝트'));
-    //     break;
-    //   case 2:
-    //     setNotifications(notifications.filter((item) => item.category.desc !== '과제'));
-    //     break;
-    //   case 3:
-    //     setNotifications(notifications.filter((item) => item.category.desc !== '스터디'));
-    // }
   }
 
   // 개별 삭제(ui)
