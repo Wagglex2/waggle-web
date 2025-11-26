@@ -5,13 +5,21 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { useState, useEffect } from 'react';
 
-const DropDown = ({ label, options, buttonWidth, dropDownWidth, onChange, prevData }) => {
+const DropDown = ({ label, options, value, buttonWidth, dropDownWidth, onChange, prevData }) => {
   const [openModal, setOpenModal] = useState(false);
   const [selected, setSelected] = useState(prevData?.desc || label);
 
   useEffect(() => {
     if (prevData) setSelected(prevData.desc);
   }, [prevData]);
+
+  useEffect(() => {
+    if (!value) {
+      setSelected(label);
+    } else {
+      setSelected(value.desc);
+    }
+  }, [value, label]);
 
   const handleSelect = (option) => {
     setSelected(option.desc);

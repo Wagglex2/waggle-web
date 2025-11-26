@@ -2,8 +2,11 @@
 import { formField, fieldLabelBox } from '../applicationFormStyle';
 import { positionOptions } from '@/data/options';
 import DropDown from '@/components/dropdown/DropDown';
+import useApplicationFormStore from '@/stores/apply/useApplicationFormStore';
 
 const PossiblePosition = () => {
+  const { position, setPosition } = useApplicationFormStore();
+
   return (
     <div css={formField}>
       <div css={fieldLabelBox}>
@@ -15,6 +18,8 @@ const PossiblePosition = () => {
         options={positionOptions}
         buttonWidth={'100%'}
         dropDownWidth={'100%'}
+        value={position}
+        onChange={setPosition}
       />
     </div>
   );

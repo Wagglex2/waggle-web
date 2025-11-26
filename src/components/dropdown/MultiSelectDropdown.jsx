@@ -5,25 +5,35 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { useState, useEffect } from 'react';
 
-const MultiSelectDropDown = ({ label, options, buttonWidth, onChange, prevData }) => {
+const MultiSelectDropDown = ({ label, options, value, buttonWidth, onChange, prevData }) => {
   const [openModal, setOpenModal] = useState(false);
-  const [selected, setSelected] = useState(prevData?.map((item) => item.desc) || []);
+  const [selected, setSelected] = useState(() => {
+    return value?.map((v) => v.desc) || prevData?.map((item) => item.desc) || [];
+  });
 
+  // 스토어 값 변하면 UI 동기화
   useEffect(() => {
-    if (prevData && prevData.length > 0) {
+    if (Array.isArray(value)) {
+      setSelected(value.map((v) => v.desc));
+    }
+  }, [value]);
+
+  // 페이지 최초 로딩 시 prevData 반영 (value가 없을 때만)
+  useEffect(() => {
+    if (!value?.length && prevData?.length) {
       setSelected(prevData.map((item) => item.desc));
     }
-  }, [prevData]);
+  }, [prevData, value]);
 
   const handleSelect = (option) => {
-    // ui
+    // UI 상태 업데이트
     setSelected((prev) =>
       prev.includes(option.desc)
         ? prev.filter((item) => item !== option.desc)
         : [...prev, option.desc]
     );
 
-    // api 요청 데이터
+    // 스토어 상태 업데이트
     onChange((prev) =>
       prev.some((item) => item.name === option.name)
         ? prev.filter((item) => item.name !== option.name)
