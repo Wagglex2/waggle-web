@@ -9,9 +9,10 @@ const RecruitmentStatus = ({ category, positions }) => {
         <div css={positionStateBox}>
           {positions.map((item, index) => (
             <div css={positionBox} key={index}>
-              <p className="position-name">{item.desc}</p>
+              <p className="position-name">{item.position.desc}</p>
               <p className="personnel">
-                <b>{item.currentParticipants}</b> / {item.maxParticipants}
+                <b>{item.participantInfo.currParticipants}</b> /{' '}
+                {item.participantInfo.maxParticipants}
               </p>
             </div>
           ))}
@@ -21,7 +22,7 @@ const RecruitmentStatus = ({ category, positions }) => {
           <div css={positionBox}>
             <p className="position-name">멤버</p>
             <p className="personnel">
-              <b>0</b> / 5
+              <b>{positions.currParticipants}</b> / {positions.maxParticipants}
             </p>
           </div>
         </div>

@@ -1,10 +1,10 @@
-import { GrView } from 'react-icons/gr';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 
-const ViewCount = () => {
+const ViewCount = ({ viewCount }) => {
   return (
-    <div className="view-count">
-      <GrView size={17} />
-      <p>12</p>
+    <div className="view-count box-style">
+      <VisibilityOutlinedIcon style={{ fontSize: '20px' }} />
+      <p>{viewCount}</p>
     </div>
   );
 };

@@ -1,23 +1,36 @@
 /** @jsxImportSource @emotion/react */
 import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
-import RegistrantInfo from './meta-items/RegistrantInfo';
 import BookMark from './meta-items/BookMark';
 import ViewCount from './meta-items/ViewCount';
+import RecruiterInfo from './meta-items/RecruiterInfo';
 
-const Meta = () => {
+const Meta = ({ metaData, bookMarked, setBookMark }) => {
+  const createdAt = metaData.createdAt.split(' ');
+  const deadline = metaData.deadline.split(' ');
+
   return (
     <div css={meta}>
       <div css={metaHeader}>
-        <RegistrantInfo />
+        <RecruiterInfo
+          imgUrl={metaData.imgUrl}
+          userId={metaData.recruiterId}
+          userNickname={metaData.recruiterNickname}
+        />
         <div className="other-info">
-          <BookMark />
-          <ViewCount />
+          <BookMark
+            bookMarkState={bookMarked}
+            setBookMark={setBookMark}
+            recruitmentId={metaData.recruitmentId}
+          />
+          <ViewCount viewCount={metaData.viewCount} />
         </div>
       </div>
 
-      <p className="posting-period">게시:2025.12.31 - 마감: 2026.01.31</p>
-      <h3 className="job-title text-green">경산 와글와글 위윙 웹 공모전 함께할 팀원 구합니다.</h3>
+      <p className="posting-period">
+        게시: {createdAt[0]} || 마감: {deadline[0]}
+      </p>
+      <h3 className="job-title text-green">{metaData.title}</h3>
     </div>
   );
 };
@@ -47,36 +60,50 @@ const metaHeader = css`
     align-items: center;
 
     .user-img {
-      width: 35px;
-      height: 35px;
+      width: 45px;
+      height: 45px;
       border-radius: 100%;
       border: 1px solid ${colors.gray[300]};
       overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+      }
     }
 
     .user-name {
-      font-family: 'nanumB';
+      font-family: 'nanumR';
       margin-left: 8px;
+      font-size: 15px;
     }
   }
 
   .other-info {
     display: flex;
-    color: ${colors.gray[300]};
 
-    .save-btn {
-      border: none;
-      background: none;
+    .box-style {
+      background: #ffffff;
+      border-radius: 10px;
+      height: 28px;
       color: ${colors.gray[300]};
+      border: 1px solid ${colors.gray[300]};
+      display: flex;
+      align-items: center;
+    }
+
+    .like-btn {
+      margin-right: 15px;
+      font-family: 'nanumB';
+      padding: 0 8px;
     }
 
     .view-count {
-      display: flex;
-      align-items: center;
+      padding: 0px 8px;
 
       p {
-        margin: 1px 0 0 2px;
-        font-family: 'nanumB';
+        margin: 3px 0 0 5px;
+        font-size: 15px;
       }
     }
   }

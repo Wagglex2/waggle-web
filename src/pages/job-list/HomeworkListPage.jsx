@@ -1,15 +1,15 @@
 /** @jsxRuntime automatic */
 /** @jsxImportSource @emotion/react */
-import React, { useState, useEffect } from "react";
-import PageWrapper from "@/components/layout/PageWrapper";
-import PageHeader from "@/components/layout/PageHeader";
-import FilterBar from "@/components/layout/FilterBar";
-import CardGrid from "@/components/layout/CardGrid";
-import HwCard from "@/components/card/HwCard";
-import EmptyStateMessage from "@/components/common/EmptyStateMessage"; 
-import { useDropdown } from "@/components/filter/useDropdown";
-import useHomeworkStore from "@/stores/useHomeworkStore";
-import api from '@/api/api'; 
+import React, { useState, useEffect } from 'react';
+import PageWrapper from '@/components/layout/PageWrapper';
+import PageHeader from '@/components/layout/PageHeader';
+import FilterBar from '@/components/layout/FilterBar';
+import CardGrid from '@/components/layout/CardGrid';
+import HwCard from '@/components/card/HwCard';
+import EmptyStateMessage from '@/components/common/EmptyStateMessage';
+import { useDropdown } from '@/components/filter/useDropdown';
+import useHomeworkStore from '@/stores/useHomeworkStore';
+import api from '@/api/api';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
 
@@ -18,33 +18,27 @@ import {
   ArrowIcon,
   dropdownContainerStyle,
   dropDownMenuStyle,
-  dropDownMenuItemStyle
-} from "@/components/filter/dropdownStyles";
+  dropDownMenuItemStyle,
+} from '@/components/filter/dropdownStyles';
 
 const GRADE_MAP = {
-  "1학년": 1,
-  "2학년": 2,
-  "3학년": 3,
-  "4학년 이상": 4
+  '1학년': 1,
+  '2학년': 2,
+  '3학년': 3,
+  '4학년 이상': 4,
 };
-const gradeOptions = ["전체", "1학년", "2학년", "3학년", "4학년 이상"];
+const gradeOptions = ['전체', '1학년', '2학년', '3학년', '4학년 이상'];
 
 export default function HwListPage() {
   const itemsPerPage = 9;
   const { openDropdown, setOpenDropdown, dropdownRefs } = useDropdown();
-  const [homeworks, setHomeworks] = useState([]); 
+  const [homeworks, setHomeworks] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isClosed, setIsClosed] = useState(false);
 
-  const {
-    selectedGrade,
-    hasSelectedGrade,
-    currentPage,
-    setGrade,
-    setPage,
-    reset
-  } = useHomeworkStore();
+  const { selectedGrade, hasSelectedGrade, currentPage, setGrade, setPage, reset } =
+    useHomeworkStore();
 
   useEffect(() => {
     return () => reset();
@@ -53,7 +47,7 @@ export default function HwListPage() {
   const handleGradeSelect = (grade) => {
     setGrade(grade);
     setOpenDropdown(null);
-    setPage(1); 
+    setPage(1);
   };
 
   const handleToggle = (newState) => {
@@ -79,27 +73,29 @@ export default function HwListPage() {
         }
 
         const response = await api.get('/api/v1/assignments', { params });
-        
+        //임시
+        console.log(response);
+
         const content = response.data.data?.content || [];
 
-        const totalPageCount = response.data.data?.page?.totalPages || response.data.data?.totalPages || 0;
+        const totalPageCount =
+          response.data.data?.page?.totalPages || response.data.data?.totalPages || 0;
 
         const mappedHomeworks = content.map((item) => ({
-          id: item.recruitmentId, 
+          id: item.recruitmentId,
           title: item.title,
           deadline: item.deadline,
-          author: item.authorNickname || "익명",
-          purposeTag: "과제",
-          grade: item.grade ? `${item.grade}학년` : "학년 무관", 
-          department: item.department || "전공 무관", 
-          subjects: item.subjects || [], 
+          author: item.authorNickname || '익명',
+          purposeTag: '과제',
+          grade: item.grade ? `${item.grade}학년` : '학년 무관',
+          department: item.department || '전공 무관',
+          subjects: item.subjects || [],
         }));
 
         setHomeworks(mappedHomeworks);
         setTotalPages(totalPageCount);
-
       } catch (error) {
-        console.error("과제 목록 불러오기 실패:", error);
+        console.error('과제 목록 불러오기 실패:', error);
         setHomeworks([]);
       } finally {
         setIsLoading(false);
@@ -107,23 +103,28 @@ export default function HwListPage() {
     };
 
     fetchHomeworks();
-
   }, [currentPage, selectedGrade, hasSelectedGrade, setPage, isClosed]);
-
 
   return (
     <PageWrapper>
       <PageHeader title="과제" />
       <FilterBar isClosed={isClosed} onToggle={handleToggle}>
-        <div css={dropdownContainerStyle} ref={el => dropdownRefs.current['grade'] = el}>
-          <button css={dropDownButtonStyle("120px", hasSelectedGrade)} onClick={() => setOpenDropdown(openDropdown === "grade" ? null : "grade")}>
-            <span>{hasSelectedGrade ? selectedGrade : "학년"}</span>
+        <div css={dropdownContainerStyle} ref={(el) => (dropdownRefs.current['grade'] = el)}>
+          <button
+            css={dropDownButtonStyle('120px', hasSelectedGrade)}
+            onClick={() => setOpenDropdown(openDropdown === 'grade' ? null : 'grade')}
+          >
+            <span>{hasSelectedGrade ? selectedGrade : '학년'}</span>
             <ArrowIcon />
           </button>
-          {openDropdown === "grade" && (
+          {openDropdown === 'grade' && (
             <ul css={dropDownMenuStyle}>
-              {gradeOptions.map(option => (
-                <li key={option} css={dropDownMenuItemStyle(selectedGrade === option, false)} onClick={() => handleGradeSelect(option)}>
+              {gradeOptions.map((option) => (
+                <li
+                  key={option}
+                  css={dropDownMenuItemStyle(selectedGrade === option, false)}
+                  onClick={() => handleGradeSelect(option)}
+                >
                   {option}
                 </li>
               ))}
@@ -143,7 +144,7 @@ export default function HwListPage() {
             itemsPerPage={itemsPerPage}
             renderCard={(hw) => <HwCard project={hw} />}
           />
-          
+
           {totalPages > 0 && (
             <Stack spacing={2} sx={{ alignItems: 'center', mt: 4, mb: 4 }}>
               <Pagination
