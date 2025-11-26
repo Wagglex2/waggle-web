@@ -6,7 +6,7 @@ const PositionField = () => {
   return (
     <div css={field}>
       <p className="field-name">포지션</p>
-      <div css={fieldContent('200px')}>
+      <div css={fieldContent('205px')}>
         <DropDown label="멤버" buttonWidth={'200px'} />
         <span css={separator}>:</span>
         <input type="text" placeholder="모집 인원을 입력해 주세요" />

@@ -5,7 +5,7 @@ const CourseCodeField = () => {
   return (
     <div css={field}>
       <p className="field-name">과목코드</p>
-      <div css={fieldContent('200px')}>
+      <div css={fieldContent('220px')}>
         <input type="text" placeholder="과제의 과목코드를 입력해 주세요" />
       </div>
     </div>

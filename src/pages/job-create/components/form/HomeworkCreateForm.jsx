@@ -30,13 +30,19 @@ const HomeworkCreateForm = () => {
 
       {/* 마감일 박스 */}
       <div css={formListBox}>
-        <p css={listLabel}>마감일</p>
+        <div css={listLabel}>
+          <p>마감일</p>
+          <p className="support-msg">*공고 마감일을 입력해 주세요</p>
+        </div>
         <DeadLineField />
       </div>
 
       {/* 정보 박스 */}
       <div css={formListBox}>
-        <p css={listLabel}>정보</p>
+        <div css={listLabel}>
+          <p>정보</p>
+          <p className="support-msg">*과제 정보를 입력해 주세요</p>
+        </div>
         <DepartmentField />
         <CourseCodeField />
         <GradeField />
@@ -75,6 +81,17 @@ const listLabel = css`
   font-family: 'nanumB';
   border-bottom: 1px solid ${colors.gray[400]};
   padding: 3px 7px;
+  display: flex;
+  justify-content: space-between;
+
+  .support-msg {
+    font-size: 13px;
+    color: ${colors.gray[300]};
+    height: 13px;
+    margin-bottom: 3px;
+    align-self: self-end;
+    font-family: 'nanumR';
+  }
 `;
 
 const submitBtn = css`

@@ -44,22 +44,44 @@ const ProjectCreateForm = () => {
 
       {/* 마감일 박스*/}
       <div css={formListBox}>
-        <p css={listBoxLabel}>마감일</p>
+        <div css={listBoxLabel}>
+          <p>마감일</p>
+          <p className="support-msg">*공고 마감일을 입력해 주세요</p>
+        </div>
         <DeadLineField />
       </div>
 
       {/* 정보 박스 */}
       <div css={formListBox}>
-        <p css={listBoxLabel}>정보</p>
+        <div css={listBoxLabel}>
+          <p>정보</p>
+          <p className="support-msg">*프로젝트 정보를 입력해 주세요</p>
+        </div>
         <DurationField />
         <MethodField />
         <GradeField />
 
         <div css={field}>
-          <p className="field-name">포지션</p>
+          <p className="field-name">등록자 포지션</p>
+          <div css={fieldContent('200px', 'column')}>
+            <div css={positionBox}>
+              <DropDown label="포지션" options={positionOptions} buttonWidth={'200px'} />
+            </div>
+          </div>
+        </div>
+
+        <div css={field}>
+          <div css={projectPositionfieldLabel}>
+            <p>팀원 포지션</p>
+            <p className="note-msg">* 본인 제외</p>
+          </div>
           <div css={fieldContent('200px', 'column')}>
             {positionState.map((prev) => (
               <div css={positionBox} key={prev.id}>
+                <DropDown label="포지션" options={positionOptions} buttonWidth={'200px'} />
+                <span css={separator}>:</span>
+                <input type="text" placeholder="모집 인원을 입력해 주세요" />
+                <span css={unit}>명</span>
                 <button
                   type="button"
                   css={deletePositionBtn}
@@ -67,10 +89,6 @@ const ProjectCreateForm = () => {
                 >
                   삭제
                 </button>
-                <DropDown label="포지션" options={positionOptions} buttonWidth={'200px'} />
-                <span css={separator}>:</span>
-                <input type="text" placeholder="모집 인원을 입력해 주세요" />
-                <span css={unit}>명</span>
               </div>
             ))}
             <button type="button" css={addPosionBtn} onClick={addPosition}>
@@ -114,6 +132,17 @@ const listBoxLabel = css`
   font-family: 'nanumB';
   border-bottom: 1px solid ${colors.gray[400]};
   padding: 3px 7px;
+  display: flex;
+  justify-content: space-between;
+
+  .support-msg {
+    font-size: 13px;
+    color: ${colors.gray[300]};
+    height: 13px;
+    margin-bottom: 3px;
+    align-self: self-end;
+    font-family: 'nanumR';
+  }
 `;
 
 const submitBtn = css`
@@ -153,4 +182,26 @@ const addPosionBtn = css`
   font-size: 13px;
   font-family: 'nanumR';
   align-self: end;
+`;
+
+const projectPositionfieldLabel = css`
+  width: 118px;
+  background-color: #fef7d4;
+  font-size: 14px;
+  font-family: 'nanumB';
+  color: ${colors.gray[400]};
+
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center;
+  padding-left: 7px;
+  margin-right: 15px;
+  padding-top: 14px;
+
+  .note-msg {
+    font-size: 13px;
+    color: ${colors.gray[300]};
+    margin-left: 7px;
+  }
 `;

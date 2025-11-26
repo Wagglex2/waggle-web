@@ -8,7 +8,7 @@ const TechField = () => {
     <div css={field}>
       <p className="field-name">기술</p>
       <div css={fieldContent}>
-        <MultiSelectDropDown label="기술" options={techStackOptions} buttonWidth={'475px'} />
+        <MultiSelectDropDown label="기술" options={techStackOptions} buttonWidth={'440px'} />
       </div>
     </div>
   );
