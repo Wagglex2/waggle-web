@@ -1,14 +1,8 @@
-import axios from 'axios';
 import api from './api';
 
-const apiKey = import.meta.env.VITE_API_KEY; // 실제로는 Base URL
-
-// 로그인
 export const signinApi = async (data) => {
   try {
-    const res = await axios.post(`${apiKey}/api/v1/auth/sign-in`, data, {
-      withCredentials: true,
-    });
+    const res = await api.post('/api/v1/auth/sign-in', data);
 
     const accessToken = res.headers.authorization?.replace('Bearer ', '');
 
@@ -27,18 +21,14 @@ export const signinApi = async (data) => {
   }
 };
 
-// 로그아웃
 export const logoutApi = async () => {
   const res = await api.post('/api/v1/auth/sign-out');
   return res.status;
 };
 
-// 닉네임 중복 확인
 export const checkNicknameDuplicateApi = async (nickname) => {
   try {
-    const res = await axios.get(`${apiKey}/api/v1/users/nickname/check?nickname=${nickname}`, {
-      withCredentials: true,
-    });
+    const res = await api.post('/api/v1/users/nickname/check', { nickname });
     return res.data.data;
   } catch (error) {
     const status = error.response?.status;
@@ -53,12 +43,9 @@ export const checkNicknameDuplicateApi = async (nickname) => {
   }
 };
 
-// 아이디 중복 확인
 export const checkUsernameDuplicateApi = async (username) => {
   try {
-    const res = await axios.get(`${apiKey}/api/v1/users/username/check?username=${username}`, {
-      withCredentials: true,
-    });
+    const res = await api.post('/api/v1/users/username/check', { username });
     return res.data.data;
   } catch (error) {
     const status = error.response?.status;
@@ -73,12 +60,9 @@ export const checkUsernameDuplicateApi = async (username) => {
   }
 };
 
-// 이메일 중복 확인
 export const checkEmailDuplicateApi = async (email) => {
   try {
-    const res = await axios.get(`${apiKey}/api/v1/users/email/check?email=${email}`, {
-      withCredentials: true,
-    });
+    const res = await api.post('/api/v1/users/email/check', { email });
     return res.data.data;
   } catch (error) {
     const status = error.response?.status;
@@ -90,14 +74,9 @@ export const checkEmailDuplicateApi = async (email) => {
   }
 };
 
-// 인증번호 발송
 export const sendEmailCodeApi = async (email) => {
   try {
-    const res = await axios.post(
-      `${apiKey}/api/v1/auth/email/code`,
-      { email },
-      { withCredentials: true }
-    );
+    const res = await api.post('/api/v1/auth/email/code', { email });
     return res.data.message || '인증번호가 발송되었습니다.';
   } catch (error) {
     const status = error.response?.status;
@@ -109,14 +88,9 @@ export const sendEmailCodeApi = async (email) => {
   }
 };
 
-// 인증번호 확인
 export const verifyEmailCodeApi = async (email, inputCode) => {
   try {
-    const res = await axios.post(
-      `${apiKey}/api/v1/auth/email/verify`,
-      { email, inputCode },
-      { withCredentials: true }
-    );
+    const res = await api.post('/api/v1/auth/email/verify', { email, inputCode });
     return res.data.message || '인증되었습니다.';
   } catch (error) {
     const status = error.response?.status;
@@ -132,14 +106,16 @@ export const verifyEmailCodeApi = async (email, inputCode) => {
   }
 };
 
-// 회원가입
-export const signupApi = async ({ username, password, nickname, email }) => {
+// ✅ 수정됨: passwordConfirm 추가
+export const signupApi = async ({ username, password, passwordConfirm, nickname, email }) => {
   try {
-    const res = await axios.post(
-      `${apiKey}/api/v1/auth/sign-up`,
-      { username, password, nickname, email },
-      { withCredentials: true }
-    );
+    const res = await api.post('/api/v1/auth/sign-up', {
+      username,
+      password,
+      passwordConfirm, // ✅ 여기 추가됨
+      nickname,
+      email,
+    });
     return res.data.message || '회원가입이 완료되었습니다.';
   } catch (error) {
     const status = error.response?.status;
