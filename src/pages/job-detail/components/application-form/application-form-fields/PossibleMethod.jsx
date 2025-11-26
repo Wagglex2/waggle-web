@@ -2,8 +2,11 @@
 import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
 import { formField, fieldLabelBox } from '../applicationFormStyle';
+import useApplicationFormStore from '@/stores/apply/useApplicationFormStore';
 
 const PossibleMethod = () => {
+  const { meetingType, setMeetingType } = useApplicationFormStore();
+
   return (
     <div css={formField}>
       <div css={fieldLabelBox}>
@@ -12,15 +15,35 @@ const PossibleMethod = () => {
       </div>
       <div css={fieldItems}>
         <div css={inputBtnOption}>
-          <input type="radio" name="progress-options" id="first-option" />
+          <input
+            type="radio"
+            name="progress-options"
+            id="first-option"
+            checked={meetingType === 'ONLINE'}
+            onChange={() => setMeetingType('ONLINE')}
+          />
           <label htmlFor="first-option">온라인</label>
         </div>
+
         <div css={inputBtnOption}>
-          <input type="radio" name="progress-options" id="second-option" />
+          <input
+            type="radio"
+            name="progress-options"
+            id="second-option"
+            checked={meetingType === 'OFFLINE'}
+            onChange={() => setMeetingType('OFFLINE')}
+          />
           <label htmlFor="second-option">오프라인</label>
         </div>
+
         <div css={inputBtnOption}>
-          <input type="radio" name="progress-options" id="third-option" />
+          <input
+            type="radio"
+            name="progress-options"
+            id="third-option"
+            checked={meetingType === 'HYBRID'}
+            onChange={() => setMeetingType('HYBRID')}
+          />
           <label htmlFor="third-option">온/오프라인</label>
         </div>
       </div>

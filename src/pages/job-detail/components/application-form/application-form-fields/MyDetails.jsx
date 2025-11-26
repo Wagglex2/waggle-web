@@ -2,14 +2,22 @@
 import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
 import { formField, fieldLabelBox } from '../applicationFormStyle';
+import useApplicationFormStore from '@/stores/apply/useApplicationFormStore';
 
 const MyDetails = () => {
+  const { description, setDescription } = useApplicationFormStore();
+
   return (
     <div css={formField}>
       <div css={fieldLabelBox}>
         <p className="field-title text-green">상세 설명</p>
       </div>
-      <textarea css={details} placeholder="어쩌구저쩌구 뭐 적지" />
+      <textarea
+        css={details}
+        placeholder="어쩌구저쩌구 뭐 적지"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
     </div>
   );
 };
