@@ -2,7 +2,7 @@
 import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
 import { formField, fieldLabelBox } from '../applicationFormStyle';
-import useApplicationFormStore from '@/stores/apply/useApplicationFormStore';
+import useApplicationFormStore from '@/stores/useApplicationFormStore';
 
 const MyDetails = () => {
   const { description, setDescription } = useApplicationFormStore();

@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import useApplicationFormStore from '@/stores/apply/useApplicationFormStore';
+import useApplicationFormStore from '@/stores/useApplicationFormStore';
 import MyDetails from './application-form-fields/MyDetails';
 import MyGrade from './application-form-fields/MyGrade';
 import PossibleMethod from './application-form-fields/PossibleMethod';

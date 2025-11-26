@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import useApplicationFormStore from '@/stores/apply/useApplicationFormStore';
+import useApplicationFormStore from '@/stores/useApplicationFormStore';
 import { formField, fieldLabelBox } from '../applicationFormStyle';
 import DropDown from '@/components/dropdown/DropDown';
 

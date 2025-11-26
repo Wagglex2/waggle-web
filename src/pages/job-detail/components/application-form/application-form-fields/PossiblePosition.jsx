@@ -2,7 +2,7 @@
 import { formField, fieldLabelBox } from '../applicationFormStyle';
 import { positionOptions } from '@/data/options';
 import DropDown from '@/components/dropdown/DropDown';
-import useApplicationFormStore from '@/stores/apply/useApplicationFormStore';
+import useApplicationFormStore from '@/stores/useApplicationFormStore';
 
 const PossiblePosition = () => {
   const { position, setPosition } = useApplicationFormStore();
