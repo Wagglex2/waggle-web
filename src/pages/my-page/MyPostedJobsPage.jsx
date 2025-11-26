@@ -22,12 +22,6 @@ const MyPostedJobsPage = () => {
   const [tab, setTab] = useState('프로젝트');
   const [open, setOpen] = useState(() => new Set());
   const [appModal, setAppModal] = useState(null);
-  const { posts, loading, error, fetchAllPosts, deletePost, acceptApplicant, rejectApplicant } =
-    usePostedJobsStore();
-
-  useEffect(() => {
-    fetchAllPosts();
-  }, [fetchAllPosts]);
 
   const { posts, loading, error, fetchAllPosts, deletePost, acceptApplicant, rejectApplicant } =
     usePostedJobsStore();
@@ -50,7 +44,6 @@ const MyPostedJobsPage = () => {
 
   const handleEdit = (postId, postType) => {
     const routes = {
-
       프로젝트: '/create-project',
       과제: '/create-hw',
       스터디: '/create-study',
@@ -73,7 +66,6 @@ const MyPostedJobsPage = () => {
     if (window.confirm('정말 삭제하시겠습니까?')) {
       await deletePost(postId, postType);
     }
-
   };
 
   const handleReject = async (postId, applicantId) => {
@@ -99,18 +91,24 @@ const MyPostedJobsPage = () => {
   const filteredPosts = useMemo(() => posts.filter((p) => p.type === tab), [posts, tab]);
 
   const findPostIdByApplicantId = (applicantId) => {
-    const post = posts.find((p) => p.applicants.some((a) => a.id === applicantId));
+    const post = posts.find((p) => p.applicants?.some((a) => a.id === applicantId));
     return post ? post.id : null;
   };
 
   const handleModalReject = () => {
     if (!appModal) return;
-    handleReject(findPostIdByApplicantId(appModal.id), appModal.id);
+    const postId = findPostIdByApplicantId(appModal.id);
+    if (postId) {
+      handleReject(postId, appModal.id);
+    }
   };
 
   const handleModalAccept = () => {
     if (!appModal) return;
-    handleAccept(findPostIdByApplicantId(appModal.id), appModal.id);
+    const postId = findPostIdByApplicantId(appModal.id);
+    if (postId) {
+      handleAccept(postId, appModal.id);
+    }
   };
 
   return (

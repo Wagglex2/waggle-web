@@ -2,6 +2,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState, useRef, useEffect } from 'react';
+import api from '@/api/api';
 
 const positionOptions = [
   '백엔드',
@@ -16,7 +17,8 @@ const positionOptions = [
 
 const techStackOptions = [
   'Java',
-  'C/C++',
+  'C',
+  'C++',
   'C#',
   'HTML/CSS',
   'TypeScript',
@@ -201,30 +203,22 @@ const UserInfoModal = ({ setOpenModal, onSave }) => {
   useEffect(() => {
     const checkUserInfo = async () => {
       try {
-        const response = await fetch('/api/v1/users/basic-info', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await api.get('/api/v1/users/basic-info');
+        const data = response.data;
 
-        if (response.ok) {
-          const data = await response.json();
-          const isMissingInfo = !data.grade || !data.position || data.position.length === 0;
+        const isMissingInfo = !data.grade || !data.position || data.position.length === 0;
 
-          if (isMissingInfo) {
-            setIsVisible(true);
-          } else {
-            setIsVisible(false);
-            if (setOpenModal) setOpenModal(false);
-          }
-
-          if (data.grade) setSelectedGrade(data.grade);
-          if (data.shortIntro) setIntro(data.shortIntro);
-        } else {
+        if (isMissingInfo) {
           setIsVisible(true);
+        } else {
+          setIsVisible(false);
+          if (setOpenModal) setOpenModal(false);
         }
+
+        if (data.grade) setSelectedGrade(data.grade);
+        if (data.shortIntro) setIntro(data.shortIntro);
       } catch (error) {
+        console.error('User info fetch error:', error);
         setIsVisible(true);
       }
     };
@@ -277,29 +271,9 @@ const UserInfoModal = ({ setOpenModal, onSave }) => {
     };
 
     try {
-      const response = await fetch('/api/v1/users/basic-info', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
+      const response = await api.patch('/api/v1/users/basic-info', userData);
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        try {
-          const errorData = JSON.parse(errorText);
-          alert(errorData.message || '저장에 실패했습니다.');
-        } catch (e) {
-          alert('저장에 실패했습니다.');
-        }
-        return;
-      }
-
-      const responseText = await response.text();
-      const result = responseText ? JSON.parse(responseText) : {};
-
-      console.log('Success:', result);
+      console.log('Success:', response.data);
 
       if (onSave) {
         await onSave(userData);
@@ -311,7 +285,12 @@ const UserInfoModal = ({ setOpenModal, onSave }) => {
       setIsVisible(false);
     } catch (error) {
       console.error('Network Error:', error);
-      alert('서버 오류가 발생했습니다.');
+
+      if (error.response && error.response.data) {
+        alert(error.response.data.message || '저장에 실패했습니다.');
+      } else {
+        alert('서버 오류가 발생했습니다.');
+      }
     }
   };
 
