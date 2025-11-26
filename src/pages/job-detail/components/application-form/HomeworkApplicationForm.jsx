@@ -5,7 +5,7 @@ import MyGrade from './application-form-fields/MyGrade';
 import PossibleMethod from './application-form-fields/PossibleMethod';
 import { applicationForm } from './applicationFormStyle';
 import ApplyBtn from './ApplyBtn';
-import useApplicationFormStore from '@/stores/apply/useApplicationFormStore';
+import useApplicationFormStore from '@/stores/useApplicationFormStore';
 import { useEffect } from 'react';
 
 const HomeworkApplicationForm = () => {

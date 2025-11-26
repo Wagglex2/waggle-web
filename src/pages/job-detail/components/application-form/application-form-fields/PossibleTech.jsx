@@ -2,7 +2,7 @@
 import { formField, fieldLabelBox } from '../applicationFormStyle';
 import { techStackOptions } from '@/data/options';
 import MultiSelectDropDown from '@/components/dropdown/MultiSelectDropdown';
-import useApplicationFormStore from '@/stores/apply/useApplicationFormStore';
+import useApplicationFormStore from '@/stores/useApplicationFormStore';
 
 const PossibleTech = () => {
   const { techStack, setTechStack } = useApplicationFormStore();
