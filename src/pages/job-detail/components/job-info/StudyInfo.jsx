@@ -39,7 +39,7 @@ const StudyInfo = (props) => {
         <h5 className="text-green" detail={detail}>
           공고 상세
         </h5>
-        <Details />
+        <Details detail={detail} />
       </div>
     </div>
   );
