@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { colors } from "@/styles/theme";
 
 const cardStyle = css`
@@ -172,6 +173,8 @@ const HeartIcon = ({ isLiked }) => (
 );
 
 export default function HwCard({ project, onUnlike }) {
+  const navigate = useNavigate();
+
   const [internalLiked, setInternalLiked] = useState(false);
   const isSavedPage = onUnlike !== undefined;
   const isLiked = isSavedPage ? true : internalLiked;
@@ -188,7 +191,7 @@ export default function HwCard({ project, onUnlike }) {
   };
 
   return (
-    <div css={cardStyle}>
+    <div css={cardStyle} onClick={() => navigate(`/hw-list/${project.id}`)}>
       <div>
         <div css={headerTopStyle}>
           <div css={tagGroupStyle}>
