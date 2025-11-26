@@ -1,17 +1,23 @@
 /** @jsxImportSource @emotion/react */
 import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { IoIosArrowBack } from 'react-icons/io';
 
+const categoryPath = {
+  프로젝트: '/project-list',
+  과제: '/hw-list',
+  스터디: '/study-list',
+};
+
 const JobListLinkBtn = ({ category }) => {
+  const navigate = useNavigate();
+
   return (
-    <Link to="/hw-list">
-      <button css={navBtn} type="button">
-        <IoIosArrowBack />
-        {category} 목록보기
-      </button>
-    </Link>
+    <button css={navBtn} type="button" onClick={() => navigate(categoryPath[category])}>
+      <IoIosArrowBack />
+      {category} 목록보기
+    </button>
   );
 };
 
@@ -25,7 +31,7 @@ const navBtn = css`
   font-size: 13px;
   font-family: 'nanumB';
   padding: 10px 10px;
-  margin-left: 310px;
+  //margin-left: 310px;
   display: flex;
   align-items: center;
 `;
