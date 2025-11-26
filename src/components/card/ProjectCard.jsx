@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { colors } from "@/styles/theme";
 import techIcons from "@/data/techIcons"; 
 
@@ -219,6 +220,8 @@ const HeartIcon = ({ isLiked }) => (
 const MAX_TECH_DISPLAY = 3; 
 
 export default function ProjectCard({ project, onUnlike }) {
+  const navigate = useNavigate();
+
   const [internalLiked, setInternalLiked] = useState(false);
   const isSavedPage = onUnlike !== undefined;
   const isLiked = isSavedPage ? true : internalLiked;
@@ -226,19 +229,19 @@ export default function ProjectCard({ project, onUnlike }) {
   const hasMorePositions = project.positions.length > 3;
 
   const handleLikeClick = (e) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     if (isSavedPage) {
       onUnlike(project.id);
     } else {
       setInternalLiked(!internalLiked);
     }
   };
-  
+
   const displayedTechs = project.techStack.slice(0, MAX_TECH_DISPLAY);
   const hiddenTechCount = project.techStack.length - MAX_TECH_DISPLAY;
 
   return (
-    <div css={cardStyle}>
+    <div css={cardStyle} onClick={() => navigate(`/project-list/${project.id}`)}>
       <div css={headerTopStyle}>
         <div css={tagGroupStyle}>
           {project.purposeTag && (
