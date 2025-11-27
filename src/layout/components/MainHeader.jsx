@@ -6,20 +6,33 @@ import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { logoutApi } from '@/api/auth';
 import useAuthStore from '@/stores/useAuthStore';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const CATEGORIES = [
   { label: '프로젝트', value: 'project' },
-  { label: '스터디', value: 'study' },
   { label: '과제', value: 'homework' },
+  { label: '스터디', value: 'study' },
 ];
 
 const MainHeader = () => {
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
+
+  const dropdownRef = useRef(null);
+
   const [keyword, setKeyword] = useState('');
   const [currentCategory, setCurrentCategory] = useState(CATEGORIES[0]); 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
@@ -63,7 +76,7 @@ const MainHeader = () => {
         <p css={logo}>와글와글</p>
       </Link>
       
-      <div css={searchBar}>
+      <div css={searchBar} ref={dropdownRef}>
         <button css={dropdownBtn} onClick={toggleDropdown}>
           {currentCategory.label}
           <ArrowDropDownIcon css={dropDownIcon} />
