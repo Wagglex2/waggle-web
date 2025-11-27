@@ -73,6 +73,7 @@ const PURPOSE_MAP = {
 };
 const purposeOptions = Object.keys(PURPOSE_MAP);
 
+
 export default function ProjectListPage() {
   const itemsPerPage = 9;
   const { openDropdown, setOpenDropdown, dropdownRefs } = useDropdown();
@@ -80,7 +81,7 @@ export default function ProjectListPage() {
   const [projects, setProjects] = useState([]); 
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [isClosed, setIsClosed] = useState(false); 
+  const [isClosed, setIsClosed] = useState(false);
 
   const {
     selectedPurpose,
@@ -141,7 +142,6 @@ export default function ProjectListPage() {
         const response = await api.get('/api/v1/projects', { params });
         
         const content = response.data.data?.content || [];
-        
         const totalPageCount = response.data.data?.page?.totalPages || response.data.data?.totalPages || 0;
 
         const mappedProjects = content.map((item) => {
@@ -168,9 +168,12 @@ export default function ProjectListPage() {
             author: item.authorNickname,
             purposeTag: extractValue(item.category) || "미정", 
             methodTag: extractValue(item.meetingType) || "미정",
-            status: item.status?.name || "RECRUITING", 
+            status: item.status?.name || "RECRUITING",
             positions: item.positions ? item.positions.map(extractValue).filter(p => p) : [], 
             techStack: techStack,
+
+            bookmarked: item.bookmarked, 
+            bookmarkId: item.bookmarkId, 
           };
         });
 
@@ -189,6 +192,11 @@ export default function ProjectListPage() {
 
   }, [currentPage, selectedPurpose, selectedTechs, selectedPositions, hasSelectedPurpose, setPage, isClosed]);
 
+
+  const handlePageChange = (pageNumber) => {
+    setPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <PageWrapper>
