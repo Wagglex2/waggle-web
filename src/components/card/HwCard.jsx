@@ -1,8 +1,9 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { colors } from "@/styles/theme";
+import api from "@/api/api";
 
 const cardStyle = css`
   display: flex;
@@ -137,6 +138,7 @@ const footerStyle = css`
   left: 15px;
   right: 15px;
 `;
+
 const profileStyle = css`
   display: flex;
   align-items: center;
@@ -175,23 +177,55 @@ const HeartIcon = ({ isLiked }) => (
 export default function HwCard({ project, onUnlike }) {
   const navigate = useNavigate();
 
-  const [internalLiked, setInternalLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(project.bookmarked);
+  const [bookmarkId, setBookmarkId] = useState(project.bookmarkId);
+
   const isSavedPage = onUnlike !== undefined;
-  const isLiked = isSavedPage ? true : internalLiked;
   const displayedSubjects = project.subjects ? project.subjects.slice(0, 3) : [];
   const hasMoreSubjects = project.subjects ? project.subjects.length > 3 : false;
 
-  const handleLikeClick = (e) => {
-    e.stopPropagation();
+  useEffect(() => {
+    setIsLiked(project.bookmarked);
+    setBookmarkId(project.bookmarkId);
+  }, [project]);
+
+  const handleLikeClick = async (e) => {
+    e.stopPropagation(); 
+
     if (isSavedPage) {
       onUnlike(project.id);
-    } else {
-      setInternalLiked(!internalLiked);
+      return;
     }
+
+    try {
+      if (isLiked) {
+        if (!bookmarkId) {
+          console.error("찜 취소 실패: bookmarkId가 없습니다.");
+          return;
+        }
+        await api.delete(`/api/v1/bookmarks/${bookmarkId}`);
+        setIsLiked(false);
+        setBookmarkId(null);
+      } else {
+        const response = await api.post(`/api/v1/bookmarks/recruitments/${project.id}`);
+        const newBookmarkId = response.data.data; 
+        setIsLiked(true);
+        setBookmarkId(newBookmarkId);
+      }
+    } catch (error) {
+      console.error("찜 처리 중 오류 발생:", error);
+      if (error.response?.status === 401) {
+        alert("로그인이 필요합니다.");
+      }
+    }
+  };
+  
+  const handleCardClick = () => {
+    navigate(`/hw-list/${project.id}`);
   };
 
   return (
-    <div css={cardStyle} onClick={() => navigate(`/hw-list/${project.id}`)}>
+    <div css={cardStyle} onClick={handleCardClick}>
       <div>
         <div css={headerTopStyle}>
           <div css={tagGroupStyle}>
