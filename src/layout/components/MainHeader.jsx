@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { colors } from '../../styles/theme';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { logoutApi } from '@/api/auth';
@@ -17,12 +17,32 @@ const CATEGORIES = [
 const MainHeader = () => {
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
-
+  const location = useLocation();
   const dropdownRef = useRef(null);
 
   const [keyword, setKeyword] = useState('');
   const [currentCategory, setCurrentCategory] = useState(CATEGORIES[0]); 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const urlQuery = params.get('q');
+    const urlCategory = params.get('category');
+
+    if (location.pathname === '/search-result') {
+      if (urlQuery) setKeyword(urlQuery);
+      if (urlCategory) {
+        const found = CATEGORIES.find(c => c.value === urlCategory);
+        if (found) setCurrentCategory(found);
+      }
+    } 
+    else if (/\/(project|hw|study)-list\/.+/.test(location.pathname)) {
+    }
+    else {
+      setKeyword('');
+      setCurrentCategory(CATEGORIES[0]);
+    }
+  }, [location.pathname, location.search]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
