@@ -35,8 +35,7 @@ const MyApplicationsPage = () => {
   const filtered = useMemo(() => rows.filter((r) => r.category === tab), [rows, tab]);
 
   const handleTitleClick = (item) => {
-    // 캡처해주신 데이터에 boardId가 없으므로 item.id를 사용합니다.
-    const targetId = item.id;
+    const targetId = item.recruitmentId;
 
     switch (item.category) {
       case '프로젝트':
