@@ -20,7 +20,6 @@ const colors = {
   skillText: '#F9A825',
 };
 
-// user prop을 받도록 수정했습니다.
 const UserProfileModal = ({ isOpen, onClose, user }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const reviewsPerPage = 3; // user prop이 없거나 모달이 닫혀있으면 렌더링하지 않습니다.

@@ -1,6 +1,8 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
 import { css } from '@emotion/react';
+import { useState } from 'react';
+import UserProfileModal from './UserProfileModal';
 
 const colors = {
   border: '#eee6d6',
@@ -18,6 +20,20 @@ const PostedJobCard = ({
   onViewApplicant,
   onViewProfile,
 }) => {
+  const [selectedApplicant, setSelectedApplicant] = useState(null);
+
+  const handleApplicantClick = (e, applicant) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const formattedUser = {
+      ...applicant,
+      nickname: applicant.name,
+    };
+
+    setSelectedApplicant(formattedUser);
+  };
+
   return (
     <section css={postCard}>
       <div
@@ -110,11 +126,21 @@ const PostedJobCard = ({
           )}
         </div>
       )}
+
+      {selectedApplicant && (
+        <UserProfileModal
+          isOpen={!!selectedApplicant}
+          user={selectedApplicant}
+          onClose={() => setSelectedApplicant(null)}
+        />
+      )}
     </section>
   );
 };
 
 export default PostedJobCard;
+
+// --- CSS Styles ---
 
 const postCard = css`
   background: #fff;
@@ -196,6 +222,7 @@ const applicantInfoSection = css`
 const viewApplicants = css`
   color: ${colors.muted};
   font-size: 14px;
+  white-space: nowrap;
 `;
 
 const caret = (isOpen) => css`
@@ -237,9 +264,20 @@ const dot = (bgColor) => css`
   color: white;
   font-weight: 600;
   font-size: 14px;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
-const memberName = css`
+const memberNameButton = css`
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
   font-weight: 600;
   font-size: 15px;
   color: #333;
