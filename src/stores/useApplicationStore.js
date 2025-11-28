@@ -38,7 +38,6 @@ function transformApplicationData(apiData, forcedCategory = null) {
 
   return {
     id: apiData.applicationId,
-    recruitmentId: apiData.recruitmentId,
     category: finalCategory,
     title: apiData.recruitmentTitle,
     due: apiData.recruitmentDeadline,

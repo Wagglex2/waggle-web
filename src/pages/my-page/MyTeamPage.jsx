@@ -5,7 +5,6 @@ import { css } from '@emotion/react';
 import { useTeamStore } from '../../stores/useTeamStore';
 import TeamCard from './components/TeamCard';
 import ReviewModal from './components/ReviewModal';
-import UserProfileModal from './components/UserProfileModal'; // import 추가
 import api from '@/api/api';
 
 const colors = {
@@ -28,8 +27,6 @@ const MyTeamPage = () => {
 
   const teams = useTeamStore((state) => state.teams);
   const setTeams = useTeamStore((state) => state.setTeams);
-  const hoveredMember = useTeamStore((state) => state.hoveredMember);
-  const setHoveredMember = useTeamStore((state) => state.setHoveredMember);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -43,6 +40,7 @@ const MyTeamPage = () => {
         const response = await api.get(`/api/v1/teams/me?size=5&category=${apiCategory}`);
 
         const fetchedTeams = response.data.data.content || [];
+        console.log('Fetched Teams:', fetchedTeams);
         setTeams(fetchedTeams);
       } catch (error) {
         console.error('팀 데이터 불러오기 실패:', error);
@@ -54,10 +52,6 @@ const MyTeamPage = () => {
 
     fetchTeams();
   }, [tab, setTeams]);
-
-  const handleCloseModal = () => {
-    setHoveredMember(null);
-  };
 
   return (
     <div css={wrap}>
@@ -85,11 +79,6 @@ const MyTeamPage = () => {
         )}
 
         <ReviewModal />
-        <UserProfileModal
-          isOpen={!!hoveredMember}
-          user={hoveredMember}
-          onClose={handleCloseModal}
-        />
       </div>
     </div>
   );
