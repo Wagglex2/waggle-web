@@ -2,13 +2,22 @@
 import { field, fieldContent } from '../fieldStyle';
 import MultiSelectDropDown from '@/components/dropdown/MultiSelectDropdown';
 import { techStackOptions } from '@/data/options';
+import useCreateJobStore from '@/stores/useCreateJobStore';
 
 const TechField = () => {
+  const { techStack, setTechStack } = useCreateJobStore();
+
   return (
     <div css={field}>
       <p className="field-name">기술</p>
       <div css={fieldContent}>
-        <MultiSelectDropDown label="기술" options={techStackOptions} buttonWidth={'440px'} />
+        <MultiSelectDropDown
+          label="기술"
+          options={techStackOptions}
+          buttonWidth={'440px'}
+          value={techStack}
+          onChange={setTechStack}
+        />
       </div>
     </div>
   );

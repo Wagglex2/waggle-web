@@ -21,7 +21,7 @@ const Editor = ({ editorValue, onChangeEditorValue }) => {
       modules={{
         toolbar: { container: toolbarOptions },
       }}
-      onChange={onChangeEditorValue}
+      onChange={(value) => onChangeEditorValue(value)}
       placeholder="어쩌구저쩌구와글와글 이야기를 넣어보세요"
     />
   );
