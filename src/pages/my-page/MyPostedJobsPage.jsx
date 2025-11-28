@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { usePostedJobsStore } from '../../stores/usePostedJobsStore';
 import ApplicantModal from './components/ApplicationModal';
 import PostedJobCard from './components/PostedJobCard';
+import UserProfileModal from './components/UserProfileModal';
 
 const colors = {
   border: '#eee6d6',
@@ -22,6 +23,7 @@ const MyPostedJobsPage = () => {
   const [tab, setTab] = useState('프로젝트');
   const [open, setOpen] = useState(() => new Set());
   const [appModal, setAppModal] = useState(null);
+  const [profileModal, setProfileModal] = useState({ isOpen: false, user: null });
 
   const { posts, loading, error, fetchAllPosts, deletePost, acceptApplicant, rejectApplicant } =
     usePostedJobsStore();
@@ -86,7 +88,12 @@ const MyPostedJobsPage = () => {
     setAppModal({ ...applicant, postType });
   };
 
+  const handleViewProfile = (user) => {
+    setProfileModal({ isOpen: true, user });
+  };
+
   const closeModal = () => setAppModal(null);
+  const closeProfileModal = () => setProfileModal({ isOpen: false, user: null });
 
   const filteredPosts = useMemo(() => posts.filter((p) => p.type === tab), [posts, tab]);
 
@@ -149,6 +156,7 @@ const MyPostedJobsPage = () => {
                 onDelete={() => handleDelete(post.id, post.type)}
                 onRejectApplicant={(applicantId) => handleReject(post.id, applicantId)}
                 onViewApplicant={(applicant) => handleViewApplication(applicant, post.type)}
+                onViewProfile={handleViewProfile}
               />
             );
           })}
