@@ -10,10 +10,14 @@ import DurationField from './form-fields/DurationField';
 import PositionField from './form-fields/PositionField';
 import TechField from './form-fields/TechField';
 import ConsentField from './form-fields/ConsentField';
+import useCreateJobStore from '@/stores/useCreateJobStore';
+import SubmitFormBtn from './form-fields/SubmitFormBtn';
 
-const StudyCreateForm = () => {
+const StudyCreateForm = ({ isFormValid, payload, consent, setConsent }) => {
+  const { content, setContent } = useCreateJobStore();
+
   return (
-    <form css={formContainer}>
+    <form css={formContainer} onSubmit={(e) => e.preventDefault()}>
       {/* 공고구분 박스 */}
       <div css={formListBox}>
         <p css={listLabel}>공고구분</p>
@@ -50,15 +54,18 @@ const StudyCreateForm = () => {
       {/* 공고상세 박스 */}
       <div css={formListBox}>
         <p css={listLabel}>공고 상세</p>
-        <Editor />
+        <Editor editorValue={content} onChangeEditorValue={setContent} />
       </div>
 
       {/* 공고등록 동의 필드 */}
-      <ConsentField />
+      <ConsentField consent={consent} setConsent={setConsent} />
 
-      <button css={submitBtn} type="submit">
-        등록하기
-      </button>
+      <SubmitFormBtn
+        isEnabled={isFormValid}
+        payload={payload}
+        path={{ path: 'study-list', url: 'studies' }}
+        setConsent={setConsent}
+      />
     </form>
   );
 };
@@ -90,19 +97,4 @@ const listLabel = css`
     align-self: self-end;
     font-family: 'nanumR';
   }
-`;
-
-const submitBtn = css`
-  display: block;
-  margin: 50px auto;
-  width: 350px;
-  height: 50px;
-
-  border-radius: 10px;
-  border: 1px solid ${colors.gray[300]};
-  background-color: #fef7d4;
-
-  font-family: 'nanumEB';
-  font-size: 15px;
-  color: ${colors.secondary};
 `;

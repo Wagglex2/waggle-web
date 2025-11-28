@@ -15,20 +15,82 @@ import GradeField from './form-fields/GradeField';
 import TechField from './form-fields/TechField';
 import ConsentField from './form-fields/ConsentField';
 import { useState } from 'react';
+import SubmitFormBtn from './form-fields/SubmitFormBtn';
+import useCreateJobStore from '@/stores/useCreateJobStore';
 
-const ProjectCreateForm = () => {
-  const [positionState, setPositionState] = useState([{ id: 1, position: '', personnel: '' }]);
+const ProjectCreateForm = ({ isFormValid, payload, consent, setConsent }) => {
+  const { content, setContent, projectPositions, setProjectPositions, setAuthorPosition } =
+    useCreateJobStore();
 
-  function addPosition() {
-    setPositionState((prev) => [...prev, { id: prev.length + 1, position: '', personnel: '' }]);
+  // ui용 position 입력 상태
+  const [positionState, setPositionState] = useState([
+    { id: 1, position: '', personnel: '', isAdded: false, isDisable: false },
+  ]);
+
+  // 팀원 포지션 입력 필드 ui 추가용 포지션 객체 추가
+  function addPositionField() {
+    setPositionState((prev) => [
+      ...prev,
+      { id: Date.now(), position: '', personnel: '', isAdded: false, isDisable: false },
+    ]);
   }
 
-  function deletePosition(id) {
-    setPositionState((prev) => prev.filter((item) => item.id !== id));
+  // 사용자가 선택한 포지션을 ui용 포지션 객체의 position키 value로 삽입
+  function updatePositionName(id, option) {
+    setPositionState((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, position: option.name } : item))
+    );
+  }
+
+  // 사용자가 입력한 인원수를 ui용 포지션 객체의 personnel키 value로 삽입
+  function updatePersonnel(id, count) {
+    setPositionState((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, personnel: count } : item))
+    );
+  }
+
+  // 유저가 입력한 포지션과 인원수를 서버 전달용 데이터 projectPositions에 저장/삭제 하는 함수
+  function handlePositionField(id) {
+    const selectedData = positionState.find((item) => item.id === id);
+    console.log(selectedData.position);
+
+    if (!selectedData.position || !selectedData.personnel) {
+      return alert('**저장 실패** \n포지션과 인원을 모두 입력해주세요.');
+    }
+
+    // 삭제 버튼을 누른 경우
+    if (selectedData.isAdded) {
+      setPositionState((prev) => prev.filter((item) => item.id !== id));
+      setProjectPositions((prev) => prev.filter((item) => item.position !== selectedData.position));
+      return;
+    }
+
+    // 저장 버튼을 누른 경우
+    // 1. 인원 < 1 ? 저장 불가 : 저장
+    // 2. 새로운 필드 입력 후 저장 버튼을 누른 경우 -> 중복 입력 ? 저장 불가 : 저장
+    const isZero = selectedData.personnel < 1 ? true : false;
+    const isSamePos = projectPositions.some((item) => item.position === selectedData.position);
+    if (isZero) {
+      return alert('**저장 실패** \n최소 인원은 1명입니다.');
+    }
+    if (isSamePos) {
+      return alert('**저장 실패** \n이미 입력된 포지션입니다.');
+    }
+
+    setProjectPositions((prev) => {
+      return [
+        ...prev,
+        { position: selectedData.position, maxParticipants: Number(selectedData.personnel) },
+      ];
+    });
+
+    setPositionState((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, isAdded: true, isDisable: true } : item))
+    );
   }
 
   return (
-    <form css={formContainer}>
+    <form css={formContainer} onSubmit={(e) => e.preventDefault()}>
       {/* 공고구분 박스 */}
       <div css={formListBox}>
         <p css={listBoxLabel}>공고구분</p>
@@ -65,7 +127,12 @@ const ProjectCreateForm = () => {
           <p className="field-name">등록자 포지션</p>
           <div css={fieldContent('200px', 'column')}>
             <div css={positionBox}>
-              <DropDown label="포지션" options={positionOptions} buttonWidth={'200px'} />
+              <DropDown
+                label="포지션"
+                options={positionOptions}
+                buttonWidth={'200px'}
+                onChange={setAuthorPosition}
+              />
             </div>
           </div>
         </div>
@@ -76,22 +143,40 @@ const ProjectCreateForm = () => {
             <p className="note-msg">* 본인 제외</p>
           </div>
           <div css={fieldContent('200px', 'column')}>
-            {positionState.map((prev) => (
-              <div css={positionBox} key={prev.id}>
-                <DropDown label="포지션" options={positionOptions} buttonWidth={'200px'} />
+            {positionState.map((item) => (
+              <div key={item.id} css={positionBox}>
+                <DropDown
+                  label="포지션"
+                  options={positionOptions}
+                  buttonWidth="200px"
+                  value={positionOptions.find((opt) => opt.name === item.position)}
+                  onChange={(option) => updatePositionName(item.id, option)}
+                  isDisable={item.isDisable}
+                />
+
                 <span css={separator}>:</span>
-                <input type="text" placeholder="모집 인원을 입력해 주세요" />
+
+                <input
+                  type="number"
+                  placeholder="인원 수 입력"
+                  value={item.personnel}
+                  onChange={(e) => updatePersonnel(item.id, e.target.value)}
+                  disabled={item.isDisable}
+                />
+
                 <span css={unit}>명</span>
+
                 <button
                   type="button"
                   css={deletePositionBtn}
-                  onClick={() => deletePosition(prev.id)}
+                  onClick={() => handlePositionField(item.id)}
                 >
-                  삭제
+                  {item.isAdded ? '삭제' : '저장'}
                 </button>
               </div>
             ))}
-            <button type="button" css={addPosionBtn} onClick={addPosition}>
+
+            <button type="button" css={addPositionBtn} onClick={addPositionField}>
               + 포지션 추가
             </button>
           </div>
@@ -103,15 +188,18 @@ const ProjectCreateForm = () => {
       {/* 공고상세 박스 */}
       <div css={formListBox}>
         <p css={listBoxLabel}>공고 상세</p>
-        <Editor />
+        <Editor editorValue={content} onChangeEditorValue={setContent} />
       </div>
 
       {/* 공고등록 동의 필드 */}
-      <ConsentField />
+      <ConsentField consent={consent} setConsent={setConsent} />
 
-      <button css={submitBtn} type="submit">
-        등록하기
-      </button>
+      <SubmitFormBtn
+        isEnabled={isFormValid}
+        payload={payload}
+        path={{ path: 'project-list', url: 'projects' }}
+        setConsent={setConsent}
+      />
     </form>
   );
 };
@@ -145,21 +233,6 @@ const listBoxLabel = css`
   }
 `;
 
-const submitBtn = css`
-  display: block;
-  margin: 50px auto;
-  width: 350px;
-  height: 50px;
-
-  border-radius: 10px;
-  border: 1px solid ${colors.gray[300]};
-  background-color: #fef7d4;
-
-  font-family: 'nanumEB';
-  font-size: 15px;
-  color: ${colors.secondary};
-`;
-
 const positionBox = css`
   display: flex;
   align-items: center;
@@ -175,7 +248,7 @@ const deletePositionBtn = css`
   font-size: 14px;
 `;
 
-const addPosionBtn = css`
+const addPositionBtn = css`
   background: none;
   border: none;
   color: ${colors.gray[300]};

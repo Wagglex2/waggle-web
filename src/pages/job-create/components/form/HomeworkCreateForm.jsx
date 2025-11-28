@@ -11,10 +11,15 @@ import GradeField from './form-fields/GradeField';
 import PositionField from './form-fields/PositionField';
 import ConsentField from './form-fields/ConsentField';
 import PurposeField from './form-fields/PurposeField';
+import CourseField from './form-fields/CourseField';
+import useCreateJobStore from '@/stores/useCreateJobStore';
+import SubmitFormBtn from './form-fields/SubmitFormBtn';
 
-const HomeworkCreateForm = () => {
+const HomeworkCreateForm = ({ isFormValid, payload, consent, setConsent }) => {
+  const { content, setContent } = useCreateJobStore();
+
   return (
-    <form css={formContainer}>
+    <form css={formContainer} onSubmit={(e) => e.preventDefault()}>
       {/* 공고구분 박스 */}
       <div css={formListBox}>
         <p css={listLabel}>공고구분</p>
@@ -44,6 +49,7 @@ const HomeworkCreateForm = () => {
           <p className="support-msg">*과제 정보를 입력해 주세요</p>
         </div>
         <DepartmentField />
+        <CourseField />
         <CourseCodeField />
         <GradeField />
         <PositionField />
@@ -52,15 +58,18 @@ const HomeworkCreateForm = () => {
       {/* 공고상세 박스 */}
       <div css={formListBox}>
         <p css={listLabel}>공고 상세</p>
-        <Editor />
+        <Editor editorValue={content} onChangeEditorValue={setContent} />
       </div>
 
       {/* 공고등록 동의 필드 */}
-      <ConsentField />
+      <ConsentField consent={consent} setConsent={setConsent} />
 
-      <button css={submitBtn} type="submit">
-        등록하기
-      </button>
+      <SubmitFormBtn
+        isEnabled={isFormValid}
+        payload={payload}
+        path={{ path: 'hw-list', url: 'assignments' }}
+        setConsent={setConsent}
+      />
     </form>
   );
 };
@@ -92,19 +101,4 @@ const listLabel = css`
     align-self: self-end;
     font-family: 'nanumR';
   }
-`;
-
-const submitBtn = css`
-  display: block;
-  margin: 50px auto;
-  width: 350px;
-  height: 50px;
-
-  border-radius: 10px;
-  border: 1px solid ${colors.gray[300]};
-  background-color: #fef7d4;
-
-  font-family: 'nanumEB';
-  font-size: 15px;
-  color: ${colors.secondary};
 `;
