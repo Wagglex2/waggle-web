@@ -1,10 +1,8 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
 import { css } from '@emotion/react';
-import { useState, useEffect } from 'react';
 import { useTeamStore, currentUserId } from '../../../stores/useTeamStore';
 import api from '@/api/api';
-import UserProfileModal from './UserProfileModal';
 
 const colors = {
   border: '#eee6d6',
@@ -37,7 +35,7 @@ const TeamCard = ({ team }) => {
         alert('팀에서 멤버가 성공적으로 삭제되었습니다.');
       }
     } catch (error) {
-      console.error('멤버 삭제 오류:', error);
+      console.error(error);
     }
   }
 
@@ -119,14 +117,6 @@ const TeamCard = ({ team }) => {
             </div>
           );
         })}
-
-      {selectedMember && (
-        <UserProfileModal
-          isOpen={true}
-          user={selectedMember}
-          onClose={() => setSelectedMember(null)}
-        />
-      )}
     </section>
   );
 };

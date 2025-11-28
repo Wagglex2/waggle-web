@@ -21,6 +21,19 @@ const colors = {
   skillText: '#F9A825',
 };
 
+const positionMap = {
+  BACK_END: '백엔드',
+  FRONT_END: '프론트엔드',
+  FULL_STACK: '풀스택',
+  DATA: '데이터',
+  AI: 'AI',
+  GAME: '게임',
+  PLANNING: '기획',
+  DESIGN: '디자인',
+  BACKEND: '백엔드',
+  FRONTEND: '프론트엔드',
+};
+
 const UserProfileModal = ({ isOpen, onClose, user }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const reviewsPerPage = 3;
@@ -44,9 +57,14 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
     onClose();
   };
 
-  // 2. 유저 정보에서 position 변환
-  const rawPosition = user.position || user.positions || '';
-  const displayPosition = positionMap[rawPosition] || rawPosition;
+  let displayPosition = '';
+  if (user.position) {
+    if (typeof user.position === 'object') {
+      displayPosition = user.position.desc || user.position.name;
+    } else {
+      displayPosition = positionMap[user.position] || user.position;
+    }
+  }
 
   return ReactDOM.createPortal(
     <div css={overlay} onClick={handleClose}>
@@ -85,7 +103,6 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
             </div>
             <div css={infoSection}>
               <div className="tag-list">
-                {/* 3. 직무(Role) 태그 표시 */}
                 {displayPosition && <span css={[tagBase, roleTag]}>#{displayPosition}</span>}
 
                 {user.tags &&
@@ -141,8 +158,6 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
 };
 
 export default UserProfileModal;
-
-// --- CSS 스타일 정의 ---
 
 const overlay = css`
   position: fixed;
@@ -247,7 +262,6 @@ const profileHeader = css`
   }
 `;
 
-// ✅ 수정된 부분: 문법 오류 수정 완료
 const avatarSection = css`
   display: flex;
   flex-direction: column;
