@@ -35,7 +35,7 @@ const MyApplicationsPage = () => {
   const filtered = useMemo(() => rows.filter((r) => r.category === tab), [rows, tab]);
 
   const handleTitleClick = (item) => {
-    const targetId = item.recruitmentId;
+    const targetId = item.id;
 
     switch (item.category) {
       case '프로젝트':

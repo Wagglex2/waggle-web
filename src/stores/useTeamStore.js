@@ -1,14 +1,16 @@
-// useTeamStore.js 파일 (가정)
 import { create } from 'zustand';
 
-export const currentUserId = 1; // 예시 ID
+export const currentUserId = 1;
 
 export const useTeamStore = create((set) => ({
   teams: [],
   open: new Set(),
   reviewedMembers: new Set(),
-  hoveredMember: null, // 💡 새 상태 추가
-  reviewModalData: null,
+  reviews: new Map(),
+  hoveredMember: null,
+
+  setTeams: (teamsData) => set({ teams: teamsData }),
+  setHoveredMember: (member) => set({ hoveredMember: member }),
 
   setTeams: (teams) => set({ teams }),
   toggle: (id) =>
@@ -22,7 +24,6 @@ export const useTeamStore = create((set) => ({
       return { open: newOpen };
     }),
 
-  // 💡 새 액션 추가
   setHoveredMember: (member) => set({ hoveredMember: member }),
 
   deleteMember: (teamId, memberId) =>

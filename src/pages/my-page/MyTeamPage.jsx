@@ -5,7 +5,7 @@ import { css } from '@emotion/react';
 import { useTeamStore } from '../../stores/useTeamStore';
 import TeamCard from './components/TeamCard';
 import ReviewModal from './components/ReviewModal';
-import UserProfileModal from './components/UserProfileModal'; // import 추가
+import UserProfileModal from './components/UserProfileModal';
 import api from '@/api/api';
 
 const colors = {

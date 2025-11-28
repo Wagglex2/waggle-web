@@ -20,16 +20,12 @@ const colors = {
 };
 
 const TeamCard = ({ team }) => {
-  const { open, toggle, deleteMember, openReview, reviewedMembers } = useTeamStore();
-  const [selectedMember, setSelectedMember] = useState(null);
+  const { open, toggle, deleteMember, openReview, reviewedMembers, setHoveredMember } =
+    useTeamStore();
 
   const isOpen = open.has(team.id);
   const leaderName = team.leaderNickname;
   const isProject = team.category.name === 'PROJECT';
-
-  useEffect(() => {
-    console.log(`[TeamCard Mount] Team ID: ${team.id}, Members: ${team.members.length}`);
-  }, [team]);
 
   async function handleDeleteMember(e, teamId, targetId) {
     e.stopPropagation();
@@ -48,7 +44,7 @@ const TeamCard = ({ team }) => {
   const handleMemberClick = (e, member) => {
     e.preventDefault();
     e.stopPropagation();
-    setSelectedMember(member);
+    setHoveredMember(member);
   };
 
   const periodText =
