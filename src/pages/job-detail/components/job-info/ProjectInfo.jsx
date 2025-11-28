@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { jobInfoBox, infoBox, jobSummary } from './jobInfoStyle';
 import Meta from './info-data/Meta';
-import RecruitmentStatus from './info-data/Recruitmentstatus';
+import RecruitmentStatus from './info-data/RecruitmentStatus';
 import Details from './info-data/Details';
 
 const ProjectInfo = (props) => {

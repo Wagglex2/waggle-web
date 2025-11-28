@@ -1,8 +1,8 @@
-name: 프론트 배포 by AWS S3 + CloudFront
+name: FE deploy
 
 on:
   push:
-    branches: ["main"] # 메인 브랜치에 푸시될 때마다 실행될겁니다.
+    branches: ["main", "test-deploy"] # 메인 브랜치에 푸시될 때마다 실행될겁니다.
   workflow_dispatch: {}
 
 jobs:
