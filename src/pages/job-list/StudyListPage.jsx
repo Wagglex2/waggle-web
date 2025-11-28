@@ -10,6 +10,8 @@ import EmptyStateMessage from "@/components/common/EmptyStateMessage";
 import { useDropdown } from "@/components/filter/useDropdown";
 import useStudyStore from "@/stores/useStudyStore";
 import api from '@/api/api'; 
+
+// Material UI 페이지네이션
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
 
@@ -21,6 +23,10 @@ import {
   customCheckboxStyle,
   dropDownMenuItemStyle
 } from "@/components/filter/dropdownStyles";
+
+// ==========================================
+// [1] 데이터 매핑 상수 정의
+// ==========================================
 
 const TECH_STACK_LIST = [
   "HTML", "CSS", "JAVASCRIPT", "JAVA", "KOTLIN", "PYTHON", "SWIFT", 
@@ -54,6 +60,7 @@ export default function StudyListPage() {
   const itemsPerPage = 9;
   const { openDropdown, setOpenDropdown, dropdownRefs } = useDropdown();
 
+  // 상태 관리
   const [studies, setStudies] = useState([]); 
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -81,10 +88,14 @@ export default function StudyListPage() {
     setPage(1);
   };
 
+  // ==========================================
+  // [2] API 호출 및 데이터 가공
+  // ==========================================
   useEffect(() => {
     const fetchStudies = async () => {
       setIsLoading(true);
       try {
+        // 1. 파라미터 구성
         const params = {
           page: currentPage - 1,
           size: itemsPerPage,
@@ -98,11 +109,13 @@ export default function StudyListPage() {
           params.skills = selectedTechs.join(',');
         }
 
+        // 2. API 호출
         const response = await api.get('/api/v1/studies', { params });
         
         const content = response.data.data?.content || [];
         const totalPageCount = response.data.data?.page?.totalPages || response.data.data?.totalPages || 0;
 
+        // 3. 데이터 매핑
         const mappedStudies = content.map((item) => {
            const extractValue = (data) => {
              if (!data) return null;
@@ -121,6 +134,7 @@ export default function StudyListPage() {
               if (TECH_ICON_MAP[rawName]) {
                 return TECH_ICON_MAP[rawName];
               }
+
               return rawName.replace(/\s+/g, '_'); 
            };
 
@@ -131,10 +145,15 @@ export default function StudyListPage() {
             title: item.title,
             deadline: item.deadline,
             author: item.authorNickname || "익명",
+            
             purposeTag: "스터디", 
             methodTag: extractValue(item.meetingType) || "미정", 
             status: item.status?.name || "RECRUITING",
             techStack: techStack, 
+
+            // ★ [추가됨] 찜 관련 정보 매핑
+            bookmarked: item.bookmarked, 
+            bookmarkId: item.bookmarkId, 
           };
         });
 
@@ -178,7 +197,7 @@ export default function StudyListPage() {
       </FilterBar>
     
       {isLoading ? (
-        <EmptyStateMessage message="데이터를 불러오는 중입니다." />
+        <EmptyStateMessage message="데이터를 불러오는 중입니다..." />
       ) : studies.length === 0 ? (
         <EmptyStateMessage message="일치하는 스터디가 없습니다." />
       ) : (

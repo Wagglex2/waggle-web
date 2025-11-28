@@ -1,24 +1,17 @@
-/** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
+/** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import React, { useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import ProjectCard from "@/components/card/ProjectCard";
 import HwCard from "@/components/card/HwCard";
 import StudyCard from "@/components/card/StudyCard";
 import ToggleSwitch from "@/components/common/ToggleSwitch"; 
-import Pagination from "@/components/common/Pagination";
-import { colors as themeColors } from "@/styles/theme";
+import EmptyStateMessage from "@/components/common/EmptyStateMessage";
+import { colors } from "@/styles/theme";
 import useSavedJobsStore from "@/stores/useSavedJobsStore";
-
-const colors = {
-  border: '#eee6d6',
-  text: '#3a3a3a',
-  muted: '#8f8678',
-  btnBg: '#fff',
-  btnHover: '#fcfbf8',
-  tabActive: '#FEF1B2',
-  white: '#fff',
-};
+import api from '@/api/api'; 
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 
 const cardHeight = 260;
 const rowGap = 18;
@@ -36,7 +29,7 @@ const pageStyles = {
     height: 40px;
   `,
   tabs: css`display: flex; gap: 8px;`,
-  tabBtn: (active) => css`padding: 0 16px; height: 33px; border-radius: 10px; border: 1px solid ${colors.border}; background: ${active ? colors.tabActive : colors.white}; cursor: pointer; font-family: 'nanumB', 'NanumSquareRound', sans-serif; &:hover { background: ${active ? '' : colors.btnHover}; }`,
+  tabBtn: (active) => css`padding: 0 16px; height: 33px; border-radius: 10px; border: 1px solid #eee6d6; background: ${active ? '#FEF1B2' : '#fff'}; cursor: pointer; font-family: 'nanumB', 'NanumSquareRound', sans-serif; &:hover { background: ${active ? '' : '#fcfbf8'}; }`,
   
   gridContainer: css`
     display: grid; 
@@ -47,18 +40,6 @@ const pageStyles = {
     align-content: start;
   `,
   
-  empty: css`
-    border: 1px dashed ${colors.border}; 
-    border-radius: 12px; 
-    padding: 48px 24px; 
-    color: ${colors.muted}; 
-    text-align: center; 
-    grid-column: 1 / -1; 
-    min-height: ${gridMinHeight}px;
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-  `,
   toggleContainer: css`
     display: flex;
     justify-content: flex-end;
@@ -66,26 +47,26 @@ const pageStyles = {
     gap: 8px;
   `,
   toggleText: css`
-    color: ${themeColors.gray[300]};
+    color: ${colors.gray[300]};
     font-size: 14px;
     font-family: 'nanumR';
   `,
 };
 
+const TECH_ICON_MAP = {
+  'C++': 'CPP', 'C#': 'CSHARP'
+};
+
 export default function SavedJobsPage() {
   const itemsPerPage = 9;
+  
+  const [items, setItems] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
   const { 
-    projects, 
-    homeworks, 
-    studies, 
-    tab,
-    showClosed,
-    currentPage,
-    setTab,
-    toggleShowClosed,
-    setPage,
-    unlike, 
-    reset 
+    tab, showClosed, currentPage, 
+    setTab, toggleShowClosed, setPage, reset 
   } = useSavedJobsStore();
 
   useEffect(() => {
@@ -94,42 +75,140 @@ export default function SavedJobsPage() {
 
   const handleToggle = (toggled) => {
     toggleShowClosed(toggled);
+    setPage(1);
   };
   
   const handleTabChange = (newTab) => {
     setTab(newTab);
+    setPage(1);
   };
 
-  const handlePageChange = (pageNumber) => {
-    setPage(pageNumber);
+  const handlePageChange = (_, value) => {
+    setPage(value);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const filteredItems = useMemo(() => {
-    switch (tab) {
-      case '프로젝트': return projects;
-      case '과제': return homeworks;
-      case '스터디': return studies;
-      default: return [];
-    }
-  }, [tab, projects, homeworks, studies]); 
+  const fetchSavedJobs = async () => {
+    setIsLoading(true);
+    try {
+      let endpoint = '';
+      if (tab === '프로젝트') endpoint = '/api/v1/projects/bookmarks';
+      else if (tab === '과제') endpoint = '/api/v1/assignments/bookmarks';
+      else if (tab === '스터디') endpoint = '/api/v1/studies/bookmarks';
 
-  const totalItems = filteredItems.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
+      const params = {
+        page: currentPage - 1,
+        size: itemsPerPage,
+      };
+
+      if (showClosed) {
+        params.status = 'CLOSED';
+      }
+
+      const response = await api.get(endpoint, { params });
+      const content = response.data.data?.content || [];
+      const totalPageCount = response.data.data?.page?.totalPages || response.data.data?.totalPages || 0;
+
+      const extractValue = (data) => {
+        if (!data) return null;
+        if (typeof data === 'object') return data.desc || data.name;
+        return data;
+      };
+
+      const normalizeTech = (tech) => {
+        if (!tech) return "";
+        let rawName = (typeof tech === 'object' ? tech.name : tech) || "";
+        if (typeof rawName !== 'string') return "";
+        
+        rawName = rawName.toString().toUpperCase(); 
+        if (TECH_ICON_MAP[rawName]) return TECH_ICON_MAP[rawName];
+        return rawName.replace(/\s+/g, '_'); 
+      };
+
+      const mappedItems = content.map(item => {
+        const baseItem = {
+          id: item.id, 
+          title: item.title,
+          deadline: item.deadline,
+          author: item.authorNickname || "익명",
+          purposeTag: extractValue(item.category) || extractValue(item.purpose) || "기타",
+          status: extractValue(item.status) || "RECRUITING",
+          
+          bookmarked: true, 
+          bookmarkId: item.bookmarkId, 
+        };
+
+        if (tab === '프로젝트') {
+          return {
+            ...baseItem,
+            methodTag: extractValue(item.meetingType) || "미정",
+            positions: item.positions ? item.positions.map(extractValue) : [],
+            techStack: item.skills ? item.skills.map(normalizeTech) : [],
+          };
+        } else if (tab === '과제') {
+          return {
+            ...baseItem,
+            grade: item.grade ? `${item.grade}학년` : "학년 무관",
+            department: item.department || "전공 무관",
+            subjects: item.lecture ? [item.lecture] : (item.subjects || []),
+          };
+        } else if (tab === '스터디') {
+          return {
+            ...baseItem,
+            methodTag: extractValue(item.meetingType) || "미정", 
+            techStack: item.skills ? item.skills.map(normalizeTech) : [],
+          };
+        }
+        return baseItem;
+      });
+
+      setItems(mappedItems);
+      setTotalPages(totalPageCount);
+
+    } catch (error) {
+      console.error("찜 목록 불러오기 실패:", error);
+      setItems([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSavedJobs();
+  }, [tab, currentPage, showClosed]);
+
+
+  const handleUnlike = async (id) => {
+    const targetItem = items.find(item => item.id === id);
+    
+    if (!targetItem || !targetItem.bookmarkId) {
+        console.error("취소할 bookmarkId를 찾을 수 없습니다.");
+        return;
+    }
+
+    if (!window.confirm("찜을 취소하시겠습니까?")) return;
+
+    try {
+      await api.delete(`/api/v1/bookmarks/${targetItem.bookmarkId}`);
+      
+      alert("찜이 취소되었습니다.");
+      fetchSavedJobs(); 
+
+    } catch (error) {
+      console.error("찜 취소 실패:", error);
+      alert("오류가 발생했습니다. 다시 시도해주세요.");
+    }
+  };
 
   const renderCard = (item) => {
-    const category = tab;
-    const CardComponent = tab === '프로젝트' ? ProjectCard : (tab === '과제' ? HwCard : StudyCard);
-    
-    return (
-      <CardComponent 
-        key={item.id} 
-        project={item} 
-        onUnlike={(id) => unlike(id, category)} 
-      />
-    );
+    if (tab === '프로젝트') {
+      return <ProjectCard key={item.id} project={item} onUnlike={() => handleUnlike(item.id)} />;
+    } else if (tab === '과제') {
+      return <HwCard key={item.id} project={item} onUnlike={() => handleUnlike(item.id)} />;
+    } else if (tab === '스터디') {
+      return <StudyCard key={item.id} project={item} onUnlike={() => handleUnlike(item.id)} />;
+    }
+    return null;
   };
 
   return (
@@ -150,22 +229,24 @@ export default function SavedJobsPage() {
           </div>
         </div>
 
-        {filteredItems.length === 0 ? (
-          <div css={pageStyles.empty}>찜한 공고가 없어요.</div>
+        {isLoading ? (
+           <EmptyStateMessage message="데이터를 불러오는 중입니다." />
+        ) : items.length === 0 ? (
+          <EmptyStateMessage message="찜한 공고가 없습니다." />
         ) : (
           <div css={pageStyles.gridContainer}>
-            {currentItems.map((item) => (
-              renderCard(item)
-            ))}
+            {items.map((item) => renderCard(item))}
           </div>
         )}
         
-        {totalPages > 0 && (
-          <Pagination
-            totalPages={totalPages}
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
-          />
+        {items.length > 0 && totalPages > 0 && (
+          <Stack spacing={2} sx={{ alignItems: 'center', mt: 4, mb: 4 }}>
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
+            />
+          </Stack>
         )}
       </div>
     </div>
