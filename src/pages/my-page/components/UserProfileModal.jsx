@@ -21,21 +21,6 @@ const colors = {
   skillText: '#F9A825',
 };
 
-// 1. 영어 직무명을 한글로 바꿔주는 변환표
-const positionMap = {
-  BACK_END: '백엔드',
-  FRONT_END: '프론트엔드',
-  FULL_STACK: '풀스택',
-  DATA: '데이터',
-  AI: 'AI',
-  GAME: '게임',
-  PLANNING: '기획',
-  DESIGN: '디자인',
-  // 소문자 대응
-  back_end: '백엔드',
-  front_end: '프론트엔드',
-};
-
 const UserProfileModal = ({ isOpen, onClose, user }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const reviewsPerPage = 3;

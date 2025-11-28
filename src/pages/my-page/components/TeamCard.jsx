@@ -1,8 +1,10 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
 import { css } from '@emotion/react';
+import { useState, useEffect } from 'react';
 import { useTeamStore, currentUserId } from '../../../stores/useTeamStore';
 import api from '@/api/api';
+import UserProfileModal from './UserProfileModal';
 
 const colors = {
   border: '#eee6d6',
@@ -117,6 +119,14 @@ const TeamCard = ({ team }) => {
             </div>
           );
         })}
+
+      {selectedMember && (
+        <UserProfileModal
+          isOpen={true}
+          user={selectedMember}
+          onClose={() => setSelectedMember(null)}
+        />
+      )}
     </section>
   );
 };
