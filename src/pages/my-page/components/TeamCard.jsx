@@ -1,11 +1,10 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTeamStore, currentUserId } from '../../../stores/useTeamStore';
-import axios from 'axios';
 import api from '@/api/api';
-import UserInfoModal from './UserProfileModal';
+import UserProfileModal from './UserProfileModal';
 
 const colors = {
   border: '#eee6d6',
@@ -22,19 +21,19 @@ const colors = {
 
 const TeamCard = ({ team }) => {
   const { open, toggle, deleteMember, openReview, reviewedMembers } = useTeamStore();
-  const [hoveredMember, setHoveredMember] = useState(null);
-  const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
+  const [selectedMember, setSelectedMember] = useState(null);
 
   const isOpen = open.has(team.id);
   const leaderName = team.leaderNickname;
   const isProject = team.category.name === 'PROJECT';
 
-  // 팀 멤버 삭제 axios 호출 함수
+  useEffect(() => {
+    console.log(`[TeamCard Mount] Team ID: ${team.id}, Members: ${team.members.length}`);
+  }, [team]);
+
   async function handleDeleteMember(e, teamId, targetId) {
     e.stopPropagation();
-
     if (confirm('정말 팀에서 삭제하시겠습니까?') === false) return;
-
     try {
       const res = await api.delete(`/api/v1/teams/${teamId}/members/${targetId}`);
       if (res.status === 200) {
@@ -42,32 +41,22 @@ const TeamCard = ({ team }) => {
         alert('팀에서 멤버가 성공적으로 삭제되었습니다.');
       }
     } catch (error) {
-      console.error('멤버 삭제 중 오류가 발생했습니다:', error);
-      alert('멤버 삭제에 실패했습니다. 다시 시도해주세요.');
+      console.error('멤버 삭제 오류:', error);
     }
   }
 
-  const handleMouseEnter = (e, member) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setModalPosition({
-      x: rect.left + rect.width / 2,
-      y: rect.bottom + 8,
-    });
-    setHoveredMember(member);
-  };
-
-  const handleMouseLeave = () => {
-    setHoveredMember(null);
+  const handleMemberClick = (e, member) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedMember(member);
   };
 
   const periodText =
     team.period && typeof team.period === 'object'
       ? `${team.period.startDate} ~ ${team.period.endDate}`
       : team.period;
-
   const statusValue =
     team.status && typeof team.status === 'object' ? team.status.desc : team.status;
-
   const titleValue =
     team.recruitmentTitle && typeof team.recruitmentTitle === 'object'
       ? team.recruitmentTitle.name || team.recruitmentTitle.desc
@@ -92,23 +81,23 @@ const TeamCard = ({ team }) => {
         team.members.map((member) => {
           const isCurrentUser = String(member.userId) === String(currentUserId);
           const isMemberLeader = member.nickname === leaderName;
-
           const currentUserMember = team.members.find(
             (m) => String(m.userId) === String(currentUserId)
           );
-
           const currentUserIsLeader = currentUserMember?.nickname === leaderName;
 
           return (
             <div key={member.userId} css={memberRow(isProject)}>
               <div css={dot(member.color)} />
-              <div
+
+              <button
+                type="button"
                 css={memberNameWrapper}
-                onMouseEnter={(e) => handleMouseEnter(e, member)}
-                onMouseLeave={handleMouseLeave}
+                onClick={(e) => handleMemberClick(e, member)}
               >
-                <div css={memberName}>{member.nickname}</div>
-              </div>
+                <span css={memberName}>{member.nickname}</span>
+              </button>
+
               <small css={subText}>{member.role.desc}</small>
               {isProject && (
                 <small css={[subText, { textAlign: 'center' }]}>{member.position?.desc}</small>
@@ -135,11 +124,11 @@ const TeamCard = ({ team }) => {
           );
         })}
 
-      {hoveredMember && (
-        <UserInfoModal
-          userId={hoveredMember.userId}
-          position={modalPosition}
-          onClose={() => setHoveredMember(null)}
+      {selectedMember && (
+        <UserProfileModal
+          isOpen={true}
+          user={selectedMember}
+          onClose={() => setSelectedMember(null)}
         />
       )}
     </section>
@@ -147,6 +136,28 @@ const TeamCard = ({ team }) => {
 };
 
 export default TeamCard;
+
+const memberNameWrapper = css`
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    opacity: 0.7;
+    text-decoration: underline;
+  }
+  &:focus {
+    outline: none;
+    text-decoration: underline;
+  }
+`;
 
 const teamCard = css`
   background: ${colors.white};
@@ -157,7 +168,6 @@ const teamCard = css`
   overflow: hidden;
   position: relative;
 `;
-
 const teamHeader = css`
   width: 100%;
   text-align: left;
@@ -171,13 +181,11 @@ const teamHeader = css`
   cursor: pointer;
   border-bottom: 1px solid ${colors.border};
 `;
-
 const teamTitle = css`
   font-weight: 700;
   font-size: 18px;
   font-family: 'nanumEB', 'NanumSquareRound', sans-serif;
 `;
-
 const teamMeta = css`
   display: flex;
   align-items: center;
@@ -186,7 +194,6 @@ const teamMeta = css`
   font-size: 12px;
   margin-top: 6px;
 `;
-
 const badge = (status) => css`
   padding: 2px 8px;
   border-radius: 999px;
@@ -195,12 +202,10 @@ const badge = (status) => css`
   background: ${status === 'CLOSED' || status === 'COMPLETED' ? colors.dangerBg : colors.successBg};
   color: ${status === 'CLOSED' || status === 'COMPLETED' ? colors.dangerText : colors.successText};
 `;
-
 const count = css`
   color: ${colors.muted};
   font-size: 14px;
 `;
-
 const caret = (open) => css`
   width: 0;
   height: 0;
@@ -212,7 +217,6 @@ const caret = (open) => css`
   transition: transform 0.15s ease;
   transform: rotate(${open ? 180 : 0}deg);
 `;
-
 const memberRow = (isProject) => css`
   display: grid;
   grid-template-columns: ${isProject ? '56px 1fr 100px 150px auto' : '56px 1fr 100px auto'};
@@ -224,39 +228,27 @@ const memberRow = (isProject) => css`
     border-bottom: 0;
   }
 `;
-
 const dot = (color) => css`
   width: 40px;
   height: 40px;
   border-radius: 50%;
   background: ${color || '#e5e5e5'};
 `;
-
-const memberNameWrapper = css`
-  cursor: pointer;
-  &:hover {
-    opacity: 0.7;
-  }
-`;
-
 const memberName = css`
   font-weight: 600;
   font-size: 15px;
   font-family: 'nanumB', 'NanumSquareRound', sans-serif;
 `;
-
 const subText = css`
   color: ${colors.muted};
 `;
-
 const actions = css`
   display: flex;
   gap: 8px;
   justify-self: end;
-  min-width: 180px; /* 버튼 2개 너비 고정 (삭제하기 + 리뷰쓰기) */
+  min-width: 180px;
   justify-content: flex-end;
 `;
-
 const btn = css`
   height: 32px;
   padding: 0 12px;
@@ -269,7 +261,6 @@ const btn = css`
     background: #fcfbf8;
   }
 `;
-
 const reviewBtn = css`
   background: #fef1b2;
   &:hover {
