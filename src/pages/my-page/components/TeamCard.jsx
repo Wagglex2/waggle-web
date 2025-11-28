@@ -1,9 +1,11 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
 import { css } from '@emotion/react';
+import { useState } from 'react';
 import { useTeamStore, currentUserId } from '../../../stores/useTeamStore';
 import axios from 'axios';
 import api from '@/api/api';
+import UserInfoModal from './UserProfileModal';
 
 const colors = {
   border: '#eee6d6',
@@ -20,6 +22,8 @@ const colors = {
 
 const TeamCard = ({ team }) => {
   const { open, toggle, deleteMember, openReview, reviewedMembers } = useTeamStore();
+  const [hoveredMember, setHoveredMember] = useState(null);
+  const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
 
   const isOpen = open.has(team.id);
   const leaderName = team.leaderNickname;
@@ -42,6 +46,19 @@ const TeamCard = ({ team }) => {
       alert('멤버 삭제에 실패했습니다. 다시 시도해주세요.');
     }
   }
+
+  const handleMouseEnter = (e, member) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setModalPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.bottom + 8,
+    });
+    setHoveredMember(member);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredMember(null);
+  };
 
   const periodText =
     team.period && typeof team.period === 'object'
@@ -85,7 +102,11 @@ const TeamCard = ({ team }) => {
           return (
             <div key={member.userId} css={memberRow(isProject)}>
               <div css={dot(member.color)} />
-              <div>
+              <div
+                css={memberNameWrapper}
+                onMouseEnter={(e) => handleMouseEnter(e, member)}
+                onMouseLeave={handleMouseLeave}
+              >
                 <div css={memberName}>{member.nickname}</div>
               </div>
               <small css={subText}>{member.role.desc}</small>
@@ -113,6 +134,14 @@ const TeamCard = ({ team }) => {
             </div>
           );
         })}
+
+      {hoveredMember && (
+        <UserInfoModal
+          userId={hoveredMember.userId}
+          position={modalPosition}
+          onClose={() => setHoveredMember(null)}
+        />
+      )}
     </section>
   );
 };
@@ -126,6 +155,7 @@ const teamCard = css`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   margin-bottom: 16px;
   overflow: hidden;
+  position: relative;
 `;
 
 const teamHeader = css`
@@ -200,6 +230,13 @@ const dot = (color) => css`
   height: 40px;
   border-radius: 50%;
   background: ${color || '#e5e5e5'};
+`;
+
+const memberNameWrapper = css`
+  cursor: pointer;
+  &:hover {
+    opacity: 0.7;
+  }
 `;
 
 const memberName = css`
