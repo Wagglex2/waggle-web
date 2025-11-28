@@ -28,8 +28,6 @@ const ReviewModal = () => {
     deleteReview,
   } = useTeamStore();
 
-  //console.log('유저 id', reviewTarget.member?.userId);
-
   async function handlesubmitReview() {
     try {
       const res = await api.post('/api/v1/reviews', {
@@ -121,8 +119,6 @@ const ReviewModal = () => {
 };
 
 export default ReviewModal;
-
-// --- Styles ---
 
 const overlay = css`
   position: fixed;

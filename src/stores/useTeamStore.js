@@ -9,8 +9,10 @@ export const useTeamStore = create((set) => ({
   reviewText: '',
   reviewedMembers: new Set(),
   reviews: new Map(),
+  hoveredMember: null,
 
   setTeams: (teamsData) => set({ teams: teamsData }),
+  setHoveredMember: (member) => set({ hoveredMember: member }),
 
   toggle: (id) =>
     set((state) => {
