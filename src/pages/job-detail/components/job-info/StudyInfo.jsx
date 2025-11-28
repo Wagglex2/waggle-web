@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { jobInfoBox, infoBox, jobSummary } from './jobInfoStyle';
 import Meta from './info-data/Meta';
-import RecruitmentStatus from './info-data/Recruitmentstatus';
+import RecruitmentStatus from './info-data/RecruitmentStatus';
 import Details from './info-data/Details';
 
 const StudyInfo = (props) => {
@@ -39,7 +39,7 @@ const StudyInfo = (props) => {
         <h5 className="text-green" detail={detail}>
           공고 상세
         </h5>
-        <Details />
+        <Details detail={detail} />
       </div>
     </div>
   );

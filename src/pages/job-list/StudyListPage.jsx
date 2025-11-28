@@ -1,15 +1,19 @@
 /** @jsxRuntime automatic */
 /** @jsxImportSource @emotion/react */
-import React, { useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import PageWrapper from "@/components/layout/PageWrapper";
 import PageHeader from "@/components/layout/PageHeader";
 import FilterBar from "@/components/layout/FilterBar";
 import CardGrid from "@/components/layout/CardGrid";
-import Pagination from "@/components/common/Pagination";
 import StudyCard from "@/components/card/StudyCard";
 import EmptyStateMessage from "@/components/common/EmptyStateMessage";
 import { useDropdown } from "@/components/filter/useDropdown";
 import useStudyStore from "@/stores/useStudyStore";
+import api from '@/api/api'; 
+
+// Material UI 페이지네이션
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 
 import {
   dropDownButtonStyle,
@@ -19,32 +23,48 @@ import {
   customCheckboxStyle,
   dropDownMenuItemStyle
 } from "@/components/filter/dropdownStyles";
-import { techStackOptions as importedTechStackOptions } from "@/data/options";
 
-const techOptions = [...importedTechStackOptions];
+// ==========================================
+// [1] 데이터 매핑 상수 정의
+// ==========================================
 
-const dummyStudies = [
-  { id: 1, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 2, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 3, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["JAVA", "SPRINGBOOT"], author: "솔랑솔랑" },
-  { id: 4, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["NODEJS", "EXPRESS"], author: "솔랑솔랑" },
-  { id: 5, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["PYTHON", "DJANGO"], author: "솔랑솔랑" },
-  { id: 6, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["C", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 7, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["CSS", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 8, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["CPP", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 9, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["CS", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 10, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["HTML", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 11, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["VUE", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 12, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["NEXTJS", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 13, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 14, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 15, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
-  { id: 16, purposeTag: "스터디", deadline: "2025.12.15까지", title: "공부하자공부하자공부하자공부하자공부하자공부하자", techStack: ["TYPESCRIPT", "REACT", "FIGMA"], author: "솔랑솔랑" },
+const TECH_STACK_LIST = [
+  "HTML", "CSS", "JAVASCRIPT", "JAVA", "KOTLIN", "PYTHON", "SWIFT", 
+  "C", "CPP", "CSHARP", "TYPESCRIPT", "REACT", "NODE_JS", "EXPRESS", 
+  "VUE_JS", "NEXT_JS", "SPRING_BOOT", "DJANGO", "PANDAS", "SCIKIT_LEARN", 
+  "PYTORCH", "TENSORFLOW", "FLUTTER", "MYSQL", "REDIS", "MONGODB", 
+  "POSTGRESQL", "GIT", "GITHUB", "GITHUB_ACTIONS", "FIGMA", "NOTION", 
+  "JIRA", "DOCKER", "UNITY", "UNREAL"
 ];
+
+const TECH_STACK_DISPLAY_MAP = {
+  "HTML": "HTML", "CSS": "CSS", "JAVASCRIPT": "JavaScript", "JAVA": "Java", 
+  "KOTLIN": "Kotlin", "PYTHON": "Python", "SWIFT": "Swift", 
+  "C": "C", "CPP": "C++", "CSHARP": "C#", "TYPESCRIPT": "TypeScript", 
+  "REACT": "React", "NODE_JS": "Node.js", "EXPRESS": "Express", 
+  "VUE_JS": "Vue.js", "NEXT_JS": "Next.js", "SPRING_BOOT": "Spring Boot", 
+  "DJANGO": "Django", "PANDAS": "Pandas", "SCIKIT_LEARN": "Scikit-learn", 
+  "PYTORCH": "PyTorch", "TENSORFLOW": "TensorFlow", "FLUTTER": "Flutter", 
+  "MYSQL": "MySQL", "REDIS": "Redis", "MONGODB": "MongoDB", 
+  "POSTGRESQL": "PostgreSQL", "GIT": "Git", "GITHUB": "GitHub", 
+  "GITHUB_ACTIONS": "GitHub Actions", "FIGMA": "Figma", "NOTION": "Notion", 
+  "JIRA": "Jira", "DOCKER": "Docker", "UNITY": "Unity", "UNREAL": "Unreal Engine"
+};
+
+const TECH_ICON_MAP = {
+  'C++': 'CPP',
+  'C#': 'CSHARP', 
+};
 
 export default function StudyListPage() {
   const itemsPerPage = 9;
   const { openDropdown, setOpenDropdown, dropdownRefs } = useDropdown();
+
+  // 상태 관리
+  const [studies, setStudies] = useState([]); 
+  const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
 
   const {
     selectedTechs,
@@ -60,40 +80,104 @@ export default function StudyListPage() {
 
   const handleTechSelect = (tech) => {
     toggleTech(tech); 
+    setPage(1); 
   };
 
-  const filteredStudies = useMemo(() => {
-    return dummyStudies.filter(study =>
-      selectedTechs.length === 0 || selectedTechs.some(selectedTech => {
-        const searchTerms = selectedTech.split('/');
-        return searchTerms.some(term => {
-           let normalized = term.toUpperCase().trim();
-           if (normalized === 'C++') normalized = 'CPP';
-           else if (normalized === 'C#') normalized = 'CS';
-           else if (normalized === 'VUE.JS' || normalized === 'VUEJS') normalized = 'VUE';
-           else normalized = normalized.replace(/[\s.]/g, '');
-           return study.techStack.includes(normalized);
+  const handleToggle = (newState) => {
+    setIsClosed(newState);
+    setPage(1);
+  };
+
+  // ==========================================
+  // [2] API 호출 및 데이터 가공
+  // ==========================================
+  useEffect(() => {
+    const fetchStudies = async () => {
+      setIsLoading(true);
+      try {
+        // 1. 파라미터 구성
+        const params = {
+          page: currentPage - 1,
+          size: itemsPerPage,
+        };
+
+        if (isClosed) {
+          params.status = 'CLOSED';
+        }
+
+        if (selectedTechs.length > 0) {
+          params.skills = selectedTechs.join(',');
+        }
+
+        // 2. API 호출
+        const response = await api.get('/api/v1/studies', { params });
+        
+        const content = response.data.data?.content || [];
+        const totalPageCount = response.data.data?.page?.totalPages || response.data.data?.totalPages || 0;
+
+        // 3. 데이터 매핑
+        const mappedStudies = content.map((item) => {
+           const extractValue = (data) => {
+             if (!data) return null;
+             if (typeof data === 'object') return data.desc || data.name;
+             return data;
+           };
+
+           const normalizeTech = (tech) => {
+              if (!tech) return "";
+              
+              let rawName = (typeof tech === 'object' ? tech.name : tech) || "";
+              if (typeof rawName !== 'string') return "";
+
+              rawName = rawName.toString().toUpperCase(); 
+              
+              if (TECH_ICON_MAP[rawName]) {
+                return TECH_ICON_MAP[rawName];
+              }
+
+              return rawName.replace(/\s+/g, '_'); 
+           };
+
+           const techStack = item.skills ? item.skills.map(normalizeTech).filter(t => t !== "") : [];
+           
+           return {
+            id: item.id, 
+            title: item.title,
+            deadline: item.deadline,
+            author: item.authorNickname || "익명",
+            
+            purposeTag: "스터디", 
+            methodTag: extractValue(item.meetingType) || "미정", 
+            status: item.status?.name || "RECRUITING",
+            techStack: techStack, 
+
+            // ★ [추가됨] 찜 관련 정보 매핑
+            bookmarked: item.bookmarked, 
+            bookmarkId: item.bookmarkId, 
+          };
         });
-      })
-    );
-  }, [selectedTechs]);
 
-  const totalItems = filteredStudies.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  
-  const handlePageChange = (pageNumber) => {
-    setPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-  
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = filteredStudies.slice(startIndex, startIndex + itemsPerPage);
+        setStudies(mappedStudies);
+        setTotalPages(totalPageCount);
+
+      } catch (error) {
+        console.error("스터디 목록 불러오기 실패:", error);
+        setStudies([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStudies();
+
+  }, [currentPage, selectedTechs, setPage, isClosed]);
+
 
   return (
     <PageWrapper>
       <PageHeader title="스터디" />
       
-      <FilterBar>
+      <FilterBar isClosed={isClosed} onToggle={handleToggle}>
         <div css={dropdownContainerStyle} ref={el => dropdownRefs.current['tech'] = el}>
           <button css={dropDownButtonStyle("120px", selectedTechs.length > 0)} onClick={() => setOpenDropdown(openDropdown === "tech" ? null : "tech")}>
             <span>{selectedTechs.length > 0 ? `기술 ${selectedTechs.length}` : '기술'}</span>
@@ -101,10 +185,10 @@ export default function StudyListPage() {
           </button>
           {openDropdown === 'tech' && (
             <ul css={techDropDownMenuStyle}>
-              {techOptions.map(option => (
+              {TECH_STACK_LIST.map(option => (
                 <li key={option} css={dropDownMenuItemStyle(selectedTechs.includes(option), true)} onClick={() => handleTechSelect(option)}>
                   <input type="checkbox" css={customCheckboxStyle} checked={selectedTechs.includes(option)} readOnly />
-                  <label>{option}</label>
+                  <label>{TECH_STACK_DISPLAY_MAP[option] || option}</label>
                 </li>
               ))}
             </ul>
@@ -112,24 +196,29 @@ export default function StudyListPage() {
         </div>
       </FilterBar>
     
-      {dummyStudies.length === 0 ? (
-        <EmptyStateMessage message="등록된 스터디가 없습니다." />
-      ) : totalItems === 0 ? (
+      {isLoading ? (
+        <EmptyStateMessage message="데이터를 불러오는 중입니다..." />
+      ) : studies.length === 0 ? (
         <EmptyStateMessage message="일치하는 스터디가 없습니다." />
       ) : (
         <>
           <CardGrid
-            items={currentItems}
+            items={studies}
             itemsPerPage={itemsPerPage}
             renderCard={(study) => <StudyCard project={study} />}
           />
           
           {totalPages > 0 && (
-            <Pagination
-              totalPages={totalPages}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-            />
+            <Stack spacing={2} sx={{ alignItems: 'center', mt: 4, mb: 4 }}>
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={(_, value) => {
+                  setPage(value);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              />
+            </Stack>
           )}
         </>
       )}

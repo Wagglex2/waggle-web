@@ -15,6 +15,7 @@ import { useDropdown } from "@/components/filter/useDropdown";
 import useSearchStore from "@/stores/useSearchStore";
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
+import api from '@/api/api'; 
 
 import {
   dropDownButtonStyle,
@@ -25,33 +26,52 @@ import {
   customCheckboxStyle,
   dropDownMenuItemStyle
 } from "@/components/filter/dropdownStyles";
-import { 
-  purposeOptions as importedPurposeOptions, 
-  positionOptions as importedPositionOptions, 
-  techStackOptions as importedTechStackOptions 
-} from "@/data/options";
 
-const pageTitleStyle = css`
-  font-size: 22px;
-  font-weight: 700;
-  color: #000000;
-  padding: 15px 0 15px 0;
-  font-family: 'nanumB';
-  span {
-    color: ${colors.tertiary}; 
-    font-family: 'nanumEB';
-  }
-`;
+const POSITION_MAP = {
+  '전체': '', '프론트엔드': 'FRONT_END', '백엔드': 'BACK_END',
+  '풀스택': 'FULL_STACK', '데이터': 'DATA', 'AI': 'AI', '게임': 'GAME',
+  '기획': 'PLANNER', '디자인': 'DESIGNER',
+};
+const positionOptions = Object.keys(POSITION_MAP).filter(k => k !== '전체');
 
-const dividerStyle = css`
-  border-bottom: 1px solid ${colors.gray[100]};
-  margin-bottom: 60px;
-`;
+const PURPOSE_MAP = {
+  '전체': '', '공모전': 'CONTEST', '해커톤': 'HACKATHON',
+  '토이프로젝트': 'TOY_PROJECT', '사이드프로젝트': 'SIDE_PROJECT',
+};
+const purposeOptions = Object.keys(PURPOSE_MAP);
 
-const purposeOptions = ["전체", ...importedPurposeOptions];
-const positionOptions = [...importedPositionOptions];
-const techOptions = [...importedTechStackOptions];
+const GRADE_MAP = {
+  "1학년": 1, "2학년": 2, "3학년": 3, "4학년 이상": 4
+};
 const gradeOptions = ["전체", "1학년", "2학년", "3학년", "4학년 이상"];
+
+const TECH_STACK_LIST = [
+  "HTML", "CSS", "JAVASCRIPT", "JAVA", "KOTLIN", "PYTHON", "SWIFT", 
+  "C", "CPP", "CSHARP", "TYPESCRIPT", "REACT", "NODE_JS", "EXPRESS", 
+  "VUE_JS", "NEXT_JS", "SPRING_BOOT", "DJANGO", "PANDAS", "SCIKIT_LEARN", 
+  "PYTORCH", "TENSORFLOW", "FLUTTER", "MYSQL", "REDIS", "MONGODB", 
+  "POSTGRESQL", "GIT", "GITHUB", "GITHUB_ACTIONS", "FIGMA", "NOTION", 
+  "JIRA", "DOCKER", "UNITY", "UNREAL"
+];
+
+const TECH_STACK_DISPLAY_MAP = {
+  "HTML": "HTML", "CSS": "CSS", "JAVASCRIPT": "JavaScript", "JAVA": "Java", 
+  "KOTLIN": "Kotlin", "PYTHON": "Python", "SWIFT": "Swift", 
+  "C": "C", "CPP": "C++", "CSHARP": "C#", "TYPESCRIPT": "TypeScript", 
+  "REACT": "React", "NODE_JS": "Node.js", "EXPRESS": "Express", 
+  "VUE_JS": "Vue.js", "NEXT_JS": "Next.js", "SPRING_BOOT": "Spring Boot", 
+  "DJANGO": "Django", "PANDAS": "Pandas", "SCIKIT_LEARN": "Scikit-learn", 
+  "PYTORCH": "PyTorch", "TENSORFLOW": "TensorFlow", "FLUTTER": "Flutter", 
+  "MYSQL": "MySQL", "REDIS": "Redis", "MONGODB": "MongoDB", 
+  "POSTGRESQL": "PostgreSQL", "GIT": "Git", "GITHUB": "GitHub", 
+  "GITHUB_ACTIONS": "GitHub Actions", "FIGMA": "Figma", "NOTION": "Notion", 
+  "JIRA": "Jira", "DOCKER": "Docker", "UNITY": "Unity", "UNREAL": "Unreal Engine"
+};
+
+const TECH_ICON_MAP = { 
+  'C++': 'CPP', 
+  'C#': 'CSHARP' 
+};
 
 const categoryMap = {
   project: "프로젝트",
@@ -59,12 +79,19 @@ const categoryMap = {
   study: "스터디",
 };
 
-const GRADE_MAP = {
-  "1학년": 1,
-  "2학년": 2,
-  "3학년": 3,
-  "4학년 이상": 4
-};
+const pageTitleStyle = css`
+  font-size: 22px;
+  font-weight: 700;
+  color: #000000;
+  padding: 15px 0 15px 0;
+  font-family: 'nanumB';
+  span { color: ${colors.tertiary}; font-family: 'nanumEB'; }
+`;
+
+const dividerStyle = css`
+  border-bottom: 1px solid ${colors.gray[100]};
+  margin-bottom: 60px;
+`;
 
 export default function SearchResultPage() {
   const itemsPerPage = 9;
@@ -99,42 +126,101 @@ export default function SearchResultPage() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
+        let endpoint = '';
         const params = {
           page: currentPage - 1,
           size: itemsPerPage,
-          keyword: query,
+          q: query,
         };
 
-        if (category === 'homework') {
-            if (hasSelectedGrade && selectedGrade !== '전체') {
-                params.grades = GRADE_MAP[selectedGrade];
-            }
+        if (category === 'project') {
+          endpoint = '/api/v1/projects';
+          if (hasSelectedProjectPurpose && selectedProjectPurpose !== '전체') {
+            params.purpose = PURPOSE_MAP[selectedProjectPurpose];
+          }
+          if (selectedProjectTechs.length > 0) {
+            params.skills = selectedProjectTechs.join(',');
+          }
+          if (selectedProjectPositions.length > 0) {
+            params.positions = selectedProjectPositions.map(pos => POSITION_MAP[pos]).join(',');
+          }
+        } else if (category === 'homework') {
+          endpoint = '/api/v1/assignments';
+          if (hasSelectedGrade && selectedGrade !== '전체') {
+            params.grades = GRADE_MAP[selectedGrade];
+          }
         } else if (category === 'study') {
-            if (selectedStudyTechs.length > 0) {
-                params.techStacks = selectedStudyTechs.join(',');
-            }
-        } else if (category === 'project') {
-            if (hasSelectedProjectPurpose && selectedProjectPurpose !== '전체') {
-                params.purposes = selectedProjectPurpose;
-            }
-            if (selectedProjectTechs.length > 0) {
-                params.techStacks = selectedProjectTechs.join(',');
-            }
-            if (selectedProjectPositions.length > 0) {
-                params.positions = selectedProjectPositions.join(',');
-            }
+          endpoint = '/api/v1/studies';
+          if (selectedStudyTechs.length > 0) {
+            params.skills = selectedStudyTechs.join(',');
+          }
         }
 
-        setTimeout(() => {
-            console.log("API 호출 파라미터 확인용:", params); 
-            setData([]); 
-            setTotalPages(0);
-            setIsLoading(false); 
-        }, 500);
+        const response = await api.get(endpoint, { params });
+        const content = response.data.data?.content || [];
+
+        const totalPageCount = response.data.data?.page?.totalPages || response.data.data?.totalPages || 0;
+
+        const extractValue = (data) => {
+          if (!data) return null;
+          if (typeof data === 'object') return data.desc || data.name;
+          return data;
+        };
+
+        const normalizeTech = (tech) => {
+           if (!tech) return "";
+           let rawName = (typeof tech === 'object' ? tech.name : tech) || "";
+           if (typeof rawName !== 'string') return "";
+           rawName = rawName.toString().toUpperCase(); 
+           
+           if (TECH_ICON_MAP[rawName]) return TECH_ICON_MAP[rawName];
+           
+           return rawName.replace(/\s+/g, '_'); 
+        };
+
+        const mappedData = content.map((item) => {
+          const baseItem = {
+            id: item.id || item.recruitmentId,
+            title: item.title,
+            deadline: item.deadline,
+            author: item.authorNickname || "익명",
+            status: item.status?.name || "RECRUITING",
+          };
+
+          if (category === 'project') {
+            return {
+              ...baseItem,
+              purposeTag: extractValue(item.category) || "미정",
+              methodTag: extractValue(item.meetingType) || "미정",
+              positions: item.positions ? item.positions.map(extractValue) : [],
+              techStack: item.skills ? item.skills.map(normalizeTech) : [],
+            };
+          } else if (category === 'homework') {
+            return {
+              ...baseItem,
+              purposeTag: "과제",
+              grade: (item.grades && item.grades.length > 0) ? `${item.grades[0]}학년` : item.grade ? `${item.grade}학년` : "학년 무관",
+              department: item.department || "전공 무관",
+              subjects: item.lecture ? [item.lecture] : (item.subjects || []),
+            };
+          } else if (category === 'study') {
+            return {
+              ...baseItem,
+              purposeTag: "스터디",
+              methodTag: extractValue(item.meetingType) || "미정",
+              techStack: item.skills ? item.skills.map(normalizeTech) : [],
+            };
+          }
+          return baseItem;
+        });
+
+        setData(mappedData);
+        setTotalPages(totalPageCount);
 
       } catch (error) {
-        console.error("오류 발생:", error);
+        console.error("검색 결과 불러오기 실패:", error);
         setData([]);
+      } finally {
         setIsLoading(false);
       }
     };
@@ -154,9 +240,9 @@ export default function SearchResultPage() {
 
   const renderCard = (item) => {
     switch (category) {
-      case 'homework': return <HwCard project={item} />;
-      case 'study': return <StudyCard project={item} />;
-      case 'project': default: return <ProjectCard project={item} />;
+      case 'homework': return <HwCard key={item.id} project={item} />;
+      case 'study': return <StudyCard key={item.id} project={item} />;
+      case 'project': default: return <ProjectCard key={item.id} project={item} />;
     }
   };
 
@@ -165,7 +251,7 @@ export default function SearchResultPage() {
       case 'homework':
         return (
           <div css={dropdownContainerStyle} ref={el => dropdownRefs.current['grade'] = el}>
-            <button css={dropDownButtonStyle("120px", hasSelectedGrade)} onClick={() => setOpenDropdown(openDropdown ? null : "grade")}>
+            <button css={dropDownButtonStyle("120px", hasSelectedGrade)} onClick={() => setOpenDropdown(openDropdown === "grade" ? null : "grade")}>
               <span>{hasSelectedGrade ? selectedGrade : "학년"}</span>
               <ArrowIcon />
             </button>
@@ -180,6 +266,7 @@ export default function SearchResultPage() {
             )}
           </div>
         );
+        
       case 'study':
         return (
           <div css={dropdownContainerStyle} ref={el => dropdownRefs.current['tech'] = el}>
@@ -189,16 +276,17 @@ export default function SearchResultPage() {
             </button>
             {openDropdown === 'tech' && (
               <ul css={techDropDownMenuStyle}>
-                {techOptions.map(option => (
+                {TECH_STACK_LIST.map(option => (
                   <li key={option} css={dropDownMenuItemStyle(selectedStudyTechs.includes(option), true)} onClick={() => handleStudyTechSelect(option)}>
                     <input type="checkbox" css={customCheckboxStyle} checked={selectedStudyTechs.includes(option)} readOnly />
-                    <label>{option}</label>
+                    <label>{TECH_STACK_DISPLAY_MAP[option] || option}</label>
                   </li>
                 ))}
               </ul>
             )}
           </div>
         );
+
       case 'project':
       default:
         return (
@@ -225,10 +313,10 @@ export default function SearchResultPage() {
               </button>
               {openDropdown === 'tech' && (
                 <ul css={techDropDownMenuStyle}>
-                  {techOptions.map(option => (
+                  {TECH_STACK_LIST.map(option => (
                     <li key={option} css={dropDownMenuItemStyle(selectedProjectTechs.includes(option), true)} onClick={() => handleProjectTechSelect(option)}>
                       <input type="checkbox" css={customCheckboxStyle} checked={selectedProjectTechs.includes(option)} readOnly />
-                      <label>{option}</label>
+                      <label>{TECH_STACK_DISPLAY_MAP[option] || option}</label>
                     </li>
                   ))}
                 </ul>
@@ -252,7 +340,7 @@ export default function SearchResultPage() {
           </>
         );
     }
-  }
+  };
 
   return (
     <PageWrapper>
@@ -260,7 +348,7 @@ export default function SearchResultPage() {
         카테고리 [{categoryMap[category] || '프로젝트'}]의 <span>'{query}'</span>에 대한 검색 결과입니다.
       </h1>
       <div css={dividerStyle} />
-      
+
       <FilterBar>
         {renderFilters()}
       </FilterBar>

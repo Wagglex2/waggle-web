@@ -18,6 +18,7 @@ const PostedJobCard = ({
   onDelete,
   onRejectApplicant,
   onViewApplicant,
+  onViewProfile,
 }) => {
   const [selectedApplicant, setSelectedApplicant] = useState(null);
 
@@ -72,13 +73,23 @@ const PostedJobCard = ({
             post.applicants.map((applicant) => (
               <div css={memberRow} key={applicant.id}>
                 <div css={dot(applicant.color)}>{applicant.avatar}</div>
-                <button
-                  type="button"
-                  css={memberNameButton}
-                  onClick={(e) => handleApplicantClick(e, applicant)}
+                <span
+                  css={memberName}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onViewProfile) {
+                      onViewProfile({
+                        name: applicant.name,
+                        role: applicant.role || '지원자',
+                        tags: applicant.tags || [],
+                        bio: applicant.bio || '소개가 없습니다.',
+                        reviews: applicant.reviews || [],
+                      });
+                    }
+                  }}
                 >
                   {applicant.name}
-                </button>
+                </span>
                 <span css={applicationDate}>{applicant.applicationDate.split(' ')[0]}</span>
                 <div css={memberActions}>
                   <button
@@ -272,16 +283,8 @@ const memberNameButton = css`
   color: #333;
   font-family: 'nanumB', 'NanumSquareRound', sans-serif;
   cursor: pointer;
-  text-align: left;
-  display: flex;
-  align-items: center;
   &:hover {
-    opacity: 0.7;
-    text-decoration: underline;
-  }
-  &:focus {
-    outline: none;
-    text-decoration: underline;
+    color: #666666;
   }
 `;
 

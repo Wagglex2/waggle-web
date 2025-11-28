@@ -1,8 +1,10 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { colors } from "@/styles/theme";
 import techIcons from "@/data/techIcons";
+import api from "@/api/api";
 
 const cardStyle = css`
   display: flex;
@@ -105,6 +107,7 @@ const iconContainerStyle = css`
   height: 40px;
   border-radius: 50%;
   background: #fff;
+  border: 1px solid #e0e0e0;
   margin-left: -8px;
   display: flex;
   align-items: center;
@@ -176,24 +179,55 @@ const HeartIcon = ({ isLiked }) => (
 const MAX_TECH_DISPLAY = 3; 
 
 export default function StudyCard({ project, onUnlike }) {
-  const [internalLiked, setInternalLiked] = useState(false);
-  const isSavedPage = onUnlike !== undefined;
-  const isLiked = isSavedPage ? true : internalLiked;
+  const navigate = useNavigate();
 
-  const handleLikeClick = (e) => {
+  const [isLiked, setIsLiked] = useState(project.bookmarked);
+  const [bookmarkId, setBookmarkId] = useState(project.bookmarkId);
+
+  const isSavedPage = onUnlike !== undefined;
+
+  useEffect(() => {
+    setIsLiked(project.bookmarked);
+    setBookmarkId(project.bookmarkId);
+  }, [project]);
+
+  const handleLikeClick = async (e) => {
     e.stopPropagation();
     if (isSavedPage) {
       onUnlike(project.id);
-    } else {
-      setInternalLiked(!internalLiked);
+      return;
     }
+
+    try {
+      if (isLiked) {
+        if (!bookmarkId) {
+          console.error("찜 취소 실패: bookmarkId가 없습니다.");
+          return;
+        }
+        await api.delete(`/api/v1/bookmarks/${bookmarkId}`);
+        setIsLiked(false);
+        setBookmarkId(null);
+      } else {
+        const response = await api.post(`/api/v1/bookmarks/recruitments/${project.id}`);
+        const newBookmarkId = response.data.data;
+        setIsLiked(true);
+        setBookmarkId(newBookmarkId);
+      }
+    } catch (error) {
+      console.error("찜 처리 중 오류 발생:", error);
+      if (error.response?.status === 401) alert("로그인이 필요합니다.");
+    }
+  };
+
+  const handleCardClick = () => {
+    navigate(`/study-list/${project.id}`);
   };
 
   const displayedTechs = project.techStack ? project.techStack.slice(0, MAX_TECH_DISPLAY) : [];
   const hiddenTechCount = project.techStack ? project.techStack.length - MAX_TECH_DISPLAY : 0;
 
   return (
-    <div css={cardStyle}>
+    <div css={cardStyle} onClick={handleCardClick}>
       <div css={headerTopStyle}>
         <div css={tagGroupStyle}>
           {project.purposeTag && (
@@ -210,14 +244,13 @@ export default function StudyCard({ project, onUnlike }) {
           {displayedTechs.map((tech) => {
             const iconPath = techIcons[tech];
             if (!iconPath) return null;
-
             return (
                <div key={tech} css={iconContainerStyle}>
                   <img src={iconPath} alt={tech} />
                </div>
             );
           })}
-           
+            
           {hiddenTechCount > 0 && (
             <span>+{hiddenTechCount}</span>
           )}

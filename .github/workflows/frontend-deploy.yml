@@ -1,0 +1,46 @@
+name: FE deploy
+
+on:
+  push:
+    branches: ["main", "test-deploy"] # 메인 브랜치에 푸시될 때마다 실행될겁니다.
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # Github Actions가 우분투 가상 환경을 띄울거에요
+
+    steps:
+      - name: (1) Actions로 main 브랜치의 최신 코드 가져오기
+        uses: actions/checkout@v4
+
+      - name: (2) Node.js 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: (3) 배포 환경변수 생성 (.env.production)
+        run: |
+          echo "VITE_API_KEY=${{ secrets.VITE_API_KEY }}" > .env.production
+
+      - name: (4) npm install
+        run: npm ci
+
+      - name: (5) npm run build
+        run: npm run build
+
+      - name: (6) AWS 크리덴셜 설정 # S3 + CloudFront 접근할 수 있게
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: (7) S3로 빌드된 /dist 폴더 업로드
+        run: |
+          aws s3 sync dist/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
+
+      - name: (8) CloudFront 캐시 무효화 (Invalidation) # 배포된 최신 파일들이 cdn에 반영되도록
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"

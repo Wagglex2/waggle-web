@@ -1,7 +1,6 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
 import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
 import { css } from '@emotion/react';
 
 const colors = {
@@ -23,7 +22,7 @@ const colors = {
 
 const UserProfileModal = ({ isOpen, onClose, user }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const reviewsPerPage = 3;
+  const reviewsPerPage = 3; // user prop이 없거나 모달이 닫혀있으면 렌더링하지 않습니다.
 
   if (!isOpen || !user) return null;
 
@@ -39,15 +38,19 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
     setCurrentPage(pageNumber);
   };
 
-  const handleClose = () => {
-    setCurrentPage(1);
-    onClose();
-  };
-
-  return ReactDOM.createPortal(
-    <div css={overlay} onClick={handleClose}>
-      <div css={container} onClick={(e) => e.stopPropagation()}>
-        <button css={closeButton} onClick={handleClose} aria-label="Close Profile Modal">
+  return (
+    <div css={overlay}>
+           {' '}
+      <div css={container}>
+               {' '}
+        <button
+          css={closeButton}
+          onClick={() => {
+            setCurrentPage(1);
+            onClose();
+          }}
+        >
+                   {' '}
           <svg
             width="24"
             height="24"
@@ -58,394 +61,316 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        <line x1="18" y1="6" x2="6" y2="18"></line>           {' '}
+            <line x1="6" y1="6" x2="18" y2="18"></line>         {' '}
           </svg>
+                 {' '}
         </button>
-
+               {' '}
         <div css={contentWrapper}>
+                   {' '}
           <div css={profileHeader}>
+                       {' '}
             <div css={avatarSection}>
+                           {' '}
               <div className="avatar-circle">
+                               {' '}
                 {user.profileImage ? (
-                  <img
-                    src={user.profileImage}
-                    alt={`${user.nickname} Avatar`}
-                    className="avatar-image"
-                  />
+                  <img src={user.profileImage} alt={user.name} className="avatar-image" />
                 ) : (
                   <div className="avatar-placeholder"></div>
                 )}
+                             {' '}
               </div>
-              <h2 className="user-name">{user.nickname}</h2>
+                            <h2 className="user-name">{user.name}</h2>           {' '}
             </div>
+                       {' '}
             <div css={infoSection}>
+                           {' '}
               <div className="tag-list">
-                {user.positions && (
-                  <span css={[tagBase, roleTag]}>#{user.role.desc || user.role}</span>
-                )}
+                                {user.role && <span css={[tagBase, roleTag]}>#{user.role}</span>}   
+                           {' '}
                 {user.tags &&
-                  user.tags.slice(0, 4).map((tag, idx) => (
+                  user.tags.map((tag, idx) => (
                     <span key={idx} css={[tagBase, skillTag]}>
-                      #{tag}
+                                            #{tag}                   {' '}
                     </span>
                   ))}
+                             {' '}
               </div>
-              <p className="user-bio">{user.bio}</p>
+                            <p className="user-bio">{user.bio}</p>           {' '}
             </div>
+                     {' '}
           </div>
-
-          <div css={divider}></div>
-
+                    <div css={divider}></div>         {' '}
           <div css={reviewSection}>
+                       {' '}
             {hasReviews ? (
               <>
+                               {' '}
                 <div className="review-list">
+                                   {' '}
                   {currentReviews.map((review, idx) => (
                     <div key={idx} css={reviewItem}>
-                      {review}
+                                            {review}                   {' '}
                     </div>
                   ))}
+                                 {' '}
                 </div>
-                {totalPages > 1 && (
-                  <div css={pagination}>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((number, index) => (
-                      <React.Fragment key={number}>
-                        {index > 0 && <span className="separator">|</span>}
-                        <span
-                          onClick={() => handlePageChange(number)}
-                          className={`page-number ${currentPage === number ? 'active' : ''}`}
-                        >
-                          {number}
-                        </span>
-                      </React.Fragment>
-                    ))}
-                  </div>
-                )}
+                               {' '}
+                <div css={pagination}>
+                                   {' '}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((number, index) => (
+                    <React.Fragment key={number}>
+                                            {index > 0 && <span className="separator">|</span>}     
+                                     {' '}
+                      <span
+                        onClick={() => handlePageChange(number)}
+                        className={`page-number ${currentPage === number ? 'active' : ''}`}
+                      >
+                                                {number}                     {' '}
+                      </span>
+                                         {' '}
+                    </React.Fragment>
+                  ))}
+                                 {' '}
+                </div>
+                             {' '}
               </>
             ) : (
               <div css={emptyState}>
-                <p>조회된 동료 리뷰가 없습니다.</p>
+                                <p>조회된 동료 리뷰가 없습니다.</p>             {' '}
               </div>
             )}
+                     {' '}
           </div>
+                 {' '}
         </div>
+             {' '}
       </div>
-    </div>,
-    document.body
+         {' '}
+    </div>
   );
 };
 
 export default UserProfileModal;
 
 const overlay = css`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(3px);
-  padding: 16px;
-  font-family: 'Inter', 'NanumSquareRound', sans-serif;
-  opacity: 0;
-  animation: fadeIn 0.3s forwards;
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  padding: 16px;
+  font-family: 'nanumR', 'NanumSquareRound', sans-serif;
 `;
 
 const container = css`
-  position: relative;
-  width: 780px;
-  height: 500px;
-  background-color: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transform: scale(0.95);
-  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-
-  @keyframes popIn {
-    from {
-      transform: scale(0.95);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  @media (max-width: 800px) {
-    width: 95vw;
-    height: 90vh;
-  }
+  position: relative;
+  width: 750px;
+  height: 400px;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 `;
 
 const closeButton = css`
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  color: ${colors.gray[400]};
-  background: none;
-  border: none;
-  cursor: pointer;
-  z-index: 10;
-  padding: 8px;
-  border-radius: 50%;
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    color: ${colors.gray[800]};
-    background-color: ${colors.gray[50]};
-    transform: rotate(90deg);
-  }
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: ${colors.gray[300]};
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+  &:hover {
+    color: ${colors.gray[600]};
+  }
 `;
 
 const contentWrapper = css`
-  padding: 30px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  flex-grow: 1;
-
-  @media (max-width: 600px) {
-    padding: 20px;
-  }
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 `;
 
 const profileHeader = css`
-  display: flex;
-  gap: 24px;
-  margin-bottom: 20px;
-
-  @media (max-width: 600px) {
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 16px;
-  }
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
 `;
 
 const avatarSection = css`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-shrink: 0;
-  width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 96px;
+  margin-left: 10px;
+  margin-top: 10px;
 
-  @media (max-width: 600px) {
-    width: 100%;
-  }
+  .avatar-circle {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
 
-  .avatar-circle {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    overflow: hidden;
-    margin-bottom: 12px;
-    border: 3px solid ${colors.gray[200]};
-  }
+  .avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-  .avatar-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+  .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: ${colors.gray.placeholder};
+  }
 
-  .avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: ${colors.gray.placeholder};
-  }
-
-  .user-name {
-    font-size: 24px;
-    font-weight: 700;
-    color: ${colors.gray[800]};
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    white-space: nowrap;
-    text-align: center;
-  }
+  .user-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: ${colors.gray[800]};
+    margin: 0;
+    font-family: 'nanumB', sans-serif;
+    white-space: nowrap;
+  }
 `;
 
 const infoSection = css`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  overflow: hidden;
+  flex: 1;
+  padding-top: 10px;
+  overflow: hidden;
 
-  @media (max-width: 600px) {
-    text-align: center;
-  }
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
 
-  .tag-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 16px;
-
-    @media (max-width: 600px) {
-      justify-content: center;
-    }
-  }
-
-  .user-bio {
-    color: ${colors.gray[600]};
-    font-size: 15px;
-    line-height: 1.6;
-    margin: 0;
-    white-space: pre-wrap;
-    overflow-y: auto;
-    max-height: 75px;
-    text-align: left;
-
-    @media (max-width: 600px) {
-      text-align: center;
-      max-height: 90px;
-    }
-  }
+  .user-bio {
+    color: ${colors.gray[600]};
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-y: auto;
+    max-height: 66px;
+  }
 `;
 
 const tagBase = css`
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 12px;
-  font-size: 13px;
-  border-radius: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: transform 0.2s;
-
-  &:hover {
-    transform: translateY(-1px);
-  }
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  font-size: 13px;
+  border-radius: 12px;
+  font-family: 'nanumB', sans-serif;
+  white-space: nowrap;
 `;
 
 const roleTag = css`
-  background-color: ${colors.roleBg};
-  color: ${colors.roleText};
-  font-weight: 700;
-  border: 1px solid #c8e6c9;
+  background-color: ${colors.roleBg};
+  color: ${colors.roleText};
+  font-weight: bold;
 `;
 
 const skillTag = css`
-  background-color: ${colors.skillBg};
-  color: ${colors.skillText};
-  border: 1px solid #ffecb3;
+  background-color: ${colors.skillBg};
+  color: ${colors.skillText};
 `;
 
 const divider = css`
-  width: 100%;
-  height: 1px;
-  background-color: ${colors.gray[200]};
-  margin-bottom: 20px;
-  flex-shrink: 0;
+  width: 100%;
+  height: 1px;
+  background-color: ${colors.gray[200]};
+  margin-bottom: 16px;
+  flex-shrink: 0;
 `;
 
 const reviewSection = css`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  max-height: 230px;
-  overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 
-  .review-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    overflow-y: auto;
-    padding-right: 8px;
-    flex-grow: 1;
-  }
+  .review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
 `;
 
 const reviewItem = css`
-  width: 100%;
-  padding: 14px 18px;
-  background-color: ${colors.gray[50]};
-  border: 1px solid ${colors.gray[200]};
-  border-radius: 10px;
-  font-size: 14px;
-  color: ${colors.gray[600]};
-  text-align: left;
-  line-height: 1.5;
-  box-sizing: border-box;
-  transition: background-color 0.2s;
-  cursor: default;
+  width: 100%;
+  padding: 12px 16px;
+  background-color: ${colors.gray[50]};
+  border: 1px solid ${colors.gray[200]};
+  border-radius: 8px;
+  font-size: 14px;
+  color: ${colors.gray[600]};
+  text-align: left;
+  line-height: 1.4;
+  box-sizing: border-box;
 
-  &:hover {
-    background-color: ${colors.gray[100]};
-    border-color: ${colors.gray[300]};
-  }
+  &:hover {
+    background-color: ${colors.gray[100]};
+  }
 `;
 
 const pagination = css`
-  margin-top: 16px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  font-size: 14px;
-  color: ${colors.gray[400]};
-  font-weight: 600;
-  flex-shrink: 0;
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: ${colors.gray[400]};
+  font-family: 'nanumB', sans-serif;
 
-  .separator {
-    color: ${colors.gray[300]};
-  }
+  .separator {
+    color: ${colors.gray[300]};
+  }
 
-  .page-number {
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 6px;
-    transition: all 0.2s;
-
-    &:hover {
-      color: ${colors.gray[800]};
-      background-color: ${colors.gray[100]};
-    }
-
-    &.active {
-      color: ${colors.gray[50]};
-      background-color: ${colors.gray[800]};
-      font-weight: 700;
-      transform: scale(1.05);
-    }
-  }
+  .page-number {
+    cursor: pointer;
+    padding: 2px 6px;
+    &:hover {
+      color: ${colors.gray[600]};
+    }
+    &.active {
+      color: ${colors.gray[800]};
+      font-weight: bold;
+      transform: scale(1.1);
+    }
+  }
 `;
 
 const emptyState = css`
-  flex: 1;
-  border: 2px dashed ${colors.gray[200]};
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${colors.gray[400]};
-  font-size: 16px;
-  padding: 20px;
-  text-align: center;
+  flex: 1;
+  border: 2px dashed ${colors.gray[200]};
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${colors.gray[400]};
+  font-size: 14px;
 `;
