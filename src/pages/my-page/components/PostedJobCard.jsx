@@ -1,6 +1,8 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
 import { css } from '@emotion/react';
+import { useState } from 'react';
+import UserProfileModal from './UserProfileModal';
 
 const colors = {
   border: '#eee6d6',
@@ -16,8 +18,21 @@ const PostedJobCard = ({
   onDelete,
   onRejectApplicant,
   onViewApplicant,
-  onViewProfile,
 }) => {
+  const [selectedApplicant, setSelectedApplicant] = useState(null);
+
+  const handleApplicantClick = (e, applicant) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const formattedUser = {
+      ...applicant,
+      nickname: applicant.name,
+    };
+
+    setSelectedApplicant(formattedUser);
+  };
+
   return (
     <section css={postCard}>
       <div
@@ -57,23 +72,13 @@ const PostedJobCard = ({
             post.applicants.map((applicant) => (
               <div css={memberRow} key={applicant.id}>
                 <div css={dot(applicant.color)}>{applicant.avatar}</div>
-                <span
-                  css={memberName}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (onViewProfile) {
-                      onViewProfile({
-                        name: applicant.name,
-                        role: applicant.role || '지원자',
-                        tags: applicant.tags || [],
-                        bio: applicant.bio || '소개가 없습니다.',
-                        reviews: applicant.reviews || [],
-                      });
-                    }
-                  }}
+                <button
+                  type="button"
+                  css={memberNameButton}
+                  onClick={(e) => handleApplicantClick(e, applicant)}
                 >
                   {applicant.name}
-                </span>
+                </button>
                 <span css={applicationDate}>{applicant.applicationDate.split(' ')[0]}</span>
                 <div css={memberActions}>
                   <button
@@ -110,11 +115,21 @@ const PostedJobCard = ({
           )}
         </div>
       )}
+
+      {selectedApplicant && (
+        <UserProfileModal
+          isOpen={!!selectedApplicant}
+          user={selectedApplicant}
+          onClose={() => setSelectedApplicant(null)}
+        />
+      )}
     </section>
   );
 };
 
 export default PostedJobCard;
+
+// --- CSS Styles ---
 
 const postCard = css`
   background: #fff;
@@ -196,6 +211,7 @@ const applicantInfoSection = css`
 const viewApplicants = css`
   color: ${colors.muted};
   font-size: 14px;
+  white-space: nowrap;
 `;
 
 const caret = (isOpen) => css`
@@ -237,16 +253,35 @@ const dot = (bgColor) => css`
   color: white;
   font-weight: 600;
   font-size: 14px;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
-const memberName = css`
+const memberNameButton = css`
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
   font-weight: 600;
   font-size: 15px;
   color: #333;
   font-family: 'nanumB', 'NanumSquareRound', sans-serif;
   cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
   &:hover {
-    color: #666666;
+    opacity: 0.7;
+    text-decoration: underline;
+  }
+  &:focus {
+    outline: none;
+    text-decoration: underline;
   }
 `;
 
