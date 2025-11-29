@@ -13,31 +13,31 @@ const MethodField = () => {
           <input
             type="radio"
             name="progress-options"
-            id="first-option"
+            id="first-opt"
             checked={meetingType === 'ONLINE'}
             onChange={() => setMeetingType('ONLINE')}
           />
-          <label htmlFor="first-option">온라인</label>
+          <label htmlFor="first-opt">온라인</label>
         </div>
         <div css={inputBtnOption('100px')}>
           <input
             type="radio"
             name="progress-options"
-            id="second-option"
+            id="second-opt"
             checked={meetingType === 'OFFLINE'}
             onChange={() => setMeetingType('OFFLINE')}
           />
-          <label htmlFor="second-option">오프라인</label>
+          <label htmlFor="second-opt">오프라인</label>
         </div>
         <div css={inputBtnOption('100px')}>
           <input
             type="radio"
             name="progress-options"
-            id="third-option"
+            id="third-opt"
             checked={meetingType === 'HYBRID'}
             onChange={() => setMeetingType('HYBRID')}
           />
-          <label htmlFor="third-option">온/오프라인</label>
+          <label htmlFor="third-opt">온/오프라인</label>
         </div>
       </div>
     </div>
