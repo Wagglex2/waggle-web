@@ -1,8 +1,16 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
+import DOMPurify from 'dompurify';
 
 const Details = ({ detail }) => {
-  return <div css={moreInfo}>{detail}</div>;
+  const safeHTML = DOMPurify.sanitize(detail);
+  return (
+    <div
+      css={moreInfo}
+      dangerouslySetInnerHTML={{ __html: safeHTML }}
+      style={{ whiteSpace: 'pre-wrap' }}
+    />
+  );
 };
 
 export default Details;

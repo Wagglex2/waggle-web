@@ -35,6 +35,10 @@ function App() {
         <Route path="/create-project" element={<ProjectCreatePage />} />
         <Route path="/create-study" element={<StudyCreatePage />} />
 
+        <Route path="/edit-hw/:id" element={<HomeworkCreatePage />} />
+        <Route path="/edit-project/:id" element={<ProjectCreatePage />} />
+        <Route path="/edit-study/:id" element={<StudyCreatePage />} />
+
         <Route path="/hw-list" element={<HomeworkListPage />} />
         <Route path="/project-list" element={<ProjectListPage />} />
         <Route path="/study-list" element={<StudyListPage />} />

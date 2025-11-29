@@ -5,7 +5,16 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { useState, useEffect } from 'react';
 
-const DropDown = ({ label, options, value, buttonWidth, dropDownWidth, onChange, prevData }) => {
+const DropDown = ({
+  label,
+  options,
+  value,
+  buttonWidth,
+  dropDownWidth,
+  onChange,
+  prevData,
+  isDisable,
+}) => {
   const [openModal, setOpenModal] = useState(false);
   const [selected, setSelected] = useState(prevData?.desc || label);
 
@@ -30,12 +39,12 @@ const DropDown = ({ label, options, value, buttonWidth, dropDownWidth, onChange,
   return (
     <div css={dropDownBox(buttonWidth)}>
       <button
-        css={dropDownBtn(selected, label)}
+        css={dropDownBtn(selected, label, isDisable)}
         type="button"
         onClick={() => {
           setOpenModal(!openModal);
         }}
-        disabled={label !== '목적' && label !== '포지션' && label !== '학년'}
+        disabled={isDisable ?? (label !== '목적' && label !== '포지션' && label !== '학년')}
       >
         {selected}
         {openModal ? (
@@ -65,13 +74,13 @@ const dropDownBox = (buttonWidth) => css`
   width: ${buttonWidth};
 `;
 
-const dropDownBtn = (selected, label) => css`
+const dropDownBtn = (selected, label, disabled) => css`
   width: 100%;
   height: 100%;
   text-align: left;
   padding-left: 10px;
   line-height: 30px;
-  background-color: ${label === '과제' || label === '스터디' || label === '멤버'
+  background-color: ${label === '과제' || label === '스터디' || label === '멤버' || disabled
     ? '#eeeeee'
     : '#ffffff '};
 

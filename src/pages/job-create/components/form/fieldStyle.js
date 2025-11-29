@@ -45,6 +45,10 @@ export const fieldContent = (inputWidth, direction = 'row') => css`
     ${contentInputStyle};
     width: ${inputWidth};
   }
+
+  label {
+    color: ${colors.secondary};
+  }
 `;
 
 export const noLabelField = (inputWidth) => css`
