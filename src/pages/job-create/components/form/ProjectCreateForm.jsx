@@ -14,18 +14,27 @@ import MethodField from './form-fields/MethodField';
 import GradeField from './form-fields/GradeField';
 import TechField from './form-fields/TechField';
 import ConsentField from './form-fields/ConsentField';
-import { useState } from 'react';
 import SubmitFormBtn from './form-fields/SubmitFormBtn';
 import useCreateJobStore from '@/stores/useCreateJobStore';
+import JobEditBtn from './form-fields/JobEditBtn';
 
-const ProjectCreateForm = ({ isFormValid, payload, consent, setConsent }) => {
-  const { content, setContent, projectPositions, setProjectPositions, setAuthorPosition } =
-    useCreateJobStore();
-
-  // ui용 position 입력 상태
-  const [positionState, setPositionState] = useState([
-    { id: 1, position: '', personnel: '', isAdded: false, isDisable: false },
-  ]);
+const ProjectCreateForm = ({
+  isFormValid,
+  payload,
+  consent,
+  setConsent,
+  positionState,
+  setPositionState,
+  editMode,
+}) => {
+  const {
+    content,
+    setContent,
+    projectPositions,
+    authorPosition,
+    setProjectPositions,
+    setAuthorPosition,
+  } = useCreateJobStore();
 
   // 팀원 포지션 입력 필드 ui 추가용 포지션 객체 추가
   function addPositionField() {
@@ -52,7 +61,6 @@ const ProjectCreateForm = ({ isFormValid, payload, consent, setConsent }) => {
   // 유저가 입력한 포지션과 인원수를 서버 전달용 데이터 projectPositions에 저장/삭제 하는 함수
   function handlePositionField(id) {
     const selectedData = positionState.find((item) => item.id === id);
-    console.log(selectedData.position);
 
     if (!selectedData.position || !selectedData.personnel) {
       return alert('**저장 실패** \n포지션과 인원을 모두 입력해주세요.');
@@ -131,6 +139,7 @@ const ProjectCreateForm = ({ isFormValid, payload, consent, setConsent }) => {
                 label="포지션"
                 options={positionOptions}
                 buttonWidth={'200px'}
+                value={authorPosition}
                 onChange={setAuthorPosition}
               />
             </div>
@@ -194,12 +203,21 @@ const ProjectCreateForm = ({ isFormValid, payload, consent, setConsent }) => {
       {/* 공고등록 동의 필드 */}
       <ConsentField consent={consent} setConsent={setConsent} />
 
-      <SubmitFormBtn
-        isEnabled={isFormValid}
-        payload={payload}
-        path={{ path: 'project-list', url: 'projects' }}
-        setConsent={setConsent}
-      />
+      {!editMode ? (
+        <SubmitFormBtn
+          isEnabled={isFormValid}
+          payload={payload}
+          path={{ path: 'project-list', url: 'projects' }}
+          setConsent={setConsent}
+        />
+      ) : (
+        <JobEditBtn
+          isEnabled={isFormValid}
+          payload={payload}
+          path={{ path: 'project-list', url: 'projects' }}
+          setConsent={setConsent}
+        />
+      )}
     </form>
   );
 };

@@ -12,8 +12,9 @@ import TechField from './form-fields/TechField';
 import ConsentField from './form-fields/ConsentField';
 import useCreateJobStore from '@/stores/useCreateJobStore';
 import SubmitFormBtn from './form-fields/SubmitFormBtn';
+import JobEditBtn from './form-fields/JobEditBtn';
 
-const StudyCreateForm = ({ isFormValid, payload, consent, setConsent }) => {
+const StudyCreateForm = ({ isFormValid, payload, consent, setConsent, editMode }) => {
   const { content, setContent } = useCreateJobStore();
 
   return (
@@ -60,12 +61,21 @@ const StudyCreateForm = ({ isFormValid, payload, consent, setConsent }) => {
       {/* 공고등록 동의 필드 */}
       <ConsentField consent={consent} setConsent={setConsent} />
 
-      <SubmitFormBtn
-        isEnabled={isFormValid}
-        payload={payload}
-        path={{ path: 'study-list', url: 'studies' }}
-        setConsent={setConsent}
-      />
+      {!editMode ? (
+        <SubmitFormBtn
+          isEnabled={isFormValid}
+          payload={payload}
+          path={{ path: 'study-list', url: 'studies' }}
+          setConsent={setConsent}
+        />
+      ) : (
+        <JobEditBtn
+          isEnabled={isFormValid}
+          payload={payload}
+          path={{ path: 'study-list', url: 'studies' }}
+          setConsent={setConsent}
+        />
+      )}
     </form>
   );
 };

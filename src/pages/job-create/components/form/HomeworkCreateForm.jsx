@@ -14,8 +14,9 @@ import PurposeField from './form-fields/PurposeField';
 import CourseField from './form-fields/CourseField';
 import useCreateJobStore from '@/stores/useCreateJobStore';
 import SubmitFormBtn from './form-fields/SubmitFormBtn';
+import JobEditBtn from './form-fields/JobEditBtn';
 
-const HomeworkCreateForm = ({ isFormValid, payload, consent, setConsent }) => {
+const HomeworkCreateForm = ({ isFormValid, payload, consent, setConsent, editMode }) => {
   const { content, setContent } = useCreateJobStore();
 
   return (
@@ -64,12 +65,21 @@ const HomeworkCreateForm = ({ isFormValid, payload, consent, setConsent }) => {
       {/* 공고등록 동의 필드 */}
       <ConsentField consent={consent} setConsent={setConsent} />
 
-      <SubmitFormBtn
-        isEnabled={isFormValid}
-        payload={payload}
-        path={{ path: 'hw-list', url: 'assignments' }}
-        setConsent={setConsent}
-      />
+      {!editMode ? (
+        <SubmitFormBtn
+          isEnabled={isFormValid}
+          payload={payload}
+          path={{ path: 'hw-list', url: 'assignments' }}
+          setConsent={setConsent}
+        />
+      ) : (
+        <JobEditBtn
+          isEnabled={isFormValid}
+          payload={payload}
+          path={{ path: 'hw-list', url: 'assignments' }}
+          setConsent={setConsent}
+        />
+      )}
     </form>
   );
 };
