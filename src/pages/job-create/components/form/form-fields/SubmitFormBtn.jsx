@@ -10,7 +10,6 @@ const SubmitFormBtn = ({ isEnabled, payload, path, setConsent }) => {
   const navigate = useNavigate();
 
   async function postJobForm() {
-    console.log(payload);
     try {
       const res = await api.post(`/api/v1/${path.url}`, payload);
       reset();
@@ -20,8 +19,6 @@ const SubmitFormBtn = ({ isEnabled, payload, path, setConsent }) => {
       });
       navigate(`/${path.path}/${res.data.data}`);
       alert('**등록 완료** \n[마이페이지]->[내가 올린 공고]에서 지원자 현황을 확인하세요.');
-
-      console.log(res);
     } catch (e) {
       console.log(e);
       alert(`**등록 실패** \n${e.response.data.data[0].message}`);
