@@ -57,6 +57,52 @@ const useCreateJobStore = create((set) => ({
         typeof updateFn === 'function' ? updateFn(state.projectPositions) : updateFn,
     })),
 
+  // 공고 수정용
+  updateFromProjectResponse: (res) =>
+    set({
+      title: res.title,
+      content: res.content,
+      purpose: res.purpose,
+      meetingType: res.meetingType.name,
+      authorPosition: res.authorPosition,
+      projectPositions: res.positions.map((item) => ({
+        position: item.position.name,
+        maxParticipants: item.participantInfo.maxParticipants,
+      })),
+      techStack: res.skills,
+      grades: res.grades.map((item) => ({
+        grade: item,
+      })),
+      startDate: res.period.startDate,
+      endDate: res.period.endDate,
+      deadline: res.deadline.split(' ')[0],
+    }),
+
+  updateFromHomeworkResponse: (res) =>
+    set({
+      title: res.title,
+      content: res.content,
+      maxParticipants: res.participants.maxParticipants,
+      grades: res.grades.map((item) => ({
+        grade: item,
+      })),
+      department: res.department,
+      lecture: res.lecture,
+      lectureCode: res.lectureCode,
+      deadline: res.deadline.split(' ')[0],
+    }),
+
+  updateFromStudyResponse: (res) =>
+    set({
+      title: res.title,
+      content: res.content,
+      techStack: res.skills,
+      startDate: res.period.startDate,
+      endDate: res.period.endDate,
+      maxParticipants: res.participants.maxParticipants,
+      deadline: res.deadline.split(' ')[0],
+    }),
+
   reset: () =>
     set({
       title: '',
