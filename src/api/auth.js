@@ -1,8 +1,14 @@
+import axios from 'axios';
 import api from './api';
 
+const apiKey = import.meta.env.VITE_API_KEY;
+
+// 로그인
 export const signinApi = async (data) => {
   try {
-    const res = await api.post('/api/v1/auth/sign-in', data);
+    const res = await axios.post(`${apiKey}/api/v1/auth/sign-in`, data, {
+      withCredentials: true,
+    });
 
     const accessToken = res.headers.authorization?.replace('Bearer ', '');
 
@@ -21,6 +27,7 @@ export const signinApi = async (data) => {
   }
 };
 
+// 로그아웃
 export const logoutApi = async () => {
   const res = await api.post('/api/v1/auth/sign-out');
   return res.status;
