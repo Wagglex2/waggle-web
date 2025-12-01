@@ -18,7 +18,9 @@ const MainHeader = () => {
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
   const location = useLocation();
+  
   const dropdownRef = useRef(null);
+  const inputRef = useRef(null); 
 
   const [keyword, setKeyword] = useState('');
   const [currentCategory, setCurrentCategory] = useState(CATEGORIES[0]); 
@@ -35,10 +37,8 @@ const MainHeader = () => {
         const found = CATEGORIES.find(c => c.value === urlCategory);
         if (found) setCurrentCategory(found);
       }
-    } 
-    else if (/\/(project|hw|study)-list\/.+/.test(location.pathname)) {
-    }
-    else {
+    } else if (/\/(project|hw|study)-list\/.+/.test(location.pathname)) {
+    } else {
       setKeyword('');
       setCurrentCategory(CATEGORIES[0]);
     }
@@ -66,18 +66,27 @@ const MainHeader = () => {
       alert('검색어를 입력해주세요.');
       return;
     }
+
+    if (inputRef.current) {
+      inputRef.current.blur();
+    }
+
     navigate(`/search-result?category=${currentCategory.value}&q=${keyword}`);
   };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
+      if (e.nativeEvent.isComposing) return;
+      if (inputRef.current) {
+        inputRef.current.blur();
+      }
+
       handleSearch();
     }
   };
 
   async function handleLogout() {
     if (!confirm('로그아웃 하시겠습니까?')) return;
-
     try {
       await logoutApi();
     } catch (error) {
@@ -120,6 +129,7 @@ const MainHeader = () => {
         )}
 
         <input 
+          ref={inputRef}
           type="text" 
           placeholder="카테고리 선택 후 검색어를 입력하세요" 
           value={keyword}
