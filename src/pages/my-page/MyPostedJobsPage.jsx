@@ -46,9 +46,9 @@ const MyPostedJobsPage = () => {
 
   const handleEdit = (postId, postType) => {
     const routes = {
-      프로젝트: '/create-project',
-      과제: '/create-hw',
-      스터디: '/create-study',
+      프로젝트: `/edit-project/${postId}`,
+      과제: `/edit-hw/${postId}`,
+      스터디: `/edit-study/${postId}`,
     };
 
     const target = routes[postType];

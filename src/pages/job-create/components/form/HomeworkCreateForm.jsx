@@ -11,10 +11,16 @@ import GradeField from './form-fields/GradeField';
 import PositionField from './form-fields/PositionField';
 import ConsentField from './form-fields/ConsentField';
 import PurposeField from './form-fields/PurposeField';
+import CourseField from './form-fields/CourseField';
+import useCreateJobStore from '@/stores/useCreateJobStore';
+import SubmitFormBtn from './form-fields/SubmitFormBtn';
+import JobEditBtn from './form-fields/JobEditBtn';
 
-const HomeworkCreateForm = () => {
+const HomeworkCreateForm = ({ isFormValid, payload, consent, setConsent, editMode }) => {
+  const { content, setContent } = useCreateJobStore();
+
   return (
-    <form css={formContainer}>
+    <form css={formContainer} onSubmit={(e) => e.preventDefault()}>
       {/* 공고구분 박스 */}
       <div css={formListBox}>
         <p css={listLabel}>공고구분</p>
@@ -30,14 +36,21 @@ const HomeworkCreateForm = () => {
 
       {/* 마감일 박스 */}
       <div css={formListBox}>
-        <p css={listLabel}>마감일</p>
+        <div css={listLabel}>
+          <p>마감일</p>
+          <p className="support-msg">*공고 마감일을 입력해 주세요</p>
+        </div>
         <DeadLineField />
       </div>
 
       {/* 정보 박스 */}
       <div css={formListBox}>
-        <p css={listLabel}>정보</p>
+        <div css={listLabel}>
+          <p>정보</p>
+          <p className="support-msg">*과제 정보를 입력해 주세요</p>
+        </div>
         <DepartmentField />
+        <CourseField />
         <CourseCodeField />
         <GradeField />
         <PositionField />
@@ -46,15 +59,27 @@ const HomeworkCreateForm = () => {
       {/* 공고상세 박스 */}
       <div css={formListBox}>
         <p css={listLabel}>공고 상세</p>
-        <Editor />
+        <Editor editorValue={content} onChangeEditorValue={setContent} />
       </div>
 
       {/* 공고등록 동의 필드 */}
-      <ConsentField />
+      <ConsentField consent={consent} setConsent={setConsent} />
 
-      <button css={submitBtn} type="submit">
-        등록하기
-      </button>
+      {!editMode ? (
+        <SubmitFormBtn
+          isEnabled={isFormValid}
+          payload={payload}
+          path={{ path: 'hw-list', url: 'assignments' }}
+          setConsent={setConsent}
+        />
+      ) : (
+        <JobEditBtn
+          isEnabled={isFormValid}
+          payload={payload}
+          path={{ path: 'hw-list', url: 'assignments' }}
+          setConsent={setConsent}
+        />
+      )}
     </form>
   );
 };
@@ -75,19 +100,15 @@ const listLabel = css`
   font-family: 'nanumB';
   border-bottom: 1px solid ${colors.gray[400]};
   padding: 3px 7px;
-`;
+  display: flex;
+  justify-content: space-between;
 
-const submitBtn = css`
-  display: block;
-  margin: 50px auto;
-  width: 350px;
-  height: 50px;
-
-  border-radius: 10px;
-  border: 1px solid ${colors.gray[300]};
-  background-color: #fef7d4;
-
-  font-family: 'nanumEB';
-  font-size: 15px;
-  color: ${colors.secondary};
+  .support-msg {
+    font-size: 13px;
+    color: ${colors.gray[300]};
+    height: 13px;
+    margin-bottom: 3px;
+    align-self: self-end;
+    font-family: 'nanumR';
+  }
 `;
