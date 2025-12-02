@@ -6,6 +6,7 @@ const useAuthStore = create(
     (set) => ({
       isLoggedIn: false,
       accessToken: null,
+      userInfoChecking: false, // 사용자 프로필 입력 여부를 한 번만 불러오도록 하기 위한 state
 
       setAccessToken: (token) =>
         set({
@@ -22,7 +23,14 @@ const useAuthStore = create(
         set({
           isLoggedIn: false,
           accessToken: null,
+          userInfoChecking: false,
         }),
+
+      setUserInfoChecking: (value) => {
+        set({
+          userInfoChecking: value,
+        });
+      },
     }),
     {
       name: 'auth-storage',
