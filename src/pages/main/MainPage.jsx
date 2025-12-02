@@ -4,11 +4,15 @@ import HexagonCard from './components/HexagonCard';
 import bgImg from '../../assets/img/main-bg.png';
 import MainPurposeFilter from './components/filter/MainPurposeFilter';
 import MainPositionFilter from './components/filter/MainPositionFilter';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import UserInfoModal from '../../layout/components/UserInfoModal';
 import api from '@/api/api';
+import useAuthStore from '@/stores/useAuthStore';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { useNavigate } from 'react-router-dom';
+import { colors } from '@/styles/theme';
 
-const cardPositions = [
+const cardLocation = [
   // 1
   { top: '0', left: '0' },
   { top: '0', left: '453px' },
@@ -40,175 +44,13 @@ const cardPositions = [
   { top: '624px', left: '905px' },
 ];
 
-const dummyProjects = [
-  {
-    id: 1,
-    purposeTag: '공모전',
-    methodTag: '온/오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인'],
-    techStack: ['TYPESCRIPT', 'REACT', 'FIGMA'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 2,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title:
-      '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다 웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다',
-    positions: ['기획', '디자인', '프론트엔드'],
-    techStack: ['JAVASCRIPT', 'NEXT_JS', 'NOTION'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 3,
-    purposeTag: '해커톤',
-    methodTag: '온라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['JAVA', 'SPRING_BOOT', 'MYSQL'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 4,
-    purposeTag: '토이프로젝트',
-    methodTag: '온라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['CSHARP', 'UNITY'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 5,
-    purposeTag: '공모전',
-    methodTag: '온/오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['PYTHON', 'DJANGO', 'POSTGRESQL'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 6,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['KOTLIN', 'SPRING_BOOT', 'MYSQL', 'SWIFT', 'NODE_JS'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 7,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['SWIFT', 'NODE_JS'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 8,
-    purposeTag: '사이드프로젝트',
-    methodTag: '온/오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['C', 'UNREAL'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 9,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['EXPRESS', 'MONGODB'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 10,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['SCIKIT_LEARN', 'PANDAS', 'TENSORFLOW', 'PYTORCH'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 11,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['TENSORFLOW', 'PYTORCH'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 12,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['FLUTTER', 'FIGMA'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 13,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['HTML', 'VUE'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 14,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['GIT', 'GITHUBACTIONS'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 15,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['REDIS', 'DOCKER'],
-    author: '솔랑솔랑',
-  },
-  {
-    id: 16,
-    purposeTag: '사이드프로젝트',
-    methodTag: '오프라인',
-    deadline: '2025.12.15까지',
-    title: '웹 어쩌구저쩌구 사이드프로젝트 함께할 팀원 구합니다.',
-    positions: ['기획', '디자인', '프론트엔드', '백엔드'],
-    techStack: ['JIRA', 'NOTION'],
-    author: '솔랑솔랑',
-  },
-];
-
 const MainPage = () => {
+  // 유저 기본정보 입력 관련
   const [openModal, setOpenModal] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
+  const { userInfoChecking, setUserInfoChecking } = useAuthStore();
 
   useEffect(() => {
+    if (userInfoChecking) return;
     const checkUserInfo = async () => {
       try {
         const response = await api.get('/api/v1/users/me');
@@ -232,11 +74,10 @@ const MainPage = () => {
         });
 
         setOpenModal(isMissingInfo);
+        if (!isMissingInfo) setUserInfoChecking(true);
       } catch (error) {
         console.error('User info fetch error:', error);
         setOpenModal(true);
-      } finally {
-        setIsChecking(false);
       }
     };
 
@@ -245,18 +86,59 @@ const MainPage = () => {
 
   const handleModalClose = () => {
     setOpenModal(false);
+    setUserInfoChecking(true);
   };
 
-  if (isChecking) {
-    return (
-      <div css={container(bgImg)}>
-        <div css={text}>
-          <p>꿀벌의 춤을 따라</p>
-          <p>빛나는 꿈을 향해</p>
-        </div>
-      </div>
-    );
-  }
+  //  메인페이지
+  const navigate = useNavigate();
+  const [selectedPosition, setSelectedPosition] = useState([]); //선택된 포지션 리스트
+  const [selectedPurpose, setSelectedPurpose] = useState('목적'); // 선택된 목적
+  const [originalProjectList, setOriginalProjectList] = useState([]); // 서버에서 받아온 리스트 원본
+
+  // 오늘의 공고 목록 가져오기 api
+  useEffect(() => {
+    async function getTodaysJobs() {
+      try {
+        const res = await api.get('/api/v1/projects?status=recruiting&size=16');
+        const projects = res.data.data.content;
+        setOriginalProjectList(projects.map((item) => ({ ...item, isSelected: 0 })));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    getTodaysJobs();
+  }, []);
+
+  // 공고 필터링
+  const filteredProjectList = useMemo(() => {
+    // 필터가 활성화되었는지 확인
+    const isPurposeActive = selectedPurpose !== '전체' && selectedPurpose !== '목적';
+    const isPositionActive = selectedPosition.length > 0;
+
+    // 아무 옵션도 선택하지 않은 경우 (0: 전체 선택)
+    if (!isPurposeActive && !isPositionActive) {
+      return originalProjectList.map((item) => ({ ...item, isSelected: 0 }));
+    }
+
+    // 어떤 옵션을 선택한 경우
+    return originalProjectList.map((item) => {
+      // 1. 목적 체크 (필터가 꺼져있으면 무조건 통과)
+      const isPurposeMatch = !isPurposeActive || item.purpose.desc === selectedPurpose;
+
+      // 2. 포지션 체크 (필터가 꺼져있으면 무조건 통과, 켜져있으면 하나라도 포함되면 통과)
+      const isPositionMatch =
+        !isPositionActive || item.positions.some((pos) => selectedPosition.includes(pos.desc));
+
+      // 3. 목적과 포지션 모두 만족해야 함
+      const isMatch = isPurposeMatch && isPositionMatch;
+
+      return {
+        ...item,
+        isSelected: isMatch ? 1 : 2, // 매칭되면 1, 아니면 2
+      };
+    });
+  }, [originalProjectList, selectedPurpose, selectedPosition]);
 
   return (
     <div css={container(bgImg)}>
@@ -265,13 +147,23 @@ const MainPage = () => {
         <p>빛나는 꿈을 향해</p>
       </div>
       <div css={filterBox}>
-        <MainPurposeFilter />
-        <MainPositionFilter />
+        <MainPurposeFilter
+          selectedPurpose={selectedPurpose}
+          setSelectedPurpose={setSelectedPurpose}
+        />
+        <MainPositionFilter
+          selectedPosition={selectedPosition}
+          setSelectedPosition={setSelectedPosition}
+        />
       </div>
       <div css={jobCardList}>
-        {cardPositions.map((pos, index) => (
-          <div key={index} css={cardPosition(pos.top, pos.left)}>
-            <HexagonCard jobData={dummyProjects[index]} techMaxLength={4} />
+        <p css={link} onClick={() => navigate('/project-list')}>
+          프로젝트 공고 전체 보기
+          <ArrowForwardIosIcon fontSize="18px" />
+        </p>
+        {cardLocation.map((loc, index) => (
+          <div key={index} css={cardPosition(loc.top, loc.left)}>
+            <HexagonCard jobData={filteredProjectList[index]} />
           </div>
         ))}
       </div>
@@ -346,4 +238,20 @@ const cardPosition = (top, left) => css`
   position: absolute;
   top: ${top};
   left: ${left};
+`;
+
+const link = css`
+  position: absolute;
+  top: -30px;
+  right: 60px;
+  color: #dddddd;
+  font-size: 14px;
+
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    cursor: pointer;
+    color: ${colors.primary};
+  }
 `;

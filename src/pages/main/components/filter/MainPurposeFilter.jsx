@@ -5,22 +5,23 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { useState } from 'react';
 
-const purposeList = ['전체', '공모전', '해커톤', '사이드프로젝트', '토이프로젝트'];
+const purposeList = ['전체', '공모전', '해커톤', '사이드 프로젝트', '토이 프로젝트'];
 
-const MainPurposeFilter = () => {
-  const [purpose, setPurpose] = useState('목적'); // 선택된 목적
+const MainPurposeFilter = ({ selectedPurpose, setSelectedPurpose }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // 필터 드롭다운 열림 여부
 
   // 드롭다운에서 원하는 옵션을 클릭 했을 때
-  function handleDropdownOptionClick(selectedPurpose) {
-    setPurpose(selectedPurpose);
+  function handleDropdownOptionClick(item) {
+    setSelectedPurpose(item);
     setIsDropdownOpen(false);
   }
+
+  console.log(selectedPurpose);
 
   return (
     <div css={container}>
       <button css={filterBtn} onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-        <p>{purpose}</p>
+        <p>{selectedPurpose}</p>
         {!isDropdownOpen ? (
           <ArrowDropDownIcon css={filterIcon} />
         ) : (

@@ -2,22 +2,29 @@
 import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
 import TechIconList from '@/components/TechIconList';
+import { useNavigate } from 'react-router-dom';
 
 const HexagonCard = ({ jobData }) => {
+  const navigate = useNavigate();
+
   return (
     <div css={container}>
-      <div css={hexagonBorder}></div>
-      <div css={hexagon}>
+      <div css={hexagonBorder(jobData?.isSelected)}></div>
+      <div
+        css={hexagon(jobData?.isSelected)}
+        onClick={() => navigate(`/project-list/${jobData?.id}`)}
+      >
         <div css={content}>
           <div css={cardBadge}>
-            <p className="purpose">{jobData.purposeTag}</p>
-            <p className="method">{jobData.methodTag}</p>
+            <p className="purpose">{jobData?.purpose.desc}</p>
+            <p className="method">{jobData?.meetingType.desc}</p>
           </div>
-          <p css={deadLine}>{jobData.deadline}</p>
-          <p css={jobTitle}>{jobData.title}</p>
-          <TechIconList teches={jobData.techStack} techMaxLength={4} />
+          <p css={deadLine}>{jobData?.deadline}까지</p>
+          <p css={jobTitle}>{jobData?.title}</p>
+          <TechIconList teches={jobData?.skills.map((item) => item.name)} techMaxLength={4} />
         </div>
       </div>
+      {jobData?.isSelected === 2 && <div css={fakeHexagon}></div>}
     </div>
   );
 };
@@ -28,30 +35,40 @@ const container = css`
   position: relative;
   width: 278px;
   height: 204px;
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
 `;
 
-const hexagonBorder = css`
+const hexagonBorder = (isSelected) => css`
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: ${colors.secondary};
+  background-color: ${isSelected === 1 ? '#daa520' : 'colors.secondary'};
   clip-path: polygon(20% 0, 80% 0, 100% 50%, 80% 100%, 20% 100%, 0% 50%);
 `;
 
-const hexagon = css`
+const hexagon = (isSelected) => css`
   position: absolute;
-  background-color: #ffffff;
-  top: 1px;
-  left: 1px;
-  width: 276px;
-  height: 202px;
+  background-color: ${isSelected === 1 ? '#FFFEEF' : '#ffffff'};
+  top: ${isSelected === 1 ? '4px' : '1px'};
+  left: ${isSelected === 1 ? '4px' : '1px'};
+  width: ${isSelected === 1 ? '270px' : '276px'};
+  height: ${isSelected === 1 ? '196px' : '202px'};
   clip-path: polygon(20% 0, 80% 0, 100% 50%, 80% 100%, 20% 100%, 0% 50%);
   z-index: 1;
 
   display: flex;
   justify-content: center;
+
+  &:hover {
+    cursor: pointer;
+    background-color: #fdfdf7;
+  }
 `;
 
 const content = css`
@@ -93,6 +110,7 @@ const jobTitle = css`
   font-size: 14px;
   color: ${colors.secondary};
   width: 170px;
+  height: 44px;
   margin-bottom: 16px;
 
   display: -webkit-box;
@@ -100,4 +118,15 @@ const jobTitle = css`
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+`;
+
+const fakeHexagon = css`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(72, 77, 73, 0.6);
+  clip-path: polygon(20% 0, 80% 0, 100% 50%, 80% 100%, 20% 100%, 0% 50%);
+  z-index: 100;
 `;
