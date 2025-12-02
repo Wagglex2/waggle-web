@@ -6,14 +6,14 @@ import { css } from '@emotion/react';
 const TechIconList = ({ teches, techMaxLength }) => {
   return (
     <div css={jobTech}>
-      {teches.slice(0, techMaxLength).map((tech) => {
+      {teches?.slice(0, techMaxLength).map((tech) => {
         return (
-          <div css={iconBox(teches.length, techMaxLength)} key={tech}>
+          <div css={iconBox(teches?.length, techMaxLength)} key={tech}>
             <img src={techIcons[tech]} />
           </div>
         );
       })}
-      {teches.length > techMaxLength && <p>+{teches.length - techMaxLength}</p>}
+      {teches?.length > techMaxLength && <p>+{teches?.length - techMaxLength}</p>}
     </div>
   );
 };
@@ -27,9 +27,9 @@ const jobTech = css`
 
   p {
     font-family: 'nanumEB';
-    padding-top: 17px;
+    padding-top: 20px;
     margin-left: 4px;
-    color: ${colors.tertiary};
+    color: ${colors.gray[400]};
   }
 `;
 
