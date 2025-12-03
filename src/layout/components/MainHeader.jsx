@@ -18,12 +18,12 @@ const MainHeader = () => {
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const dropdownRef = useRef(null);
-  const inputRef = useRef(null); 
+  const inputRef = useRef(null);
 
   const [keyword, setKeyword] = useState('');
-  const [currentCategory, setCurrentCategory] = useState(CATEGORIES[0]); 
+  const [currentCategory, setCurrentCategory] = useState(CATEGORIES[0]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
@@ -34,10 +34,11 @@ const MainHeader = () => {
     if (location.pathname === '/search-result') {
       if (urlQuery) setKeyword(urlQuery);
       if (urlCategory) {
-        const found = CATEGORIES.find(c => c.value === urlCategory);
+        const found = CATEGORIES.find((c) => c.value === urlCategory);
         if (found) setCurrentCategory(found);
       }
     } else if (/\/(project|hw|study)-list\/.+/.test(location.pathname)) {
+      //
     } else {
       setKeyword('');
       setCurrentCategory(CATEGORIES[0]);
@@ -101,10 +102,10 @@ const MainHeader = () => {
 
   return (
     <div css={container}>
-      <Link to={'/'}>
+      <Link to={'/home'}>
         <p css={logo}>와글와글</p>
       </Link>
-      
+
       <div css={searchBar} ref={dropdownRef}>
         <button css={dropdownBtn} onClick={toggleDropdown}>
           {currentCategory.label}
@@ -116,9 +117,9 @@ const MainHeader = () => {
             {CATEGORIES.map((cat) => {
               const isSelected = currentCategory.value === cat.value;
               return (
-                <li 
-                  key={cat.value} 
-                  css={dropdownItemStyle(isSelected)} 
+                <li
+                  key={cat.value}
+                  css={dropdownItemStyle(isSelected)}
                   onClick={() => handleSelectCategory(cat)}
                 >
                   {cat.label}
@@ -128,20 +129,16 @@ const MainHeader = () => {
           </ul>
         )}
 
-        <input 
+        <input
           ref={inputRef}
-          type="text" 
-          placeholder="카테고리 선택 후 검색어를 입력하세요" 
+          type="text"
+          placeholder="카테고리 선택 후 검색어를 입력하세요"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           onKeyDown={handleKeyDown}
         />
-        
-        <SearchIcon 
-          className="search-icon" 
-          onClick={handleSearch}
-          style={{ cursor: 'pointer' }}
-        />
+
+        <SearchIcon className="search-icon" onClick={handleSearch} style={{ cursor: 'pointer' }} />
       </div>
 
       <div css={btnBox}>
@@ -225,7 +222,7 @@ const dropdownBtn = css`
 
 const dropdownMenu = css`
   position: absolute;
-  top: 40px; 
+  top: 40px;
   left: 4px;
   width: 95px;
   background-color: white;
@@ -252,7 +249,7 @@ const dropdownItemStyle = (isSelected) => css`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: #FFF9DC;
+    background-color: #fff9dc;
     font-family: 'nanumB';
   }
 `;
