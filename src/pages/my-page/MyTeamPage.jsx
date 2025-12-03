@@ -28,10 +28,28 @@ const MyTeamPage = () => {
 
   const teams = useTeamStore((state) => state.teams);
   const setTeams = useTeamStore((state) => state.setTeams);
+  const setCurrentUserNickname = useTeamStore((state) => state.setCurrentUserNickname);
   const hoveredMember = useTeamStore((state) => state.hoveredMember);
   const setHoveredMember = useTeamStore((state) => state.setHoveredMember);
 
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await api.get('/api/v1/users/me');
+        const userData = response.data.data || response.data;
+
+        if (userData.nickname) {
+          setCurrentUserNickname(userData.nickname);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchCurrentUser();
+  }, [setCurrentUserNickname]);
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -41,11 +59,9 @@ const MyTeamPage = () => {
       setIsLoading(true);
       try {
         const response = await api.get(`/api/v1/teams/me?size=5&category=${apiCategory}`);
-
         const fetchedTeams = response.data.data.content || [];
         setTeams(fetchedTeams);
       } catch (error) {
-        console.error('팀 데이터 불러오기 실패:', error);
         setTeams([]);
       } finally {
         setIsLoading(false);
