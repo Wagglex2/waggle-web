@@ -46,6 +46,10 @@ const ProfilePage = () => {
   const [nicknameCheckingMsg, setNicknameCheckingMsg] = useState('중복검사');
   const nicknameRegex = /^[a-zA-Z가-힣0-9]{2,10}$/;
 
+  useEffect(() => {
+    console.log(techStack);
+  }, [techStack]);
+
   // 내 정보 조회 api
   useEffect(() => {
     async function getUserProfile() {
@@ -53,8 +57,6 @@ const ProfilePage = () => {
         const res = await api.get('/api/v1/users/me');
         const userInfo = res.data.data;
         handleSetAllUserData(userInfo);
-
-        console.log(res);
       } catch (e) {
         console.error(e);
       }
@@ -90,7 +92,6 @@ const ProfilePage = () => {
         formData.append('file', imgFile);
 
         const res = await api.post('/api/v1/users/me/profile-image', formData);
-        console.log(res);
         setOtherUserData((prev) => ({
           ...prev,
           imgUrl: res.data.data.profileImageUrl,
@@ -107,7 +108,6 @@ const ProfilePage = () => {
   async function deleteUserImg() {
     try {
       const res = await api.delete('/api/v1/users/me/profile-image');
-      console.log(res);
       setOtherUserData((prev) => ({
         ...prev,
         imgUrl: res.data.data.profileImageUrl,
@@ -124,7 +124,6 @@ const ProfilePage = () => {
       const res = await axios.post(`${apiKey}/api/v1/users/nickname/check`, {
         nickname: nickname,
       });
-      console.log(res);
       setNicknameCheckingMsg('중복검사');
 
       if (!res.data.data) {
@@ -152,8 +151,6 @@ const ProfilePage = () => {
     const nicknameTosend = nickname === originalUserData.nickname ? null : nickname;
     const techStackTosend = techStack.map((tech) => tech.name);
 
-    console.log(nicknameTosend, grade + 1, position.name, techStackTosend, shortIntro);
-
     try {
       const res = await api.patch('/api/v1/users/me', {
         nickname: nicknameTosend,
@@ -162,7 +159,6 @@ const ProfilePage = () => {
         skills: techStackTosend,
         shortIntro: shortIntro,
       });
-      console.log(res);
       const userInfo = res.data.data;
       handleSetAllUserData(userInfo);
 
@@ -180,7 +176,7 @@ const ProfilePage = () => {
   const isDataUnchanged = useMemo(() => {
     if (!nicknameConfirmState.ok) return true;
     if (shortIntro.length === 0) return true;
-    if (techStack.length === 0) return true;
+    if (techStack.length === 0 || techStack.length > 10) return true;
 
     const isNicknameSame = originalUserData.nickname === nickname;
     const isGradeSame = originalUserData.grade === grade + 1;
@@ -198,7 +194,6 @@ const ProfilePage = () => {
       return JSON.stringify(sortedOriginal) === JSON.stringify(sortedCurrent);
     })();
 
-    console.log(isNicknameSame, isGradeSame, isPositionSame, isTechStackSame, isShortIntroSame);
     return isNicknameSame && isGradeSame && isPositionSame && isTechStackSame && isShortIntroSame;
   }, [originalUserData, nickname, nicknameConfirmState.ok, grade, position, techStack, shortIntro]);
 
@@ -369,6 +364,9 @@ const ProfilePage = () => {
                 prevData={techStack}
               />
               {techStack.length === 0 && <p css={confirmMsg}>*기술을 한 개 이상 선택해 주세요.</p>}
+              {techStack.length > 10 && (
+                <p css={confirmMsg}>*10개 이하의 기술만 선택 가능합니다.</p>
+              )}
             </div>
           </div>
           <div css={detailsItem} className="last-item">
