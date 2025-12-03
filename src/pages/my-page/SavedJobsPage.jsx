@@ -79,6 +79,7 @@ export default function SavedJobsPage() {
   };
   
   const handleTabChange = (newTab) => {
+    setItems([]); 
     setTab(newTab);
     setPage(1);
   };
