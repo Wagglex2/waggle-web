@@ -166,6 +166,7 @@ export default function ProjectListPage() {
             title: item.title,
             deadline: item.deadline,
             author: item.authorNickname,
+            authorProfileImageUrl: item.authorProfileImageUrl,
             purposeTag: extractValue(item.category) || "미정", 
             methodTag: extractValue(item.meetingType) || "미정",
             status: item.status?.name || "RECRUITING",

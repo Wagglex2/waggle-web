@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { css } from '@emotion/react';
 
+const defaultImgUrl =
+  'https://waggle-image-bucket.s3.ap-northeast-2.amazonaws.com/user-profile-images/default-profile-image.png';
+
 const colors = {
   gray: {
     50: '#f9fafb',
@@ -89,15 +92,11 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
           <div css={profileHeader}>
             <div css={avatarSection}>
               <div className="avatar-circle">
-                {user.profileImage ? (
-                  <img
-                    src={user.profileImage}
-                    alt={`${user.nickname} Avatar`}
-                    className="avatar-image"
-                  />
-                ) : (
-                  <div className="avatar-placeholder"></div>
-                )}
+                <img
+                  src={user.profileImageUrl || user.profileImage || defaultImgUrl}
+                  alt={`${user.nickname} Avatar`}
+                  className="avatar-image"
+                />
               </div>
               <h2 className="user-name">{user.nickname}</h2>
             </div>

@@ -90,6 +90,7 @@ export default function HwListPage() {
           title: item.title,
           deadline: item.deadline,
           author: item.authorNickname || "익명",
+          authorProfileImageUrl: item.authorProfileImageUrl,
           
           purposeTag: "과제", 
 

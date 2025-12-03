@@ -86,7 +86,12 @@ const TeamCard = ({ team }) => {
 
           return (
             <div key={member.userId} css={memberRow(isProject)}>
-              <div css={dot(member.color)} />
+              <div css={dot(member.color)}>
+                <img 
+                  src={member.profileImageUrl || defaultImgUrl}
+                  alt={member.nickname}
+                />
+              </div>
 
               <button
                 type="button"
@@ -218,11 +223,21 @@ const memberRow = (isProject) => css`
     border-bottom: 0;
   }
 `;
+const defaultImgUrl =
+  'https://waggle-image-bucket.s3.ap-northeast-2.amazonaws.com/user-profile-images/default-profile-image.png';
+
 const dot = (color) => css`
   width: 40px;
   height: 40px;
   border-radius: 50%;
   background: ${color || '#e5e5e5'};
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 const memberName = css`
   font-weight: 600;
