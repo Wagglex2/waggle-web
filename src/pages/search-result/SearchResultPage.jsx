@@ -125,6 +125,8 @@ export default function SearchResultPage() {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
+      setData([]); // ✅ 수정됨: API 호출 전 데이터를 비워주어 컴포넌트 충돌 방지
+      
       try {
         let endpoint = '';
         const params = {
