@@ -8,12 +8,12 @@ export const purposeOptions = [
     desc: '해커톤',
   },
   {
-    name: 'TOY_PROJECT',
-    desc: '사이드프로젝트',
+    name: 'SIDE_PROJECT',
+    desc: '사이드 프로젝트',
   },
   {
-    name: 'SIDE_PROJECT',
-    desc: '토이프로젝트',
+    name: 'TOY_PROJECT',
+    desc: '토이 프로젝트',
   },
 ];
 
