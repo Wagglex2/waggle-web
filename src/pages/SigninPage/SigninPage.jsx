@@ -32,7 +32,7 @@ function SigninPage() {
       console.log('✨로그인 성공✨');
 
       setErrorMessage('');
-      navigate('/');
+      navigate('/home');
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -88,7 +88,9 @@ function SigninPage() {
               <p css={errorStyle}>{errorMessage}</p>
 
               <button css={loginButtonStyle}>로그인 하기</button>
-              <a css={signupLinkStyle}>회원가입</a>
+              <p css={signupLinkStyle} onClick={() => navigate('/signup')}>
+                회원가입
+              </p>
             </form>
 
             <div css={logoSectionStyle}>
