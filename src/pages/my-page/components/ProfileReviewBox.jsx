@@ -32,8 +32,8 @@ const ProfileReviewBox = () => {
         <p css={noReviewBox}>조회된 리뷰가 없습니다.</p>
       ) : (
         <div className="reviews">
-          {review.map((item) => (
-            <p>{item.content}</p>
+          {review.map((item, index) => (
+            <p key={index}>{item.content}</p>
           ))}
         </div>
       )}
