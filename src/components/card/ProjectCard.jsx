@@ -226,8 +226,8 @@ export default function ProjectCard({ project, onUnlike }) {
   const [bookmarkId, setBookmarkId] = useState(project.bookmarkId);
 
   const isSavedPage = onUnlike !== undefined;
-  const displayedPositions = project.positions.slice(0, 3);
-  const hasMorePositions = project.positions.length > 3;
+  const displayedPositions = project.positions?.slice(0, 3);
+  const hasMorePositions = project.positions?.length > 3;
 
   useEffect(() => {
     setIsLiked(project.bookmarked);
@@ -269,8 +269,8 @@ export default function ProjectCard({ project, onUnlike }) {
     navigate(`/project-list/${project.id}`);
   };
 
-  const displayedTechs = project.techStack.slice(0, MAX_TECH_DISPLAY);
-  const hiddenTechCount = project.techStack.length - MAX_TECH_DISPLAY;
+  const displayedTechs = project.techStack?.slice(0, MAX_TECH_DISPLAY);
+  const hiddenTechCount = project.techStack?.length - MAX_TECH_DISPLAY;
 
   return (
     <div css={cardStyle} onClick={handleCardClick}>
@@ -289,7 +289,7 @@ export default function ProjectCard({ project, onUnlike }) {
       <h3 css={titleStyle}>{project.title}</h3>
 
       <div css={positionTagBoxStyle}>
-        {displayedPositions.map((tag, idx) => (
+        {displayedPositions?.map((tag, idx) => (
           <span key={idx} css={positionTagStyle}>{tag}</span>
         ))}
 
@@ -299,7 +299,7 @@ export default function ProjectCard({ project, onUnlike }) {
       </div>
 
       <div css={techStackIconBoxStyle}>
-        {displayedTechs.map((tech) => {
+        {displayedTechs?.map((tech) => {
           const iconPath = techIcons[tech]; 
           
           if (!iconPath) {
