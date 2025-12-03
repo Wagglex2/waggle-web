@@ -28,7 +28,7 @@ const Meta = ({ metaData, bookMarked, setBookMark }) => {
       </div>
 
       <p className="posting-period">
-        게시: {createdAt[0]} || 마감: {deadline[0]}
+        게시: {createdAt[0]} | 마감: {deadline[0]}
       </p>
       <h3 className="job-title text-green">{metaData.title}</h3>
     </div>

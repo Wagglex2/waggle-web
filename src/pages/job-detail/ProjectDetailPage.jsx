@@ -65,7 +65,7 @@ const ProjectDetailPage = () => {
         });
 
         setSummary({
-          purpose: projectInfo.category.desc,
+          purpose: projectInfo.purpose.desc,
           meetingType: projectInfo.meetingType.desc,
           grades: projectInfo.grades,
           startDate: projectInfo.period.startDate,

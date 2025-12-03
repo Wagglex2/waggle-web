@@ -3,12 +3,13 @@ import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const purposeList = ['전체', '공모전', '해커톤', '사이드 프로젝트', '토이 프로젝트'];
 
 const MainPurposeFilter = ({ selectedPurpose, setSelectedPurpose }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // 필터 드롭다운 열림 여부
+  const dropdownRef = useRef(null);
 
   // 드롭다운에서 원하는 옵션을 클릭 했을 때
   function handleDropdownOptionClick(item) {
@@ -16,10 +17,22 @@ const MainPurposeFilter = ({ selectedPurpose, setSelectedPurpose }) => {
     setIsDropdownOpen(false);
   }
 
-  console.log(selectedPurpose);
+  // 포커스 아웃 시 드롭다운 닫힘
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
-    <div css={container}>
+    <div css={container} ref={dropdownRef}>
       <button css={filterBtn} onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
         <p>{selectedPurpose}</p>
         {!isDropdownOpen ? (

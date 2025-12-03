@@ -3,9 +3,10 @@ import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const MultiSelectDropDown = ({ label, options, value, buttonWidth, onChange, prevData }) => {
+  const dropdownRef = useRef(null);
   const [openModal, setOpenModal] = useState(false);
   const [selected, setSelected] = useState(() => {
     return value?.map((v) => v.desc) || prevData?.map((item) => item.desc) || [];
@@ -41,8 +42,22 @@ const MultiSelectDropDown = ({ label, options, value, buttonWidth, onChange, pre
     );
   };
 
+  // 포커스 아웃 시 드롭다운 닫힘
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpenModal(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div css={dropDown(buttonWidth)}>
+    <div css={dropDown(buttonWidth)} ref={dropdownRef}>
       <button type="button" onClick={() => setOpenModal(!openModal)}>
         {selected.length === 0 ? (
           label
@@ -64,13 +79,14 @@ const MultiSelectDropDown = ({ label, options, value, buttonWidth, onChange, pre
       {openModal && (
         <ul css={dropDownListBox}>
           {options.map((option) => (
-            <li key={option.name}>
+            <li key={option.name} onClick={() => handleSelect(option)}>
               <input
+                className="check"
                 type="checkbox"
                 checked={selected.includes(option.desc)}
-                onChange={() => handleSelect(option)}
+                onChange={() => {}}
               />
-              <span>{option.desc}</span>
+              <p>{option.desc}</p>
             </li>
           ))}
         </ul>
@@ -114,14 +130,16 @@ const dropDown = (buttonWidth) => css`
 const dropDownIcon = css`
   float: right;
   color: #3b3537;
-  padding-top: '3px';
+  padding-top: 3px;
 `;
 
 const dropDownListBox = css`
   position: relative;
   z-index: 10;
 
-  width: 530px;
+  width: 600px;
+  height: 350px;
+  overflow-y: scroll;
   display: grid;
   grid-template-columns: repeat(4, 2fr);
   padding: 0px 10px;
@@ -135,13 +153,22 @@ const dropDownListBox = css`
   li {
     display: flex;
     align-items: center;
+    height: 39px;
     gap: 6px;
-    padding: 6px;
-    font-size: 13px;
+    margin: 6px;
+    border-radius: 5px;
+    font-size: 14px;
     color: #000000;
 
-    input {
+    &:hover {
+      background-color: #fffceb;
+      cursor: pointer;
+    }
+
+    .check {
       accent-color: ${colors.primary};
+      width: 17px;
+      height: 17px;
     }
   }
 `;
