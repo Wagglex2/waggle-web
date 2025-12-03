@@ -145,6 +145,7 @@ export default function StudyListPage() {
             title: item.title,
             deadline: item.deadline,
             author: item.authorNickname || "익명",
+            authorProfileImageUrl: item.authorProfileImageUrl,
             
             purposeTag: "스터디", 
             methodTag: extractValue(item.meetingType) || "미정", 

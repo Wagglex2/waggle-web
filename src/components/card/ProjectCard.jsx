@@ -193,7 +193,17 @@ const avatarStyle = css`
   height: 37px;
   border-radius: 50%;
   background: ${colors.gray[200]};
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
+
+const defaultImgUrl =
+  'https://waggle-image-bucket.s3.ap-northeast-2.amazonaws.com/user-profile-images/default-profile-image.png';
 
 const nicknameStyle = css`
   font-size: 15px;
@@ -323,7 +333,12 @@ export default function ProjectCard({ project, onUnlike }) {
 
         <div css={footerStyle}>
           <div css={profileStyle}>
-            <div css={avatarStyle} />
+            <div css={avatarStyle}>
+              <img 
+                src={project.authorProfileImageUrl || defaultImgUrl} 
+                alt={project.author}
+              />
+            </div>
             <span css={nicknameStyle}>{project.author}</span>
           </div>
 
