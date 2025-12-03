@@ -12,7 +12,8 @@ const NotificationItem = ({ item, handleDelete }) => {
   const navigate = useNavigate();
 
   // 알림 개별 삭제 api
-  function deleteNotification(notificationId) {
+  function deleteNotification(e, notificationId) {
+    e.stopPropagation();
     if (confirm('이 알림을 삭제하시겠습니까?') === false) return;
     try {
       api.delete(`/api/v1/notifications/${notificationId}`);
@@ -61,7 +62,7 @@ const NotificationItem = ({ item, handleDelete }) => {
       <p className="date-field">{item.createdAt}</p>
       <button
         className="notification-item-delete-btn"
-        onClick={() => deleteNotification(item.notificationId)}
+        onClick={(e) => deleteNotification(e, item.notificationId)}
       >
         X
       </button>
@@ -81,11 +82,9 @@ const notificationItemStyle = (isRead) => css`
   margin-bottom: 8px;
   background-color: ${isRead ? '#ffffff' : '#fdf9e4'};
 
-  /* .application-submit-msg-box {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  } */
+  &:hover {
+    cursor: pointer;
+  }
 
   .msg-field {
     margin-right: 30px;
