@@ -47,7 +47,7 @@ const HomeworkDetailPage = () => {
         //console.log(res);
         const homeworkInfo = res.data.data;
         setMataData({
-          imgUrl: defaultImgUrl,
+          imgUrl: homeworkInfo.authorProfileImageUrl || defaultImgUrl,
           recruiterId: homeworkInfo.authorId,
           recruiterNickname: homeworkInfo.authorNickname,
           viewCount: homeworkInfo.viewCount,

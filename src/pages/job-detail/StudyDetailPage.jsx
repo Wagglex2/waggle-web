@@ -46,7 +46,7 @@ const StudyDetailPage = () => {
         //console.log(res);
         const studyInfo = res.data.data;
         setMataData({
-          imgUrl: defaultImgUrl,
+          imgUrl: studyInfo.authorProfileImageUrl || defaultImgUrl,
           recruiterId: studyInfo.authorId,
           recruiterNickname: studyInfo.authorNickname,
           viewCount: studyInfo.viewCount,

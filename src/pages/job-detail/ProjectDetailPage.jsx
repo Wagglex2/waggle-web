@@ -49,7 +49,7 @@ const ProjectDetailPage = () => {
         //console.log(res);
         const projectInfo = res.data.data;
         setMataData({
-          imgUrl: defaultImgUrl,
+          imgUrl: projectInfo.authorProfileImageUrl || defaultImgUrl,
           recruiterId: projectInfo.authorId,
           recruiterNickname: projectInfo.authorNickname,
           viewCount: projectInfo.viewCount,
