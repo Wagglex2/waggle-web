@@ -20,16 +20,41 @@ import MyTeamPage from './pages/my-page/MyTeamPage';
 import SavedJobPage from './pages/my-page/SavedJobsPage';
 import NotificationPage from './pages/notification/NotificationPage';
 import SearchResult from './pages/search-result/SearchResultPage';
-
-//JIRA 테스트용 주석
+import { Navigate } from 'react-router-dom';
+import PublicRoute from './routes/PublicRoute';
+import ProtectedRoute from './routes/ProtectedRoute';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
   return (
     <Routes>
-      <Route path="/signin" element={<SigninPage />} />
-      <Route path="/signup" element={<SignupPage />} />
-      <Route element={<MainLayout />}>
-        <Route path="/" element={<MainPage />} />
+      <Route path="/" element={<Navigate to="/signin" replace />} />
+
+      <Route
+        path="/signin"
+        element={
+          <PublicRoute>
+            <SigninPage />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <PublicRoute>
+            <SignupPage />
+          </PublicRoute>
+        }
+      />
+
+      <Route
+        element={
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/home" element={<MainPage />} />
 
         <Route path="/create-hw" element={<HomeworkCreatePage />} />
         <Route path="/create-project" element={<ProjectCreatePage />} />
@@ -59,6 +84,7 @@ function App() {
           <Route path="saved-job" element={<SavedJobPage />} />
         </Route>
       </Route>
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
