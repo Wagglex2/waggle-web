@@ -3,7 +3,7 @@ import { colors } from '@/styles/theme';
 import { css } from '@emotion/react';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const DropDown = ({
   label,
@@ -17,6 +17,7 @@ const DropDown = ({
 }) => {
   const [openModal, setOpenModal] = useState(false);
   const [selected, setSelected] = useState(prevData?.desc || label);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     if (prevData) setSelected(prevData.desc);
@@ -36,8 +37,22 @@ const DropDown = ({
     setOpenModal(false);
   };
 
+  // 포커스 아웃 시 드롭다운 닫힘
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpenModal(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div css={dropDownBox(buttonWidth)}>
+    <div css={dropDownBox(buttonWidth)} ref={dropdownRef}>
       <button
         css={dropDownBtn(selected, label, isDisable)}
         type="button"
