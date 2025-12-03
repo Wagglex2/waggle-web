@@ -26,7 +26,7 @@ const HomeworkInfo = (props) => {
             </tr>
             <tr>
               <td>우대학년</td>
-              <td>{summary.grades.join(', ')}학년</td>
+              <td>{summary.grades.sort().join(', ')}학년</td>
             </tr>
           </tbody>
         </table>
