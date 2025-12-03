@@ -29,7 +29,7 @@ const filterCatagory = [
 const NotificationPage = () => {
   const [activeFilterIndex, setActiveFilterIndex] = useState(0);
   const [notifications, setNotifications] = useState([]);
-  const [totalPages, setTotalPages] = useState(0);
+  const [pageInfo, setPageInfo] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
 
   // 알림 목록 조회 api
@@ -39,9 +39,8 @@ const NotificationPage = () => {
         const res = await api.get(
           `/api/v1/notifications?category=${filterCatagory[activeFilterIndex].name}&page=${currentPage - 1}&size=8`
         );
-        //console.log('알림 결과', res);
         setNotifications(res.data.data.content);
-        setTotalPages(res.data.data.page.totalPages);
+        setPageInfo(res.data.data.page);
       } catch (e) {
         console.error(e);
       }
@@ -105,7 +104,7 @@ const NotificationPage = () => {
               key={item.desc}
               onClick={() => setActiveFilterIndex(i)}
             >
-              {item.desc} (1)
+              {item.desc}
             </li>
           ))}
         </ul>
@@ -113,7 +112,7 @@ const NotificationPage = () => {
           전체삭제
         </button>
       </header>
-
+      <p css={total}>총 {pageInfo.totalElements}건</p>
       {/* 알림내역 */}
       {notifications.length === 0 ? (
         <p css={noNotificationBox}>조회된 알림이 없습니다.</p>
@@ -121,7 +120,7 @@ const NotificationPage = () => {
         <NotificationList notificationItems={notifications} handleDelete={handleDelete} />
       )}
 
-      {totalPages !== 0 && (
+      {pageInfo.totalPages !== 0 && (
         <Stack
           spacing={2}
           sx={{
@@ -130,7 +129,7 @@ const NotificationPage = () => {
           }}
         >
           <Pagination
-            count={totalPages}
+            count={pageInfo.totalPages}
             page={currentPage}
             onChange={(_, value) => {
               setCurrentPage(value);
@@ -165,14 +164,15 @@ const wrap = css`
 const pageTitle = css`
   font-size: 24px;
   padding: 15px 0;
+  margin-bottom: 40px;
   font-family: 'nanumEB';
-  border-bottom: 1px solid ${colors.gray[100]};
 `;
 
 const contentHeader = css`
   display: flex;
   justify-content: space-between;
-  margin: 20px 0 15px 0;
+  margin: 20px 0 5px 0;
+  border-bottom: 1px solid ${colors.gray[100]};
 `;
 
 const filterBox = css`
@@ -180,6 +180,7 @@ const filterBox = css`
   align-items: center;
   height: 38px;
   border: 1px solid ${colors.gray[200]};
+  border-bottom: none;
   border-top-left-radius: 25px;
   border-top-right-radius: 25px;
   overflow: hidden;
@@ -226,4 +227,13 @@ const noNotificationBox = css`
   vertical-align: middle;
   font-family: 'nanumR';
   color: ${colors.gray[400]};
+`;
+
+const total = css`
+  font-size: 12px;
+  margin-top: 8px;
+  margin-right: 15px;
+  margin-bottom: 7px;
+  text-align: end;
+  color: ${colors.secondary};
 `;
