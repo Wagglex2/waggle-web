@@ -41,9 +41,13 @@ export const useTeamStore = create((set) => ({
     })),
 
   openReview: (team, member) =>
-    set({
-      reviewTarget: { team, member },
-      reviewText: '',
+    set((state) => {
+      const key = `${team.id}_${member.userId}`;
+      const existingText = state.reviews.get(key) || '';
+      return {
+        reviewTarget: { team, member },
+        reviewText: existingText,
+      };
     }),
 
   closeReview: () =>
