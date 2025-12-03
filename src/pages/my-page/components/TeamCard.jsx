@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
 import { css } from '@emotion/react';
-import { useTeamStore, currentUserId } from '../../../stores/useTeamStore';
+import { useTeamStore } from '../../../stores/useTeamStore';
 import api from '@/api/api';
 
 const colors = {
@@ -18,8 +18,15 @@ const colors = {
 };
 
 const TeamCard = ({ team }) => {
-  const { open, toggle, deleteMember, openReview, reviewedMembers, setHoveredMember } =
-    useTeamStore();
+  const {
+    open,
+    toggle,
+    deleteMember,
+    openReview,
+    reviewedMembers,
+    setHoveredMember,
+    currentUserNickname,
+  } = useTeamStore();
 
   const isOpen = open.has(team.id);
   const leaderName = team.leaderNickname;
@@ -73,12 +80,9 @@ const TeamCard = ({ team }) => {
 
       {isOpen &&
         team.members.map((member) => {
-          const isCurrentUser = String(member.userId) === String(currentUserId);
+          const isCurrentUser = member.nickname === currentUserNickname;
           const isMemberLeader = member.nickname === leaderName;
-          const currentUserMember = team.members.find(
-            (m) => String(m.userId) === String(currentUserId)
-          );
-          const currentUserIsLeader = currentUserMember?.nickname === leaderName;
+          const currentUserIsLeader = currentUserNickname === leaderName;
 
           return (
             <div key={member.userId} css={memberRow(isProject)}>

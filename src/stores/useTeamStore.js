@@ -1,18 +1,19 @@
 import { create } from 'zustand';
 
-export const currentUserId = 1;
-
 export const useTeamStore = create((set) => ({
   teams: [],
   open: new Set(),
   reviewedMembers: new Set(),
   reviews: new Map(),
   hoveredMember: null,
+  reviewTarget: null,
+  reviewText: '',
+  currentUserNickname: null,
 
-  setTeams: (teamsData) => set({ teams: teamsData }),
-  setHoveredMember: (member) => set({ hoveredMember: member }),
+  setCurrentUserNickname: (nickname) => set({ currentUserNickname: nickname }),
 
   setTeams: (teams) => set({ teams }),
+
   toggle: (id) =>
     set((state) => {
       const newOpen = new Set(state.open);
@@ -38,12 +39,60 @@ export const useTeamStore = create((set) => ({
           : team
       ),
     })),
-  openReview: (team, member) => set({ reviewModalData: { team, member } }),
-  closeReview: () => set({ reviewModalData: null }),
-  markAsReviewed: (teamId, memberId) =>
+
+  openReview: (team, member) =>
+    set({
+      reviewTarget: { team, member },
+      reviewText: '',
+    }),
+
+  closeReview: () =>
+    set({
+      reviewTarget: null,
+      reviewText: '',
+    }),
+
+  setReviewText: (text) => set({ reviewText: text }),
+
+  saveReview: () =>
     set((state) => {
+      if (!state.reviewTarget) return state;
+
+      const { team, member } = state.reviewTarget;
+      const key = `${team.id}_${member.userId}`;
+
       const newReviewedMembers = new Set(state.reviewedMembers);
-      newReviewedMembers.add(`${teamId}_${memberId}`);
-      return { reviewedMembers: newReviewedMembers };
+      newReviewedMembers.add(key);
+
+      const newReviews = new Map(state.reviews);
+      newReviews.set(key, state.reviewText);
+
+      return {
+        reviewedMembers: newReviewedMembers,
+        reviews: newReviews,
+        reviewTarget: null,
+        reviewText: '',
+      };
+    }),
+
+  deleteReview: () =>
+    set((state) => {
+      if (!state.reviewTarget) return state;
+
+      const { team, member } = state.reviewTarget;
+      const key = `${team.id}_${member.userId}`;
+
+      const newReviewedMembers = new Set(state.reviewedMembers);
+      newReviewedMembers.delete(key);
+
+      const newReviews = new Map(state.reviews);
+      newReviews.delete(key);
+
+      return {
+        reviewedMembers: newReviewedMembers,
+        reviews: newReviews,
+        reviewTarget: null,
+        reviewText: '',
+      };
     }),
 }));
