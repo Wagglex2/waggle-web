@@ -7,6 +7,8 @@ import { usePostedJobsStore } from '../../stores/usePostedJobsStore';
 import ApplicantModal from './components/ApplicationModal';
 import PostedJobCard from './components/PostedJobCard';
 import UserProfileModal from './components/UserProfileModal';
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 
 const colors = {
   border: '#eee6d6',
@@ -25,6 +27,9 @@ const MyPostedJobsPage = () => {
   const [appModal, setAppModal] = useState(null);
   const [profileModal, setProfileModal] = useState({ isOpen: false, user: null });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   const { posts, loading, error, fetchAllPosts, deletePost, acceptApplicant, rejectApplicant } =
     usePostedJobsStore();
 
@@ -34,6 +39,7 @@ const MyPostedJobsPage = () => {
 
   useEffect(() => {
     setOpen(new Set());
+    setCurrentPage(1);
   }, [tab]);
 
   const toggle = (id) => {
@@ -97,6 +103,18 @@ const MyPostedJobsPage = () => {
 
   const filteredPosts = useMemo(() => posts.filter((p) => p.type === tab), [posts, tab]);
 
+  const totalPages = Math.ceil(filteredPosts.length / itemsPerPage);
+  const paginatedPosts = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredPosts.slice(startIndex, endIndex);
+  }, [filteredPosts, currentPage, itemsPerPage]);
+
+  const handlePageChange = (_, value) => {
+    setCurrentPage(value);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const findPostIdByApplicantId = (applicantId) => {
     const post = posts.find((p) => p.applicants?.some((a) => a.id === applicantId));
     return post ? post.id : null;
@@ -122,7 +140,6 @@ const MyPostedJobsPage = () => {
     <div css={wrap}>
       <div css={contentContainer}>
         <h2 css={title}>📝 내가 올린 공고</h2>
-
         <div css={tabs}>
           <button css={tabButton(tab === '프로젝트')} onClick={() => setTab('프로젝트')}>
             프로젝트
@@ -141,25 +158,61 @@ const MyPostedJobsPage = () => {
           <div css={empty}>해당 카테고리의 공고가 없어요.</div>
         )}
 
-        {!loading &&
-          !error &&
-          filteredPosts.map((post) => {
-            const isOpen = open.has(post.id);
+        {!loading && !error && (
+          <>
+            <div css={postListWrapper}>
+              {paginatedPosts.map((post) => {
+                const isOpen = open.has(post.id);
 
-            return (
-              <PostedJobCard
-                key={post.id}
-                post={post}
-                isOpen={isOpen}
-                onToggle={() => toggle(post.id)}
-                onEdit={() => handleEdit(post.id, post.type)}
-                onDelete={() => handleDelete(post.id, post.type)}
-                onRejectApplicant={(applicantId) => handleReject(post.id, applicantId)}
-                onViewApplicant={(applicant) => handleViewApplication(applicant, post.type)}
-                onViewProfile={handleViewProfile}
-              />
-            );
-          })}
+                return (
+                  <PostedJobCard
+                    key={post.id}
+                    post={post}
+                    isOpen={isOpen}
+                    onToggle={() => toggle(post.id)}
+                    onEdit={() => handleEdit(post.id, post.type)}
+                    onDelete={() => handleDelete(post.id, post.type)}
+                    onRejectApplicant={(applicantId) => handleReject(post.id, applicantId)}
+                    onViewApplicant={(applicant) => handleViewApplication(applicant, post.type)}
+                    onViewProfile={handleViewProfile}
+                  />
+                );
+              })}
+            </div>
+
+            {totalPages > 0 && (
+              <Stack spacing={2} sx={{ alignItems: 'center', mt: 4, mb: 4 }}>
+                <Pagination
+                  count={totalPages}
+                  page={currentPage}
+                  onChange={handlePageChange}
+                  sx={{
+                    '& .MuiPaginationItem-root': {
+                      fontFamily: 'nanumR, sans-serif',
+                      color: '#888',
+                      borderRadius: '50%',
+                      margin: '0 2px',
+                      '&:hover': {
+                        backgroundColor: '#f5f5f5',
+                      },
+                      '&.Mui-selected': {
+                        backgroundColor: '#E0E0E0',
+                        color: '#333',
+                        fontWeight: 'bold',
+                        '&:hover': {
+                          backgroundColor: '#d0d0d0',
+                        },
+                      },
+                    },
+                    '& .MuiPaginationItem-icon': {
+                      fontSize: '1.2rem',
+                    },
+                  }}
+                />
+              </Stack>
+            )}
+          </>
+        )}
       </div>
 
       <ApplicantModal
@@ -222,4 +275,10 @@ const empty = css`
   padding: 24px;
   color: ${colors.muted};
   text-align: center;
+`;
+
+const postListWrapper = css`
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
 `;

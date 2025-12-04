@@ -7,6 +7,8 @@ import TeamCard from './components/TeamCard';
 import ReviewModal from './components/ReviewModal';
 import UserProfileModal from './components/UserProfileModal';
 import api from '@/api/api';
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 
 const colors = {
   border: '#eee6d6',
@@ -26,6 +28,10 @@ const TAB_MAP = {
 const MyTeamPage = () => {
   const [tab, setTab] = useState('프로젝트');
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const itemsPerPage = 5;
+
   const teams = useTeamStore((state) => state.teams);
   const setTeams = useTeamStore((state) => state.setTeams);
   const setCurrentUserNickname = useTeamStore((state) => state.setCurrentUserNickname);
@@ -39,7 +45,6 @@ const MyTeamPage = () => {
       try {
         const response = await api.get('/api/v1/users/me');
         const userData = response.data.data || response.data;
-
         if (userData.nickname) {
           setCurrentUserNickname(userData.nickname);
         }
@@ -47,9 +52,12 @@ const MyTeamPage = () => {
         console.error(error);
       }
     };
-
     fetchCurrentUser();
   }, [setCurrentUserNickname]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [tab]);
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -58,21 +66,37 @@ const MyTeamPage = () => {
 
       setIsLoading(true);
       try {
-        const response = await api.get(`/api/v1/teams/me?size=5&category=${apiCategory}`);
-        const fetchedTeams = response.data.data.content || [];
-        setTeams(fetchedTeams);
+        const response = await api.get(
+          `/api/v1/teams/me?page=${currentPage - 1}&size=${itemsPerPage}&category=${apiCategory}`
+        );
+        const responseBody = response.data;
+        const data = responseBody.data || responseBody;
+
+        const content = data.content || data.teamList || [];
+        setTeams(content);
+
+        const foundTotalPages =
+          data.totalPages || data.page?.totalPages || responseBody.pageInfo?.totalPages || 0;
+
+        setTotalPages(foundTotalPages);
       } catch (error) {
         setTeams([]);
+        setTotalPages(0);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchTeams();
-  }, [tab, setTeams]);
+  }, [tab, currentPage, setTeams]);
 
   const handleCloseModal = () => {
     setHoveredMember(null);
+  };
+
+  const handlePageChange = (_, value) => {
+    setCurrentPage(value);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -97,7 +121,45 @@ const MyTeamPage = () => {
         ) : teams.length === 0 ? (
           <div css={empty}>해당 카테고리의 팀이 없어요.</div>
         ) : (
-          teams.map((team) => <TeamCard key={team.id} team={team} />)
+          <>
+            <div css={teamListWrapper}>
+              {teams.map((team) => (
+                <TeamCard key={team.id} team={team} />
+              ))}
+            </div>
+
+            {totalPages > 0 && (
+              <Stack spacing={2} sx={{ alignItems: 'center', mt: 4, mb: 4 }}>
+                <Pagination
+                  count={totalPages}
+                  page={currentPage}
+                  onChange={handlePageChange}
+                  sx={{
+                    '& .MuiPaginationItem-root': {
+                      fontFamily: 'nanumR, sans-serif',
+                      color: '#888',
+                      borderRadius: '50%',
+                      margin: '0 2px',
+                      '&:hover': {
+                        backgroundColor: '#f5f5f5',
+                      },
+                      '&.Mui-selected': {
+                        backgroundColor: '#E0E0E0',
+                        color: '#333',
+                        fontWeight: 'bold',
+                        '&:hover': {
+                          backgroundColor: '#d0d0d0',
+                        },
+                      },
+                    },
+                    '& .MuiPaginationItem-icon': {
+                      fontSize: '1.2rem',
+                    },
+                  }}
+                />
+              </Stack>
+            )}
+          </>
         )}
 
         <ReviewModal />
@@ -155,4 +217,10 @@ const empty = css`
   padding: 24px;
   color: ${colors.muted};
   text-align: center;
+`;
+
+const teamListWrapper = css`
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
 `;
