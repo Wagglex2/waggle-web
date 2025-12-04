@@ -20,6 +20,12 @@ const colors = {
   primary: '#FFCC00',
 };
 
+const TAB_MAP = {
+  프로젝트: 'PROJECT',
+  과제: 'ASSIGNMENT',
+  스터디: 'STUDY',
+};
+
 const MyPostedJobsPage = () => {
   const navigate = useNavigate();
   const [tab, setTab] = useState('프로젝트');
@@ -57,37 +63,28 @@ const MyPostedJobsPage = () => {
       스터디: `/edit-study/${postId}`,
     };
 
-    const target = routes[postType];
+    const koreanKey = Object.keys(TAB_MAP).find((key) => TAB_MAP[key] === postType) || postType;
+    const target = routes[postType] || routes[koreanKey];
+
     if (target) {
-      navigate(target, {
-        state: {
-          editMode: true,
-          postId: postId,
-        },
-      });
+      navigate(target, { state: { editMode: true, postId } });
     } else {
       alert('수정 페이지 경로를 찾을 수 없습니다.');
     }
   };
 
   const handleDelete = async (postId, postType) => {
-    if (window.confirm('정말 삭제하시겠습니까?')) {
-      await deletePost(postId, postType);
-    }
+    if (window.confirm('정말 삭제하시겠습니까?')) await deletePost(postId, postType);
   };
 
   const handleReject = async (postId, applicantId) => {
     if (appModal) setAppModal(null);
-    if (window.confirm('지원자를 거절하시겠습니까?')) {
-      await rejectApplicant(postId, applicantId);
-    }
+    if (window.confirm('지원자를 거절하시겠습니까?')) await rejectApplicant(postId, applicantId);
   };
 
   const handleAccept = async (postId, applicantId) => {
     const success = await acceptApplicant(postId, applicantId);
-    if (success && appModal) {
-      setAppModal(null);
-    }
+    if (success && appModal) setAppModal(null);
   };
 
   const handleViewApplication = (applicant, postType) => {
@@ -101,9 +98,17 @@ const MyPostedJobsPage = () => {
   const closeModal = () => setAppModal(null);
   const closeProfileModal = () => setProfileModal({ isOpen: false, user: null });
 
-  const filteredPosts = useMemo(() => posts.filter((p) => p.type === tab), [posts, tab]);
+  const filteredPosts = useMemo(() => {
+    return posts.filter((p) => {
+      if (!p.type) return false;
+      const type = p.type.toUpperCase();
+      const target = TAB_MAP[tab] ? TAB_MAP[tab].toUpperCase() : tab;
+      return p.type === tab || type === target;
+    });
+  }, [posts, tab]);
 
   const totalPages = Math.ceil(filteredPosts.length / itemsPerPage);
+
   const paginatedPosts = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -123,17 +128,13 @@ const MyPostedJobsPage = () => {
   const handleModalReject = () => {
     if (!appModal) return;
     const postId = findPostIdByApplicantId(appModal.id);
-    if (postId) {
-      handleReject(postId, appModal.id);
-    }
+    if (postId) handleReject(postId, appModal.id);
   };
 
   const handleModalAccept = () => {
     if (!appModal) return;
     const postId = findPostIdByApplicantId(appModal.id);
-    if (postId) {
-      handleAccept(postId, appModal.id);
-    }
+    if (postId) handleAccept(postId, appModal.id);
   };
 
   return (
@@ -163,7 +164,6 @@ const MyPostedJobsPage = () => {
             <div css={postListWrapper}>
               {paginatedPosts.map((post) => {
                 const isOpen = open.has(post.id);
-
                 return (
                   <PostedJobCard
                     key={post.id}
@@ -192,21 +192,15 @@ const MyPostedJobsPage = () => {
                       color: '#888',
                       borderRadius: '50%',
                       margin: '0 2px',
-                      '&:hover': {
-                        backgroundColor: '#f5f5f5',
-                      },
+                      '&:hover': { backgroundColor: '#f5f5f5' },
                       '&.Mui-selected': {
                         backgroundColor: '#E0E0E0',
                         color: '#333',
                         fontWeight: 'bold',
-                        '&:hover': {
-                          backgroundColor: '#d0d0d0',
-                        },
+                        '&:hover': { backgroundColor: '#d0d0d0' },
                       },
                     },
-                    '& .MuiPaginationItem-icon': {
-                      fontSize: '1.2rem',
-                    },
+                    '& .MuiPaginationItem-icon': { fontSize: '1.2rem' },
                   }}
                 />
               </Stack>
