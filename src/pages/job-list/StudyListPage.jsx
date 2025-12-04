@@ -1,6 +1,7 @@
 /** @jsxRuntime automatic */
 /** @jsxImportSource @emotion/react */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom"; 
 import PageWrapper from "@/components/layout/PageWrapper";
 import PageHeader from "@/components/layout/PageHeader";
 import FilterBar from "@/components/layout/FilterBar";
@@ -10,8 +11,6 @@ import EmptyStateMessage from "@/components/common/EmptyStateMessage";
 import { useDropdown } from "@/components/filter/useDropdown";
 import useStudyStore from "@/stores/useStudyStore";
 import api from '@/api/api'; 
-
-// Material UI 페이지네이션
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
 
@@ -23,10 +22,6 @@ import {
   customCheckboxStyle,
   dropDownMenuItemStyle
 } from "@/components/filter/dropdownStyles";
-
-// ==========================================
-// [1] 데이터 매핑 상수 정의
-// ==========================================
 
 const TECH_STACK_LIST = [
   "HTML", "CSS", "JAVASCRIPT", "JAVA", "KOTLIN", "PYTHON", "SWIFT", 
@@ -59,8 +54,9 @@ const TECH_ICON_MAP = {
 export default function StudyListPage() {
   const itemsPerPage = 9;
   const { openDropdown, setOpenDropdown, dropdownRefs } = useDropdown();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isHistoryPushedRef = useRef(false);
 
-  // 상태 관리
   const [studies, setStudies] = useState([]); 
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -71,31 +67,94 @@ export default function StudyListPage() {
     currentPage,
     toggleTech,
     setPage,
-    reset
+    reset,
   } = useStudyStore();
 
   useEffect(() => {
     return () => reset();
   }, [reset]);
 
+  useEffect(() => {
+    const pageParam = searchParams.get('page');
+    const skillsParam = searchParams.get('skills');
+    const statusParam = searchParams.get('status');
+    const targetPage = pageParam ? parseInt(pageParam, 10) : 1;
+    if (currentPage !== targetPage) {
+      setPage(targetPage);
+    }
+
+    const targetStatus = statusParam === 'CLOSED';
+    if (isClosed !== targetStatus) {
+      setIsClosed(targetStatus);
+    }
+
+    const targetTechs = skillsParam ? skillsParam.split(',') : [];
+    const isDifferent = 
+      selectedTechs.length !== targetTechs.length || 
+      !targetTechs.every(t => selectedTechs.includes(t));
+
+    if (isDifferent) {
+      reset(); 
+      targetTechs.forEach(tech => {
+        toggleTech(tech); 
+      });
+      setPage(targetPage);
+    }
+  }, [searchParams]); 
+
+
   const handleTechSelect = (tech) => {
     toggleTech(tech); 
-    setPage(1); 
+
+    const nextTechs = selectedTechs.includes(tech)
+      ? selectedTechs.filter(t => t !== tech)
+      : [...selectedTechs, tech];
+
+    const params = { page: 1 };
+    if (nextTechs.length > 0) {
+      params.skills = nextTechs.join(',');
+    }
+    if (isClosed) {
+      params.status = 'CLOSED';
+    }
+
+    if (!isHistoryPushedRef.current) {
+      setSearchParams(params, { replace: false });
+      isHistoryPushedRef.current = true; 
+    } else {
+
+      setSearchParams(params, { replace: true });
+    }
   };
 
   const handleToggle = (newState) => {
     setIsClosed(newState);
-    setPage(1);
+    
+    const params = { page: 1 };
+    if (selectedTechs.length > 0) {
+      params.skills = selectedTechs.join(',');
+    }
+    if (newState) {
+      params.status = 'CLOSED';
+    }
+
+    setSearchParams(params, { replace: false });
   };
 
-  // ==========================================
-  // [2] API 호출 및 데이터 가공
-  // ==========================================
+  const handleDropdownClick = () => {
+    if (openDropdown === "tech") {
+      setOpenDropdown(null);
+    } else {
+      setOpenDropdown("tech");
+      isHistoryPushedRef.current = false;
+    }
+  };
+
+
   useEffect(() => {
     const fetchStudies = async () => {
       setIsLoading(true);
       try {
-        // 1. 파라미터 구성
         const params = {
           page: currentPage - 1,
           size: itemsPerPage,
@@ -109,13 +168,11 @@ export default function StudyListPage() {
           params.skills = selectedTechs.join(',');
         }
 
-        // 2. API 호출
         const response = await api.get('/api/v1/studies', { params });
         
         const content = response.data.data?.content || [];
         const totalPageCount = response.data.data?.page?.totalPages || response.data.data?.totalPages || 0;
 
-        // 3. 데이터 매핑
         const mappedStudies = content.map((item) => {
            const extractValue = (data) => {
              if (!data) return null;
@@ -125,16 +182,10 @@ export default function StudyListPage() {
 
            const normalizeTech = (tech) => {
               if (!tech) return "";
-              
               let rawName = (typeof tech === 'object' ? tech.name : tech) || "";
               if (typeof rawName !== 'string') return "";
-
               rawName = rawName.toString().toUpperCase(); 
-              
-              if (TECH_ICON_MAP[rawName]) {
-                return TECH_ICON_MAP[rawName];
-              }
-
+              if (TECH_ICON_MAP[rawName]) return TECH_ICON_MAP[rawName];
               return rawName.replace(/\s+/g, '_'); 
            };
 
@@ -146,13 +197,10 @@ export default function StudyListPage() {
             deadline: item.deadline,
             author: item.authorNickname || "익명",
             authorProfileImageUrl: item.authorProfileImageUrl,
-            
             purposeTag: "스터디", 
             methodTag: extractValue(item.meetingType) || "미정", 
             status: item.status?.name || "RECRUITING",
             techStack: techStack, 
-
-            // ★ [추가됨] 찜 관련 정보 매핑
             bookmarked: item.bookmarked, 
             bookmarkId: item.bookmarkId, 
           };
@@ -174,13 +222,25 @@ export default function StudyListPage() {
   }, [currentPage, selectedTechs, setPage, isClosed]);
 
 
+  const handlePageChange = (pageNumber) => {
+    const params = { page: pageNumber };
+    if (selectedTechs.length > 0) {
+      params.skills = selectedTechs.join(',');
+    }
+    if (isClosed) {
+      params.status = 'CLOSED';
+    }
+    setSearchParams(params); 
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <PageWrapper>
       <PageHeader title="스터디" />
       
       <FilterBar isClosed={isClosed} onToggle={handleToggle}>
         <div css={dropdownContainerStyle} ref={el => dropdownRefs.current['tech'] = el}>
-          <button css={dropDownButtonStyle("120px", selectedTechs.length > 0)} onClick={() => setOpenDropdown(openDropdown === "tech" ? null : "tech")}>
+          <button css={dropDownButtonStyle("120px", selectedTechs.length > 0)} onClick={handleDropdownClick}>
             <span>{selectedTechs.length > 0 ? `기술 ${selectedTechs.length}` : '기술'}</span>
             <ArrowIcon />
           </button>
@@ -198,7 +258,7 @@ export default function StudyListPage() {
       </FilterBar>
     
       {isLoading ? (
-        <EmptyStateMessage message="데이터를 불러오는 중입니다..." />
+        <EmptyStateMessage message="데이터를 불러오는 중입니다." />
       ) : studies.length === 0 ? (
         <EmptyStateMessage message="일치하는 스터디가 없습니다." />
       ) : (
@@ -214,10 +274,7 @@ export default function StudyListPage() {
               <Pagination
                 count={totalPages}
                 page={currentPage}
-                onChange={(_, value) => {
-                  setPage(value);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
+                onChange={(_, value) => handlePageChange(value)}
               />
             </Stack>
           )}
