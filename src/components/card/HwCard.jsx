@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { colors } from "@/styles/theme";
 import api from "@/api/api";
 
@@ -186,6 +186,7 @@ const HeartIcon = ({ isLiked }) => (
 
 export default function HwCard({ project, onUnlike }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [isLiked, setIsLiked] = useState(project.bookmarked);
   const [bookmarkId, setBookmarkId] = useState(project.bookmarkId);
@@ -231,7 +232,9 @@ export default function HwCard({ project, onUnlike }) {
   };
   
   const handleCardClick = () => {
-    navigate(`/hw-list/${project.id}`);
+    navigate(`/hw-list/${project.id}`, {
+      state: { prevParams: location.search }
+    });
   };
 
   return (
