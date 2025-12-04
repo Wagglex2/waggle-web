@@ -20,7 +20,8 @@ const techStackOptions = [
   'C',
   'C++',
   'C#',
-  'HTML/CSS',
+  'HTML',
+  'CSS',
   'TypeScript',
   'JavaScript',
   'Kotlin',
@@ -44,7 +45,8 @@ const techStackOptions = [
   'MySQL',
   'MongoDB',
   'Redis',
-  'Git/GitHub',
+  'Git',
+  'GitHub',
   'GitHub Actions',
   'Docker',
   'Figma',
@@ -205,8 +207,6 @@ const UserInfoModal = ({ setOpenModal, onSave }) => {
         const response = await api.get('/api/v1/users/basic-info');
         const data = response.data.data || response.data;
 
-        console.log('Loading user info in modal:', data);
-
         if (data.grade) setSelectedGrade(data.grade);
         if (data.shortIntro) setIntro(data.shortIntro);
       } catch (error) {
@@ -247,8 +247,11 @@ const UserInfoModal = ({ setOpenModal, onSave }) => {
 
     const toServerEnum = (str) => {
       const specialMap = {
-        'C/C++': 'C_CPP',
+        'C++': 'CPP',
         'C#': 'CSHARP',
+        'Next.js': 'NEXT_JS',
+        'Vue.js': 'VUE_JS',
+        'Node.js': 'NODE_JS',
       };
       if (specialMap[str]) return specialMap[str];
       return str.toUpperCase().replace(/[\s.]/g, '_');
@@ -263,8 +266,6 @@ const UserInfoModal = ({ setOpenModal, onSave }) => {
 
     try {
       const response = await api.patch('/api/v1/users/basic-info', userData);
-
-      console.log('Success:', response.data);
 
       if (onSave) {
         await onSave(userData);

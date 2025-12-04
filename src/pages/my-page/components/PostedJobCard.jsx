@@ -1,13 +1,94 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import UserProfileModal from './UserProfileModal';
+import api from '@/api/api';
 
 const colors = {
   border: '#eee6d6',
   text: '#3a3a3a',
   muted: '#8f8678',
+};
+
+const defaultImgUrl =
+  'https://waggle-image-bucket.s3.ap-northeast-2.amazonaws.com/user-profile-images/default-profile-image.png';
+
+const ApplicantRow = ({ applicant, onClickName, onReject, onView }) => {
+  const [userInfo, setUserInfo] = useState({
+    name: applicant.name || applicant.nickname || '익명',
+    profileImageUrl: defaultImgUrl,
+    color: applicant.color,
+  });
+
+  useEffect(() => {
+    const rawUser = applicant.user || applicant;
+
+    const initialImg =
+      rawUser.profileImageUrl || rawUser.profileImage || rawUser.avatar || rawUser.imgUrl;
+
+    if (initialImg) {
+      setUserInfo((prev) => ({ ...prev, profileImageUrl: initialImg }));
+    } else {
+      const targetId = rawUser.userId || rawUser.applicantId;
+
+      if (targetId) {
+        api
+          .get(`/api/v1/users/${targetId}`)
+          .then((res) => {
+            const data = res.data.data || res.data;
+            const fetchedImg =
+              data.profileImageUrl || data.profileImage || data.imgUrl || defaultImgUrl;
+
+            setUserInfo((prev) => ({
+              ...prev,
+              profileImageUrl: fetchedImg,
+            }));
+          })
+          .catch(() => {});
+      }
+    }
+  }, [applicant]);
+
+  return (
+    <div css={memberRow}>
+      <div css={dot(userInfo.color)}>
+        <img
+          src={userInfo.profileImageUrl}
+          alt={userInfo.name}
+          onError={(e) => {
+            e.target.src = defaultImgUrl;
+          }}
+        />
+      </div>
+      <button type="button" css={memberNameButton} onClick={(e) => onClickName(e, applicant)}>
+        {userInfo.name}
+      </button>
+      <span css={applicationDate}>
+        {applicant.applicationDate ? applicant.applicationDate.split(' ')[0] : ''}
+      </span>
+      <div css={memberActions}>
+        <button
+          css={rejectBtn}
+          onClick={(e) => {
+            e.stopPropagation();
+            onReject(applicant.id);
+          }}
+        >
+          거절하기
+        </button>
+        <button
+          css={viewBtn}
+          onClick={(e) => {
+            e.stopPropagation();
+            onView(applicant);
+          }}
+        >
+          지원서보기
+        </button>
+      </div>
+    </div>
+  );
 };
 
 const PostedJobCard = ({
@@ -25,9 +106,13 @@ const PostedJobCard = ({
     e.preventDefault();
     e.stopPropagation();
 
+    const targetUser = applicant.user || applicant;
     const formattedUser = {
       ...applicant,
-      nickname: applicant.name,
+      ...targetUser,
+      nickname: targetUser.nickname || targetUser.name || applicant.name,
+      userId: targetUser.userId || targetUser.applicantId || targetUser.id,
+      profileImageUrl: targetUser.profileImageUrl || targetUser.profileImage || defaultImgUrl,
     };
 
     setSelectedApplicant(formattedUser);
@@ -70,37 +155,13 @@ const PostedJobCard = ({
         <div css={postContent}>
           {post.applicants.length > 0 ? (
             post.applicants.map((applicant) => (
-              <div css={memberRow} key={applicant.id}>
-                <div css={dot(applicant.color)}>{applicant.avatar}</div>
-                <button
-                  type="button"
-                  css={memberNameButton}
-                  onClick={(e) => handleApplicantClick(e, applicant)}
-                >
-                  {applicant.name}
-                </button>
-                <span css={applicationDate}>{applicant.applicationDate.split(' ')[0]}</span>
-                <div css={memberActions}>
-                  <button
-                    css={rejectBtn}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onRejectApplicant(applicant.id);
-                    }}
-                  >
-                    거절하기
-                  </button>
-                  <button
-                    css={viewBtn}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onViewApplicant(applicant);
-                    }}
-                  >
-                    지원서보기
-                  </button>
-                </div>
-              </div>
+              <ApplicantRow
+                key={applicant.id}
+                applicant={applicant}
+                onClickName={handleApplicantClick}
+                onReject={onRejectApplicant}
+                onView={onViewApplicant}
+              />
             ))
           ) : (
             <div
@@ -128,8 +189,6 @@ const PostedJobCard = ({
 };
 
 export default PostedJobCard;
-
-// --- CSS Styles ---
 
 const postCard = css`
   background: #fff;

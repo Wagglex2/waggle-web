@@ -1,8 +1,9 @@
 /** @jsxImportSource @emotion/react */
 /** @jsxRuntime automatic */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { css } from '@emotion/react';
+import api from '@/api/api';
 
 const defaultImgUrl =
   'https://waggle-image-bucket.s3.ap-northeast-2.amazonaws.com/user-profile-images/default-profile-image.png';
@@ -39,11 +40,50 @@ const positionMap = {
 
 const UserProfileModal = ({ isOpen, onClose, user }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [extendedUser, setExtendedUser] = useState(null);
   const reviewsPerPage = 3;
 
-  if (!isOpen || !user) return null;
+  useEffect(() => {
+    if (isOpen && user) {
+      // 1. 일단 리스트에서 받은 정보로 먼저 보여줍니다 (빠른 반응성)
+      setExtendedUser(user);
 
-  const reviews = user.reviews || [];
+      // 2. 중요: 조건(if) 없이 무조건 상세 정보를 다시 조회합니다.
+      // 리스트에는 기술(skills)이 1개만 있거나 이미지가 없을 수 있기 때문입니다.
+      const targetId = user.applicantId || user.id || user.userId;
+
+      if (targetId) {
+        const fetchDetail = async () => {
+          try {
+            const response = await api.get(`/api/v1/users/${targetId}`);
+            const detailData = response.data.data || response.data;
+
+            // 가져온 상세 정보로 덮어씌웁니다.
+            setExtendedUser((prev) => ({
+              ...prev,
+              ...detailData,
+              // 상세 조회된 skills나 tags가 우선순위를 갖도록 덮어씌움
+              skills: detailData.skills || detailData.tags || prev.skills,
+              profileImageUrl:
+                detailData.profileImageUrl || detailData.profileImage || prev.profileImageUrl,
+            }));
+          } catch (err) {
+            console.error(err);
+          }
+        };
+        fetchDetail();
+      }
+    } else {
+      setExtendedUser(null);
+    }
+  }, [isOpen, user]);
+
+  if (!isOpen || !extendedUser) return null;
+
+  // 데이터 구조 평탄화 (user.user 같은 중첩 구조 대응)
+  const targetUser = extendedUser.user || extendedUser.member || extendedUser;
+
+  const reviews = targetUser.reviews || [];
   const hasReviews = reviews.length > 0;
 
   const indexOfLastReview = currentPage * reviewsPerPage;
@@ -61,13 +101,29 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
   };
 
   let displayPosition = '';
-  if (user.position) {
-    if (typeof user.position === 'object') {
-      displayPosition = user.position.desc || user.position.name;
+  const rawPosition = targetUser.position;
+  if (rawPosition) {
+    if (typeof rawPosition === 'object') {
+      displayPosition = rawPosition.desc || rawPosition.name;
     } else {
-      displayPosition = positionMap[user.position] || user.position;
+      displayPosition = positionMap[rawPosition] || rawPosition;
     }
   }
+
+  // 가능한 모든 이미지 변수명 체크
+  const profileSrc =
+    targetUser.profileImageUrl ||
+    targetUser.profileImage ||
+    targetUser.imgUrl ||
+    targetUser.imageUrl ||
+    targetUser.avatar ||
+    defaultImgUrl;
+
+  const nickname = targetUser.nickname || '익명';
+  const bio = targetUser.bio || '';
+
+  // 기술 스택 (skills 또는 tags)
+  const tags = targetUser.skills || targetUser.tags || [];
 
   return ReactDOM.createPortal(
     <div css={overlay} onClick={handleClose}>
@@ -93,25 +149,31 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
             <div css={avatarSection}>
               <div className="avatar-circle">
                 <img
-                  src={user.profileImageUrl || user.profileImage || defaultImgUrl}
-                  alt={`${user.nickname} Avatar`}
+                  src={profileSrc}
+                  alt={`${nickname} Avatar`}
                   className="avatar-image"
+                  onError={(e) => {
+                    e.target.src = defaultImgUrl;
+                  }}
                 />
               </div>
-              <h2 className="user-name">{user.nickname}</h2>
+              <h2 className="user-name">{nickname}</h2>
             </div>
             <div css={infoSection}>
               <div className="tag-list">
                 {displayPosition && <span css={[tagBase, roleTag]}>#{displayPosition}</span>}
 
-                {user.tags &&
-                  user.tags.slice(0, 4).map((tag, idx) => (
-                    <span key={idx} css={[tagBase, skillTag]}>
-                      #{tag}
-                    </span>
-                  ))}
+                {Array.isArray(tags) &&
+                  tags.slice(0, 4).map((tag, idx) => {
+                    const tagName = typeof tag === 'object' ? tag.name || tag.desc : tag;
+                    return (
+                      <span key={idx} css={[tagBase, skillTag]}>
+                        #{tagName}
+                      </span>
+                    );
+                  })}
               </div>
-              <p className="user-bio">{user.bio}</p>
+              <p className="user-bio">{bio}</p>
             </div>
           </div>
 
@@ -171,7 +233,7 @@ const overlay = css`
   background-color: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(3px);
   padding: 16px;
-  font-family: 'Inter', 'NanumSquareRound', sans-serif;
+  font-family: 'nanumR', 'NanumSquareRound', sans-serif;
   opacity: 0;
   animation: fadeIn 0.3s forwards;
 
@@ -287,21 +349,12 @@ const avatarSection = css`
     object-fit: cover;
   }
 
-  .avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: ${colors.gray.placeholder};
-  }
-
   .user-name {
     font-size: 24px;
     font-weight: 700;
     color: ${colors.gray[800]};
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: 'nanumB', sans-serif;
     white-space: nowrap;
     text-align: center;
   }
