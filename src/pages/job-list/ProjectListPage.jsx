@@ -1,6 +1,7 @@
 /** @jsxRuntime automatic */
 /** @jsxImportSource @emotion/react */
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import PageWrapper from "@/components/layout/PageWrapper";
 import PageHeader from "@/components/layout/PageHeader";
 import FilterBar from "@/components/layout/FilterBar";
@@ -77,7 +78,7 @@ const purposeOptions = Object.keys(PURPOSE_MAP);
 export default function ProjectListPage() {
   const itemsPerPage = 9;
   const { openDropdown, setOpenDropdown, dropdownRefs } = useDropdown();
-
+  const [searchParams, setSearchParams] = useSearchParams();
   const [projects, setProjects] = useState([]); 
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -100,15 +101,25 @@ export default function ProjectListPage() {
     return () => reset();
   }, [reset]);
 
+  useEffect(() => {
+    const pageParam = searchParams.get('page');
+    const targetPage = pageParam ? parseInt(pageParam, 10) : 1;
+
+    if (currentPage !== targetPage) {
+      setPage(targetPage);
+    }
+  }, [searchParams, setPage, currentPage]);
+
+
   const handlePurposeClick = (option) => {
     setPurpose(option);
     setOpenDropdown(null);
-    setPage(1); 
+    setSearchParams({ page: 1 });
   };
 
   const handleToggle = (newState) => {
     setIsClosed(newState); 
-    setPage(1);
+    setSearchParams({ page: 1 });
   };
 
   useEffect(() => {
@@ -193,9 +204,8 @@ export default function ProjectListPage() {
 
   }, [currentPage, selectedPurpose, selectedTechs, selectedPositions, hasSelectedPurpose, setPage, isClosed]);
 
-
   const handlePageChange = (pageNumber) => {
-    setPage(pageNumber);
+    setSearchParams({ page: pageNumber });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -228,7 +238,10 @@ export default function ProjectListPage() {
           {openDropdown === 'tech' && (
             <ul css={techDropDownMenuStyle}>
               {TECH_STACK_LIST.map(option => (
-                <li key={option} css={dropDownMenuItemStyle(selectedTechs.includes(option), true)} onClick={() => { toggleTech(option); setPage(1); }}>
+                <li key={option} css={dropDownMenuItemStyle(selectedTechs.includes(option), true)} onClick={() => { 
+                    toggleTech(option); 
+                    setSearchParams({ page: 1 }); 
+                }}>
                   <input type="checkbox" css={customCheckboxStyle} checked={selectedTechs.includes(option)} readOnly />
                   <label>{TECH_STACK_DISPLAY_MAP[option] || option}</label>
                 </li>
@@ -245,7 +258,10 @@ export default function ProjectListPage() {
           {openDropdown === 'position' && (
             <ul css={dropDownMenuStyle}> 
               {positionOptions.map(option => (
-                <li key={option} css={dropDownMenuItemStyle(selectedPositions.includes(option), false)} onClick={() => { togglePosition(option); setPage(1); }}>
+                <li key={option} css={dropDownMenuItemStyle(selectedPositions.includes(option), false)} onClick={() => { 
+                    togglePosition(option); 
+                    setSearchParams({ page: 1 }); 
+                }}>
                   {option}
                 </li>
               ))}
@@ -271,10 +287,7 @@ export default function ProjectListPage() {
               <Pagination 
                 count={totalPages} 
                 page={currentPage} 
-                onChange={(_, value) => {
-                  setPage(value);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }} 
+                onChange={(_, value) => handlePageChange(value)} 
               />
             </Stack>
           )}
