@@ -132,9 +132,8 @@ export default function SavedJobsPage() {
           title: item.title,
           deadline: item.deadline,
           author: item.authorNickname || "익명",
-          // ✅ [수정됨] 이 부분이 빠져 있어서 이미지가 안 떴습니다! 추가 완료.
           authorProfileImageUrl: item.authorProfileImageUrl, 
-          purposeTag: extractValue(item.category) || extractValue(item.purpose) || "기타",
+          purposeTag: extractValue(item.purpose) || extractValue(item.category) || "기타",
           status: extractValue(item.status) || "RECRUITING",
           
           bookmarked: true, 
