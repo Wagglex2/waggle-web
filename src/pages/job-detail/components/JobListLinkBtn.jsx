@@ -10,11 +10,20 @@ const categoryPath = {
   스터디: '/study-list',
 };
 
-const JobListLinkBtn = ({ category }) => {
+const JobListLinkBtn = ({ category, onClick }) => {
   const navigate = useNavigate();
 
+  // 버튼 클릭 핸들러
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+      return;
+    }
+    navigate(categoryPath[category]);
+  };
+
   return (
-    <button css={navBtn} type="button" onClick={() => navigate(categoryPath[category])}>
+    <button css={navBtn} type="button" onClick={handleClick}>
       <IoIosArrowBack />
       {category} 목록보기
     </button>
@@ -33,4 +42,5 @@ const navBtn = css`
   padding: 10px 10px;
   display: flex;
   align-items: center;
+  cursor: pointer;
 `;
