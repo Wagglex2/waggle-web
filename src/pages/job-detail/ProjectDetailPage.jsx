@@ -15,6 +15,7 @@ const ProjectDetailPage = () => {
   const defaultImgUrl =
     'https://waggle-image-bucket.s3.ap-northeast-2.amazonaws.com/user-profile-images/default-profile-image.png';
 
+  // 공고 기본 데이터
   const [metaData, setMataData] = useState({
     imgUrl: defaultImgUrl,
     recruiterId: -1,
@@ -30,6 +31,7 @@ const ProjectDetailPage = () => {
     id: -1,
   });
 
+  // 공고 요약
   const [summary, setSummary] = useState({
     purpose: '',
     meetingType: '',
@@ -40,8 +42,8 @@ const ProjectDetailPage = () => {
     techStack: [],
   });
 
+  // 공고 상세
   const [projectDetail, setProjectDetail] = useState('');
-
   const handleListBtnClick = () => {
     const prevParams = location.state?.prevParams;
 
