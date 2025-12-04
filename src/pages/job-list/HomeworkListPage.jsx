@@ -1,6 +1,7 @@
 /** @jsxRuntime automatic */
 /** @jsxImportSource @emotion/react */
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import PageWrapper from "@/components/layout/PageWrapper";
 import PageHeader from "@/components/layout/PageHeader";
 import FilterBar from "@/components/layout/FilterBar";
@@ -32,6 +33,7 @@ const gradeOptions = ["전체", "1학년", "2학년", "3학년", "4학년 이상
 export default function HwListPage() {
   const itemsPerPage = 9;
   const { openDropdown, setOpenDropdown, dropdownRefs } = useDropdown();
+  const [searchParams, setSearchParams] = useSearchParams();
   
   const [homeworks, setHomeworks] = useState([]); 
   const [totalPages, setTotalPages] = useState(0);
@@ -51,31 +53,92 @@ export default function HwListPage() {
     return () => reset();
   }, [reset]);
 
+  const isGradeActive = hasSelectedGrade && selectedGrade !== '전체';
+
+  useEffect(() => {
+    const pageParam = searchParams.get('page');
+    const gradesParam = searchParams.get('grades');
+    const statusParam = searchParams.get('status');
+
+    const targetPage = pageParam ? parseInt(pageParam, 10) : 1;
+    if (currentPage !== targetPage) {
+      setPage(targetPage);
+    }
+
+    const targetStatus = statusParam === 'CLOSED';
+    if (isClosed !== targetStatus) {
+      setIsClosed(targetStatus);
+    }
+
+    const targetGradeLabel = Object.keys(GRADE_MAP).find(key => String(GRADE_MAP[key]) === gradesParam) || '전체';
+    if (selectedGrade !== targetGradeLabel) {
+      setGrade(targetGradeLabel);
+    }
+
+  }, [searchParams, currentPage, isClosed, selectedGrade, setPage, setGrade]);
+
   const handleGradeSelect = (grade) => {
     setGrade(grade);
     setOpenDropdown(null);
-    setPage(1); 
+    
+    const params = { page: 1 };
+    if (grade !== '전체') {
+      params.grades = GRADE_MAP[grade];
+    }
+    if (isClosed) {
+      params.status = 'CLOSED';
+    }
+
+    setSearchParams(params, { replace: false });
   };
 
   const handleToggle = (newState) => {
     setIsClosed(newState);
-    setPage(1);
+    
+    const params = { page: 1 };
+    if (selectedGrade !== '전체') {
+      params.grades = GRADE_MAP[selectedGrade];
+    }
+    if (newState) {
+      params.status = 'CLOSED';
+    }
+
+    setSearchParams(params, { replace: false });
+  };
+
+  const handlePageChange = (pageNumber) => {
+    const params = { page: pageNumber };
+    if (selectedGrade !== '전체') {
+      params.grades = GRADE_MAP[selectedGrade];
+    }
+    if (isClosed) {
+      params.status = 'CLOSED';
+    }
+
+    setSearchParams(params);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   useEffect(() => {
     const fetchHomeworks = async () => {
       setIsLoading(true);
       try {
+        const queryPage = searchParams.get('page');
+        const queryGrades = searchParams.get('grades');
+        const queryStatus = searchParams.get('status');
+
         const params = {
-          page: currentPage - 1,
+          page: queryPage ? parseInt(queryPage, 10) - 1 : 0,
           size: itemsPerPage,
         };
 
-        if (isClosed) {
+        if (queryStatus === 'CLOSED' || (!queryStatus && isClosed)) {
           params.status = 'CLOSED';
         }
 
-        if (hasSelectedGrade && selectedGrade !== '전체') {
+        if (queryGrades) {
+          params.grades = queryGrades;
+        } else if (hasSelectedGrade && selectedGrade !== '전체') {
           params.grades = GRADE_MAP[selectedGrade];
         }
 
@@ -117,7 +180,7 @@ export default function HwListPage() {
 
     fetchHomeworks();
 
-  }, [currentPage, selectedGrade, hasSelectedGrade, setPage, isClosed]);
+  }, [searchParams, isClosed, hasSelectedGrade, selectedGrade]);
 
 
   return (
@@ -126,8 +189,8 @@ export default function HwListPage() {
       
       <FilterBar isClosed={isClosed} onToggle={handleToggle}>
         <div css={dropdownContainerStyle} ref={el => dropdownRefs.current['grade'] = el}>
-          <button css={dropDownButtonStyle("120px", hasSelectedGrade)} onClick={() => setOpenDropdown(openDropdown === "grade" ? null : "grade")}>
-            <span>{hasSelectedGrade ? selectedGrade : "학년"}</span>
+          <button css={dropDownButtonStyle("120px", isGradeActive)} onClick={() => setOpenDropdown(openDropdown === "grade" ? null : "grade")}>
+            <span>{isGradeActive ? selectedGrade : "학년"}</span>
             <ArrowIcon />
           </button>
           {openDropdown === "grade" && (
@@ -159,10 +222,7 @@ export default function HwListPage() {
               <Pagination
                 count={totalPages}
                 page={currentPage}
-                onChange={(_, value) => {
-                  setPage(value);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
+                onChange={(_, value) => handlePageChange(value)}
               />
             </Stack>
           )}

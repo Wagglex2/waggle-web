@@ -1,6 +1,7 @@
 /** @jsxRuntime automatic */
 /** @jsxImportSource @emotion/react */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import PageWrapper from "@/components/layout/PageWrapper";
 import PageHeader from "@/components/layout/PageHeader";
 import FilterBar from "@/components/layout/FilterBar";
@@ -77,6 +78,8 @@ const purposeOptions = Object.keys(PURPOSE_MAP);
 export default function ProjectListPage() {
   const itemsPerPage = 9;
   const { openDropdown, setOpenDropdown, dropdownRefs } = useDropdown();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isHistoryPushedRef = useRef(false);
 
   const [projects, setProjects] = useState([]); 
   const [totalPages, setTotalPages] = useState(0);
@@ -100,39 +103,97 @@ export default function ProjectListPage() {
     return () => reset();
   }, [reset]);
 
-  const handlePurposeClick = (option) => {
-    setPurpose(option);
-    setOpenDropdown(null);
-    setPage(1); 
-  };
+  const isPurposeActive = hasSelectedPurpose && selectedPurpose !== '전체';
 
-  const handleToggle = (newState) => {
-    setIsClosed(newState); 
-    setPage(1);
-  };
+  useEffect(() => {
+    const pageParam = searchParams.get('page');
+    const purposeParam = searchParams.get('purpose');
+    const skillsParam = searchParams.get('skills');
+    const positionsParam = searchParams.get('positions');
+    const statusParam = searchParams.get('status');
+
+    const targetPage = pageParam ? parseInt(pageParam, 10) : 1;
+    if (currentPage !== targetPage) {
+      setPage(targetPage);
+    }
+
+    const targetStatus = statusParam === 'CLOSED';
+    if (isClosed !== targetStatus) {
+      setIsClosed(targetStatus);
+    }
+
+    const targetPurpose = purposeParam || '전체';
+    if (selectedPurpose !== targetPurpose) {
+      setPurpose(targetPurpose);
+    }
+
+    const targetTechs = skillsParam ? skillsParam.split(',') : [];
+    const isTechsDifferent = 
+      selectedTechs.length !== targetTechs.length || 
+      !targetTechs.every(t => selectedTechs.includes(t));
+
+    if (isTechsDifferent) {
+      selectedTechs.forEach(tech => {
+        if (!targetTechs.includes(tech)) toggleTech(tech);
+      });
+      targetTechs.forEach(tech => {
+        if (!selectedTechs.includes(tech)) toggleTech(tech);
+      });
+    }
+
+    const targetPositions = positionsParam ? positionsParam.split(',') : [];
+    const isPositionsDifferent = 
+      selectedPositions.length !== targetPositions.length || 
+      !targetPositions.every(p => selectedPositions.includes(p));
+
+    if (isPositionsDifferent) {
+      selectedPositions.forEach(pos => {
+        if (!targetPositions.includes(pos)) togglePosition(pos);
+      });
+      targetPositions.forEach(pos => {
+        if (!selectedPositions.includes(pos)) togglePosition(pos);
+      });
+    }
+
+  }, [searchParams, currentPage, isClosed, selectedPurpose, selectedTechs, selectedPositions, setPage, setPurpose, toggleTech, togglePosition]);
 
   useEffect(() => {
     const fetchProjects = async () => {
       setIsLoading(true);
       try {
+        const queryPage = searchParams.get('page');
+        const queryPurpose = searchParams.get('purpose');
+        const querySkills = searchParams.get('skills');
+        const queryPositions = searchParams.get('positions');
+        const queryStatus = searchParams.get('status');
+
         const params = {
-          page: currentPage - 1,
+          page: queryPage ? parseInt(queryPage, 10) - 1 : 0,
           size: itemsPerPage,
         };
 
-        if (isClosed) {
+        if (queryStatus === 'CLOSED' || (!queryStatus && isClosed)) {
           params.status = 'CLOSED';
         }
 
-        if (hasSelectedPurpose && selectedPurpose !== '전체') {
+        if (queryPurpose && queryPurpose !== '전체') {
+          params.purpose = PURPOSE_MAP[queryPurpose];
+        } else if (hasSelectedPurpose && selectedPurpose !== '전체') {
           params.purpose = PURPOSE_MAP[selectedPurpose];
         }
 
-        if (selectedTechs.length > 0) {
+        if (querySkills) {
+          params.skills = querySkills;
+        } else if (selectedTechs.length > 0) {
           params.skills = selectedTechs.join(',');
         }
 
-        if (selectedPositions.length > 0) {
+        if (queryPositions) {
+          const posParams = queryPositions.split(',')
+            .map(pos => POSITION_MAP[pos])
+            .join(',');
+          params.positions = posParams;
+        } else if (selectedPositions.length > 0) {
           const posParams = selectedPositions
             .map(pos => POSITION_MAP[pos])
             .join(',');
@@ -172,7 +233,6 @@ export default function ProjectListPage() {
             status: item.status?.name || "RECRUITING",
             positions: item.positions ? item.positions.map(extractValue).filter(p => p) : [], 
             techStack: techStack,
-
             bookmarked: item.bookmarked, 
             bookmarkId: item.bookmarkId, 
           };
@@ -191,12 +251,94 @@ export default function ProjectListPage() {
 
     fetchProjects();
 
-  }, [currentPage, selectedPurpose, selectedTechs, selectedPositions, hasSelectedPurpose, setPage, isClosed]);
-
+  }, [searchParams, isClosed, hasSelectedPurpose, selectedPurpose, selectedTechs, selectedPositions]);
 
   const handlePageChange = (pageNumber) => {
-    setPage(pageNumber);
+    const params = { page: pageNumber };
+    if (selectedPurpose !== '전체') params.purpose = selectedPurpose;
+    if (selectedTechs.length > 0) params.skills = selectedTechs.join(',');
+    if (selectedPositions.length > 0) params.positions = selectedPositions.join(',');
+    if (isClosed) params.status = 'CLOSED';
+    
+    setSearchParams(params);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePurposeClick = (option) => {
+    setPurpose(option);
+    setOpenDropdown(null);
+
+    const params = { page: 1 };
+    if (option !== '전체') params.purpose = option;
+    
+    if (selectedTechs.length > 0) params.skills = selectedTechs.join(',');
+    if (selectedPositions.length > 0) params.positions = selectedPositions.join(',');
+    if (isClosed) params.status = 'CLOSED';
+
+    setSearchParams(params, { replace: false });
+  };
+
+  const handleToggle = (newState) => {
+    setIsClosed(newState); 
+    
+    const params = { page: 1 };
+    if (selectedPurpose !== '전체') params.purpose = selectedPurpose;
+    if (selectedTechs.length > 0) params.skills = selectedTechs.join(',');
+    if (selectedPositions.length > 0) params.positions = selectedPositions.join(',');
+    if (newState) params.status = 'CLOSED';
+
+    setSearchParams(params, { replace: false });
+  };
+
+  const handleTechSelect = (option) => {
+    toggleTech(option);
+    
+    const nextTechs = selectedTechs.includes(option)
+      ? selectedTechs.filter(t => t !== option)
+      : [...selectedTechs, option];
+
+    const params = { page: 1 };
+    if (selectedPurpose !== '전체') params.purpose = selectedPurpose;
+    if (nextTechs.length > 0) params.skills = nextTechs.join(',');
+    if (selectedPositions.length > 0) params.positions = selectedPositions.join(',');
+    if (isClosed) params.status = 'CLOSED';
+
+    if (!isHistoryPushedRef.current) {
+      setSearchParams(params, { replace: false });
+      isHistoryPushedRef.current = true;
+    } else {
+      setSearchParams(params, { replace: true });
+    }
+  };
+
+  const handlePositionSelect = (option) => {
+    togglePosition(option);
+
+    const nextPositions = selectedPositions.includes(option)
+      ? selectedPositions.filter(p => p !== option)
+      : [...selectedPositions, option];
+
+    const params = { page: 1 };
+    if (selectedPurpose !== '전체') params.purpose = selectedPurpose;
+    if (selectedTechs.length > 0) params.skills = selectedTechs.join(',');
+    if (nextPositions.length > 0) params.positions = nextPositions.join(',');
+    if (isClosed) params.status = 'CLOSED';
+
+    if (!isHistoryPushedRef.current) {
+      setSearchParams(params, { replace: false });
+      isHistoryPushedRef.current = true;
+    } else {
+      setSearchParams(params, { replace: true });
+    }
+  };
+
+  const handleDropdownClick = (name) => {
+    if (openDropdown === name) {
+      setOpenDropdown(null);
+    } else {
+      setOpenDropdown(name);
+      isHistoryPushedRef.current = false;
+    }
   };
 
   return (
@@ -205,8 +347,8 @@ export default function ProjectListPage() {
       
       <FilterBar isClosed={isClosed} onToggle={handleToggle}>
         <div css={dropdownContainerStyle} ref={el => dropdownRefs.current['purpose'] = el}>
-          <button css={dropDownButtonStyle("120px", hasSelectedPurpose)} onClick={() => setOpenDropdown(openDropdown === "purpose" ? null : "purpose")}>
-            <span>{hasSelectedPurpose ? selectedPurpose : '목적'}</span>
+          <button css={dropDownButtonStyle("120px", isPurposeActive)} onClick={() => setOpenDropdown(openDropdown === "purpose" ? null : "purpose")}>
+            <span>{isPurposeActive ? selectedPurpose : '목적'}</span>
             <ArrowIcon />
           </button>
           {openDropdown === 'purpose' && (
@@ -221,14 +363,14 @@ export default function ProjectListPage() {
         </div>
 
         <div css={dropdownContainerStyle} ref={el => dropdownRefs.current['tech'] = el}>
-          <button css={dropDownButtonStyle("120px", selectedTechs.length > 0)} onClick={() => setOpenDropdown(openDropdown === "tech" ? null : "tech")}>
+          <button css={dropDownButtonStyle("120px", selectedTechs.length > 0)} onClick={() => handleDropdownClick('tech')}>
             <span>{selectedTechs.length > 0 ? `기술 ${selectedTechs.length}` : '기술'}</span>
             <ArrowIcon />
           </button>
           {openDropdown === 'tech' && (
             <ul css={techDropDownMenuStyle}>
               {TECH_STACK_LIST.map(option => (
-                <li key={option} css={dropDownMenuItemStyle(selectedTechs.includes(option), true)} onClick={() => { toggleTech(option); setPage(1); }}>
+                <li key={option} css={dropDownMenuItemStyle(selectedTechs.includes(option), true)} onClick={() => handleTechSelect(option)}>
                   <input type="checkbox" css={customCheckboxStyle} checked={selectedTechs.includes(option)} readOnly />
                   <label>{TECH_STACK_DISPLAY_MAP[option] || option}</label>
                 </li>
@@ -238,14 +380,14 @@ export default function ProjectListPage() {
         </div>
 
         <div css={dropdownContainerStyle} ref={el => dropdownRefs.current['position'] = el}>
-          <button css={dropDownButtonStyle("120px", selectedPositions.length > 0)} onClick={() => setOpenDropdown(openDropdown === "position" ? null : "position")}>
+          <button css={dropDownButtonStyle("120px", selectedPositions.length > 0)} onClick={() => handleDropdownClick('position')}>
             <span>{selectedPositions.length > 0 ? `포지션 ${selectedPositions.length}` : '포지션'}</span>
             <ArrowIcon />
           </button>
           {openDropdown === 'position' && (
             <ul css={dropDownMenuStyle}> 
               {positionOptions.map(option => (
-                <li key={option} css={dropDownMenuItemStyle(selectedPositions.includes(option), false)} onClick={() => { togglePosition(option); setPage(1); }}>
+                <li key={option} css={dropDownMenuItemStyle(selectedPositions.includes(option), false)} onClick={() => handlePositionSelect(option)}>
                   {option}
                 </li>
               ))}
@@ -271,10 +413,7 @@ export default function ProjectListPage() {
               <Pagination 
                 count={totalPages} 
                 page={currentPage} 
-                onChange={(_, value) => {
-                  setPage(value);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }} 
+                onChange={(_, value) => handlePageChange(value)} 
               />
             </Stack>
           )}

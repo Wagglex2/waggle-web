@@ -4,11 +4,14 @@ import StudyInfo from './components/job-info/StudyInfo';
 import StudyApplicationForm from './components/application-form/StudyApplicationForm';
 import JobListLinkBtn from './components/JobListLinkBtn';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import api from '@/api/api';
 
 const StudyDetailPage = () => {
   const params = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const defaultImgUrl =
     'https://waggle-image-bucket.s3.ap-northeast-2.amazonaws.com/user-profile-images/default-profile-image.png';
 
@@ -38,6 +41,15 @@ const StudyDetailPage = () => {
 
   // 공고 상세
   const [studyDetail, setProjectDetail] = useState('');
+  const handleListBtnClick = () => {
+    const prevParams = location.state?.prevParams;
+
+    if (prevParams) {
+      navigate(`/study-list${prevParams}`);
+    } else {
+      navigate('/study-list');
+    }
+  };
 
   useEffect(() => {
     async function getProjectInfo() {
@@ -78,7 +90,8 @@ const StudyDetailPage = () => {
 
   return (
     <div css={wrap}>
-      <JobListLinkBtn category={'스터디'} />
+      <JobListLinkBtn category={'스터디'} onClick={handleListBtnClick} />
+      
       <main css={mainContent}>
         <StudyInfo
           meta={metaData}

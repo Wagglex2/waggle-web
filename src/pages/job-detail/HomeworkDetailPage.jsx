@@ -3,12 +3,15 @@ import { wrap, mainContent } from './jobDetailStyle';
 import HomeworkInfo from './components/job-info/HomeworkInfo';
 import JobListLinkBtn from './components/JobListLinkBtn';
 import HomeworkApplicationForm from './components/application-form/HomeworkApplicationForm';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import api from '@/api/api';
 
 const HomeworkDetailPage = () => {
   const params = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const defaultImgUrl =
     'https://waggle-image-bucket.s3.ap-northeast-2.amazonaws.com/user-profile-images/default-profile-image.png';
 
@@ -39,6 +42,16 @@ const HomeworkDetailPage = () => {
 
   // 공고 상세
   const [homeworkDetail, setHomeworkDetail] = useState('');
+
+  const handleListBtnClick = () => {
+    const prevParams = location.state?.prevParams;
+
+    if (prevParams) {
+      navigate(`/hw-list${prevParams}`);
+    } else {
+      navigate('/hw-list');
+    }
+  };
 
   useEffect(() => {
     async function getHomeworkInfo() {
@@ -80,7 +93,7 @@ const HomeworkDetailPage = () => {
 
   return (
     <div css={wrap}>
-      <JobListLinkBtn category={'과제'} />
+      <JobListLinkBtn category={'과제'} onClick={handleListBtnClick} />
       <main css={mainContent}>
         <HomeworkInfo
           meta={metaData}
