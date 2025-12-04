@@ -22,9 +22,9 @@ export const usePostedJobsStore = create((set, get) => ({
     set({ loading: true, error: null });
     try {
       const requests = [
-        { type: '프로젝트', promise: api.get('/api/v1/projects/me') },
-        { type: '과제', promise: api.get('/api/v1/assignments/me') },
-        { type: '스터디', promise: api.get('/api/v1/studies/me') },
+        { type: '프로젝트', promise: api.get('/api/v1/projects/me?page=0&size=100') },
+        { type: '과제', promise: api.get('/api/v1/assignments/me?page=0&size=100') },
+        { type: '스터디', promise: api.get('/api/v1/studies/me?page=0&size=100') },
       ];
 
       const results = await Promise.allSettled(
@@ -45,6 +45,7 @@ export const usePostedJobsStore = create((set, get) => ({
               title: item.title,
               deadline: item.deadline,
               type: type,
+              originalType: item.category,
               applicants: (item.applications || []).map((app) => ({
                 id: app.applicationId,
                 applicantId: app.applicantId,

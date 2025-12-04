@@ -20,10 +20,10 @@ const colors = {
   primary: '#FFCC00',
 };
 
-const TAB_MAP = {
-  프로젝트: 'PROJECT',
-  과제: 'ASSIGNMENT',
-  스터디: 'STUDY',
+const TAB_TARGETS = {
+  프로젝트: ['PROJECT', '프로젝트', 'PROJECTS'],
+  과제: ['ASSIGNMENT', '과제', 'ASSIGNMENTS'],
+  스터디: ['STUDY', '스터디', 'STUDIES'],
 };
 
 const MyPostedJobsPage = () => {
@@ -57,14 +57,19 @@ const MyPostedJobsPage = () => {
   };
 
   const handleEdit = (postId, postType) => {
+    let normalizedType = '프로젝트';
+    const typeUpper = postType?.toUpperCase();
+
+    if (TAB_TARGETS.과제.includes(typeUpper)) normalizedType = '과제';
+    else if (TAB_TARGETS.스터디.includes(typeUpper)) normalizedType = '스터디';
+
     const routes = {
       프로젝트: `/edit-project/${postId}`,
       과제: `/edit-hw/${postId}`,
       스터디: `/edit-study/${postId}`,
     };
 
-    const koreanKey = Object.keys(TAB_MAP).find((key) => TAB_MAP[key] === postType) || postType;
-    const target = routes[postType] || routes[koreanKey];
+    const target = routes[normalizedType];
 
     if (target) {
       navigate(target, { state: { editMode: true, postId } });
@@ -99,11 +104,12 @@ const MyPostedJobsPage = () => {
   const closeProfileModal = () => setProfileModal({ isOpen: false, user: null });
 
   const filteredPosts = useMemo(() => {
+    const validTypes = TAB_TARGETS[tab] || [];
+
     return posts.filter((p) => {
       if (!p.type) return false;
-      const type = p.type.toUpperCase();
-      const target = TAB_MAP[tab] ? TAB_MAP[tab].toUpperCase() : tab;
-      return p.type === tab || type === target;
+      const cleanType = p.type.toString().toUpperCase().trim();
+      return validTypes.includes(cleanType);
     });
   }, [posts, tab]);
 
