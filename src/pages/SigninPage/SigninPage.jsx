@@ -2,6 +2,7 @@
 /** @jsxImportSource @emotion/react */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 import { colors } from '@/styles/theme';
 import BackgroundBlob from './assets/background-blob.png';
 import LogoBlob from './assets/logo-blob.png';
@@ -11,16 +12,43 @@ import { signinApi } from '@/api/auth';
 function SigninPage() {
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [idError, setIdError] = useState('');       
+  const [pwError, setPwError] = useState('');       
+  const [submitError, setSubmitError] = useState(''); 
+
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
 
   const handleLogin = async (event) => {
     event.preventDefault();
-    if (id.trim() === '' || password.trim() === '') {
-      setErrorMessage('아이디와 비밀번호를 모두 입력해주세요.');
-      return;
+    
+    setIdError('');
+    setPwError('');
+    setSubmitError('');
+
+    let isValid = true;
+    const idRegex = /^[a-zA-Z0-9]{4,10}$/;
+    if (id.trim() === '') {
+      setIdError('아이디를 입력해주세요.');
+      isValid = false;
+    } else if (!idRegex.test(id)) {
+      setIdError('아이디는 4~10자의 영문 및 숫자만 사용 가능합니다.');
+      isValid = false;
     }
+
+    const pwRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,20}$/;
+    if (password.trim() === '') {
+      setPwError('비밀번호를 입력해주세요.');
+      isValid = false;
+    } else if (!pwRegex.test(password)) {
+      setPwError('비밀번호는 8~20자의 영문, 숫자, 특수문자를 포함해야 합니다.');
+      isValid = false;
+    }
+
+    if (!isValid) return;
 
     try {
       const accessToken = await signinApi({
@@ -28,14 +56,21 @@ function SigninPage() {
         password,
       });
 
-      login(accessToken); // 토큰 저장
+      login(accessToken); 
       console.log('✨로그인 성공✨');
-
-      setErrorMessage('');
       navigate('/home');
+
     } catch (error) {
-      setErrorMessage(error.message);
+      if (error.response && error.response.status === 401) {
+         setSubmitError('아이디 또는 비밀번호가 일치하지 않습니다.');
+      } else {
+         setSubmitError(error.message || '로그인 중 오류가 발생했습니다.');
+      }
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
   };
 
   return (
@@ -58,34 +93,50 @@ function SigninPage() {
           <div css={modalContainerStyle}>
             <form css={formSectionStyle} onSubmit={handleLogin}>
               <h1 css={titleStyle}>로그인</h1>
+              
               <div css={inputWrapperStyle}>
                 <label css={labelStyle}>아이디</label>
                 <input
-                  css={inputStyle}
+                  css={inputStyle(idError)}
                   type="text"
-                  placeholder="2~10자, 영문, 한영 가능"
+                  placeholder="아이디를 입력해 주세요."
                   value={id}
                   onChange={(e) => {
                     setId(e.target.value);
-                    setErrorMessage('');
+                    if (idError) setIdError('');
                   }}
                 />
-              </div>
-              <div css={inputWrapperStyle}>
-                <label css={labelStyle}>비밀번호</label>
-                <input
-                  css={inputStyle}
-                  type="password"
-                  placeholder="영문, 숫자, 특수문자 포함 8~20자"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setErrorMessage('');
-                  }}
-                />
+                {idError && <p css={fieldErrorStyle}>{idError}</p>}
               </div>
 
-              <p css={errorStyle}>{errorMessage}</p>
+              <div css={inputWrapperStyle}>
+                <label css={labelStyle}>비밀번호</label>
+
+                <div css={{ position: 'relative' }}>
+                  <input
+                    css={inputStyle(pwError)}
+                    type={showPassword ? 'text' : 'password'} 
+                    placeholder="비밀번호를 입력해 주세요."
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (pwError) setPwError('');
+                    }}
+                  />
+                  
+                  <button 
+                    type="button" 
+                    onClick={togglePasswordVisibility}
+                    css={eyeIconButtonStyle}
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+
+                {pwError && <p css={fieldErrorStyle}>{pwError}</p>}
+              </div>
+
+              <p css={submitErrorStyle}>{submitError}</p>
 
               <button css={loginButtonStyle}>로그인 하기</button>
               <p css={signupLinkStyle} onClick={() => navigate('/signup')}>
@@ -133,6 +184,24 @@ function SigninPage() {
 }
 
 export default SigninPage;
+
+const eyeIconButtonStyle = {
+  position: 'absolute',
+  top: '50%',
+  right: '12px',
+  transform: 'translateY(-50%)',
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+  color: colors.gray[400],
+  display: 'flex',
+  alignItems: 'center',
+  padding: 0,
+  zIndex: 10,
+  '&:hover': {
+    color: colors.secondary,
+  },
+};
 
 const pageWrapperStyle = {
   position: 'relative',
@@ -193,6 +262,7 @@ const titleStyle = {
 
 const inputWrapperStyle = {
   marginBottom: '20px',
+  minHeight: '80px', 
 };
 
 const labelStyle = {
@@ -203,10 +273,10 @@ const labelStyle = {
   marginBottom: '8px',
 };
 
-const inputStyle = {
+const inputStyle = (hasError) => ({
   width: '100%',
-  padding: '12px',
-  border: `1px solid ${colors.gray[100]}`,
+  padding: '12px 40px 12px 12px', 
+  border: `1px solid ${hasError ? '#e53e3e' : colors.gray[100]}`,
   borderRadius: '8px',
   fontSize: '14px',
   boxSizing: 'border-box',
@@ -216,12 +286,20 @@ const inputStyle = {
     fontFamily: 'nanumB',
   },
   '&:focus': {
-    borderColor: colors.primary,
+    borderColor: hasError ? '#e53e3e' : colors.primary,
     outline: 'none',
   },
+});
+
+const fieldErrorStyle = {
+  color: '#e53e3e',
+  fontSize: '12px',
+  fontFamily: 'nanumR',
+  marginTop: '6px',
+  marginLeft: '2px',
 };
 
-const errorStyle = {
+const submitErrorStyle = {
   color: '#e53e3e',
   fontFamily: 'nanumR',
   fontSize: '13px',
@@ -240,7 +318,7 @@ const loginButtonStyle = {
   fontSize: '16px',
   fontFamily: 'nanumEB',
   cursor: 'pointer',
-  marginTop: '16px',
+  marginTop: '8px',
   transition: 'background-color 0.2s',
   '&:hover': {
     backgroundColor: '#f0c400',
