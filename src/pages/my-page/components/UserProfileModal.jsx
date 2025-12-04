@@ -45,33 +45,40 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
 
   useEffect(() => {
     if (isOpen && user) {
-      // 1. 일단 리스트에서 받은 정보로 먼저 보여줍니다 (빠른 반응성)
       setExtendedUser(user);
 
-      // 2. 중요: 조건(if) 없이 무조건 상세 정보를 다시 조회합니다.
-      // 리스트에는 기술(skills)이 1개만 있거나 이미지가 없을 수 있기 때문입니다.
       const targetId = user.applicantId || user.id || user.userId;
 
       if (targetId) {
-        const fetchDetail = async () => {
+        const fetchAllData = async () => {
           try {
-            const response = await api.get(`/api/v1/users/${targetId}`);
-            const detailData = response.data.data || response.data;
+            const userRes = await api.get(`/api/v1/users/${targetId}`);
+            const userData = userRes.data.data || userRes.data;
 
-            // 가져온 상세 정보로 덮어씌웁니다.
+            let reviewList = [];
+            try {
+              const reviewRes = await api.get(`/api/v1/users/${targetId}/reviews/received`);
+              const reviewData = reviewRes.data.data || reviewRes.data;
+              reviewList = reviewData.content || reviewData.reviews || [];
+            } catch (reviewErr) {
+              console.error(reviewErr);
+            }
+
             setExtendedUser((prev) => ({
               ...prev,
-              ...detailData,
-              // 상세 조회된 skills나 tags가 우선순위를 갖도록 덮어씌움
-              skills: detailData.skills || detailData.tags || prev.skills,
+              ...userData,
+              bio: userData.shortIntro || userData.bio || userData.introduction || prev.bio,
+              position: userData.positionType || userData.position || prev.position,
+              skills: userData.skills || userData.tags || prev.skills,
               profileImageUrl:
-                detailData.profileImageUrl || detailData.profileImage || prev.profileImageUrl,
+                userData.profileImageUrl || userData.profileImage || prev.profileImageUrl,
+              reviews: reviewList,
             }));
           } catch (err) {
             console.error(err);
           }
         };
-        fetchDetail();
+        fetchAllData();
       }
     } else {
       setExtendedUser(null);
@@ -80,10 +87,30 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
 
   if (!isOpen || !extendedUser) return null;
 
-  // 데이터 구조 평탄화 (user.user 같은 중첩 구조 대응)
   const targetUser = extendedUser.user || extendedUser.member || extendedUser;
 
-  const reviews = targetUser.reviews || [];
+  const profileSrc =
+    extendedUser.profileImageUrl ||
+    targetUser.profileImageUrl ||
+    targetUser.profileImage ||
+    targetUser.imgUrl ||
+    defaultImgUrl;
+
+  const nickname = extendedUser.nickname || targetUser.nickname || targetUser.name || '익명';
+
+  const bio =
+    extendedUser.shortIntro ||
+    extendedUser.bio ||
+    extendedUser.introduction ||
+    extendedUser.content ||
+    targetUser.shortIntro ||
+    targetUser.bio ||
+    '';
+
+  const tags =
+    extendedUser.skills || extendedUser.tags || targetUser.skills || targetUser.tags || [];
+
+  const reviews = extendedUser.reviews || [];
   const hasReviews = reviews.length > 0;
 
   const indexOfLastReview = currentPage * reviewsPerPage;
@@ -101,7 +128,7 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
   };
 
   let displayPosition = '';
-  const rawPosition = targetUser.position;
+  const rawPosition = extendedUser.position || targetUser.position;
   if (rawPosition) {
     if (typeof rawPosition === 'object') {
       displayPosition = rawPosition.desc || rawPosition.name;
@@ -109,21 +136,6 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
       displayPosition = positionMap[rawPosition] || rawPosition;
     }
   }
-
-  // 가능한 모든 이미지 변수명 체크
-  const profileSrc =
-    targetUser.profileImageUrl ||
-    targetUser.profileImage ||
-    targetUser.imgUrl ||
-    targetUser.imageUrl ||
-    targetUser.avatar ||
-    defaultImgUrl;
-
-  const nickname = targetUser.nickname || '익명';
-  const bio = targetUser.bio || '';
-
-  // 기술 스택 (skills 또는 tags)
-  const tags = targetUser.skills || targetUser.tags || [];
 
   return ReactDOM.createPortal(
     <div css={overlay} onClick={handleClose}>
@@ -162,7 +174,6 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
             <div css={infoSection}>
               <div className="tag-list">
                 {displayPosition && <span css={[tagBase, roleTag]}>#{displayPosition}</span>}
-
                 {Array.isArray(tags) &&
                   tags.slice(0, 4).map((tag, idx) => {
                     const tagName = typeof tag === 'object' ? tag.name || tag.desc : tag;
@@ -183,11 +194,23 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
             {hasReviews ? (
               <>
                 <div className="review-list">
-                  {currentReviews.map((review, idx) => (
-                    <div key={idx} css={reviewItem}>
-                      {review}
-                    </div>
-                  ))}
+                  {currentReviews.map((review, idx) => {
+                    let content = '내용 없음';
+                    if (typeof review === 'string') content = review;
+                    else if (review && typeof review === 'object') {
+                      content =
+                        review.content ||
+                        review.comment ||
+                        review.message ||
+                        JSON.stringify(review);
+                    }
+
+                    return (
+                      <div key={idx} css={reviewItem}>
+                        {content}
+                      </div>
+                    );
+                  })}
                 </div>
                 {totalPages > 1 && (
                   <div css={pagination}>
@@ -236,7 +259,6 @@ const overlay = css`
   font-family: 'nanumR', 'NanumSquareRound', sans-serif;
   opacity: 0;
   animation: fadeIn 0.3s forwards;
-
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -259,7 +281,6 @@ const container = css`
   overflow: hidden;
   transform: scale(0.95);
   animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-
   @keyframes popIn {
     from {
       transform: scale(0.95);
@@ -270,7 +291,6 @@ const container = css`
       opacity: 1;
     }
   }
-
   @media (max-width: 800px) {
     width: 95vw;
     height: 90vh;
@@ -289,7 +309,6 @@ const closeButton = css`
   padding: 8px;
   border-radius: 50%;
   transition: all 0.2s ease-in-out;
-
   &:hover {
     color: ${colors.gray[800]};
     background-color: ${colors.gray[50]};
@@ -304,7 +323,6 @@ const contentWrapper = css`
   flex-direction: column;
   box-sizing: border-box;
   flex-grow: 1;
-
   @media (max-width: 600px) {
     padding: 20px;
   }
@@ -314,7 +332,6 @@ const profileHeader = css`
   display: flex;
   gap: 24px;
   margin-bottom: 20px;
-
   @media (max-width: 600px) {
     flex-direction: column;
     align-items: center;
@@ -329,11 +346,9 @@ const avatarSection = css`
   align-items: center;
   flex-shrink: 0;
   width: 120px;
-
   @media (max-width: 600px) {
     width: 100%;
   }
-
   .avatar-circle {
     width: 120px;
     height: 120px;
@@ -342,13 +357,11 @@ const avatarSection = css`
     margin-bottom: 12px;
     border: 3px solid ${colors.gray[200]};
   }
-
   .avatar-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-
   .user-name {
     font-size: 24px;
     font-weight: 700;
@@ -366,22 +379,18 @@ const infoSection = css`
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
-
   @media (max-width: 600px) {
     text-align: center;
   }
-
   .tag-list {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     margin-bottom: 16px;
-
     @media (max-width: 600px) {
       justify-content: center;
     }
   }
-
   .user-bio {
     color: ${colors.gray[600]};
     font-size: 15px;
@@ -391,7 +400,6 @@ const infoSection = css`
     overflow-y: auto;
     max-height: 75px;
     text-align: left;
-
     @media (max-width: 600px) {
       text-align: center;
       max-height: 90px;
@@ -410,7 +418,6 @@ const tagBase = css`
   font-weight: 600;
   white-space: nowrap;
   transition: transform 0.2s;
-
   &:hover {
     transform: translateY(-1px);
   }
@@ -444,7 +451,6 @@ const reviewSection = css`
   min-height: 0;
   max-height: 230px;
   overflow: hidden;
-
   .review-list {
     display: flex;
     flex-direction: column;
@@ -468,7 +474,6 @@ const reviewItem = css`
   box-sizing: border-box;
   transition: background-color 0.2s;
   cursor: default;
-
   &:hover {
     background-color: ${colors.gray[100]};
     border-color: ${colors.gray[300]};
@@ -485,22 +490,18 @@ const pagination = css`
   color: ${colors.gray[400]};
   font-weight: 600;
   flex-shrink: 0;
-
   .separator {
     color: ${colors.gray[300]};
   }
-
   .page-number {
     cursor: pointer;
     padding: 4px 8px;
     border-radius: 6px;
     transition: all 0.2s;
-
     &:hover {
       color: ${colors.gray[800]};
       background-color: ${colors.gray[100]};
     }
-
     &.active {
       color: ${colors.gray[50]};
       background-color: ${colors.gray[800]};
