@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { colors } from "@/styles/theme";
 import techIcons from "@/data/techIcons"; 
 import api from "@/api/api";
@@ -231,6 +231,7 @@ const MAX_TECH_DISPLAY = 3;
 
 export default function ProjectCard({ project, onUnlike }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [isLiked, setIsLiked] = useState(project.bookmarked);
   const [bookmarkId, setBookmarkId] = useState(project.bookmarkId);
@@ -276,7 +277,9 @@ export default function ProjectCard({ project, onUnlike }) {
   };
   
   const handleCardClick = () => {
-    navigate(`/project-list/${project.id}`);
+    navigate(`/project-list/${project.id}`, {
+      state: { prevParams: location.search }
+    });
   };
 
   const displayedTechs = project.techStack?.slice(0, MAX_TECH_DISPLAY);
