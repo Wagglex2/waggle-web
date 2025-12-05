@@ -150,6 +150,8 @@ const avatarStyle = css`
   height: 37px;
   border-radius: 50%;
   background: ${colors.gray[200]};
+  border: 1px solid ${colors.gray[200]}; 
+  box-sizing: border-box;
   overflow: hidden;
   
   img {
