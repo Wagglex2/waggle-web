@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { css } from '@emotion/react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 import {
   signupApi,
@@ -31,6 +32,9 @@ const SignupPage = () => {
   const [authCode, setAuthCode] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
   const [nicknameFormatError, setNicknameFormatError] = useState('');
   const [idFormatError, setIdFormatError] = useState('');
@@ -92,7 +96,7 @@ const SignupPage = () => {
       const payload = {
         username: id,
         password: password,
-        passwordConfirm: passwordConfirm, // ✅ 여기 추가됨
+        passwordConfirm: passwordConfirm,
         nickname: nickname,
         email: email,
       };
@@ -469,25 +473,44 @@ const SignupPage = () => {
             <label css={label} htmlFor="password">
               비밀번호
             </label>
-            <input
-              type="password"
-              id="password"
-              css={fixedInput}
-              placeholder="영문자, 숫자, 특수문자 포함 8~20자"
-              value={password}
-              onChange={handlePasswordChange}
-            />
+            <div css={passwordWrapper}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                css={[fixedInput, css`width: 100%;`]}
+                placeholder="영문자, 숫자, 특수문자 포함 8~20자"
+                value={password}
+                onChange={handlePasswordChange}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                css={eyeBtn}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
             {passwordFormatError && (
               <div css={[messageStyle('danger'), messageWrap]}>{passwordFormatError}</div>
             )}
-            <input
-              type="password"
-              id="passwordConfirm"
-              css={[fixedInput, { marginTop: '8px' }]}
-              placeholder="비밀번호 확인해 주세요"
-              value={passwordConfirm}
-              onChange={handlePasswordConfirmChange}
-            />
+
+            <div css={[passwordWrapper, { marginTop: '8px' }]}>
+              <input
+                type={showPasswordConfirm ? 'text' : 'password'}
+                id="passwordConfirm"
+                css={[fixedInput, css`width: 100%;`]}
+                placeholder="비밀번호 확인해 주세요"
+                value={passwordConfirm}
+                onChange={handlePasswordConfirmChange}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPasswordConfirm((prev) => !prev)}
+                css={eyeBtn}
+              >
+                {showPasswordConfirm ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
             {passwordMatchError && (
               <div css={[messageStyle('danger'), messageWrap]}>{passwordMatchError}</div>
             )}
@@ -605,6 +628,19 @@ const inputBase = css`
     background-color: #f5f5f5;
     color: ${colors.muted};
   }
+  
+  &::-ms-reveal,
+  &::-ms-clear {
+    display: none;
+  }
+  
+  &::-webkit-credentials-auto-fill-button {
+    visibility: hidden;
+    display: none !important;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+  }
 `;
 
 const flexInput = css`
@@ -617,6 +653,30 @@ const fixedInput = css`
   ${inputBase};
   width: 480px;
   max-width: 100%;
+`;
+
+const passwordWrapper = css`
+  position: relative;
+  width: 480px;
+  max-width: 100%;
+`;
+
+const eyeBtn = css`
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${colors.placeholder};
+  display: flex;
+  align-items: center;
+  padding: 0;
+  z-index: 10;
+  &:hover {
+    color: ${colors.primary};
+  }
 `;
 
 const sideBtn = css`

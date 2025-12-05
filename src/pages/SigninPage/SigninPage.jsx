@@ -289,6 +289,12 @@ const inputStyle = (hasError) => ({
     borderColor: hasError ? '#e53e3e' : colors.primary,
     outline: 'none',
   },
+  '&::-ms-reveal': {
+    display: 'none',
+  },
+  '&::-ms-clear': {
+    display: 'none',
+  },
 });
 
 const fieldErrorStyle = {
