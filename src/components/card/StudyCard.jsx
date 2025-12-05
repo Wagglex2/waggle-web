@@ -2,7 +2,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import React, { useState, useEffect } from "react";
-// [수정 1] useLocation 추가
 import { useNavigate, useLocation } from "react-router-dom";
 import { colors } from "@/styles/theme";
 import techIcons from "@/data/techIcons";
@@ -154,6 +153,8 @@ const avatarStyle = css`
   height: 37px;
   border-radius: 50%;
   background: ${colors.gray[200]};
+  border: 1px solid ${colors.gray[200]}; 
+  box-sizing: border-box;
   overflow: hidden;
   
   img {
@@ -192,7 +193,6 @@ const MAX_TECH_DISPLAY = 3;
 
 export default function StudyCard({ project, onUnlike }) {
   const navigate = useNavigate();
-  // [수정 2] 현재 URL 정보(필터 등)를 가져오기 위한 훅 사용
   const location = useLocation();
 
   const [isLiked, setIsLiked] = useState(project.bookmarked);
@@ -234,7 +234,6 @@ export default function StudyCard({ project, onUnlike }) {
   };
 
   const handleCardClick = () => {
-    // [수정 3] 상세 페이지로 이동할 때, 현재 필터 정보(location.search)를 state로 같이 전달
     navigate(`/study-list/${project.id}`, { 
       state: { prevParams: location.search } 
     });
