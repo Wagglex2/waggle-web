@@ -3,11 +3,23 @@ import { css, keyframes } from '@emotion/react';
 import useAuthStore from '@/stores/useAuthStore';
 import { colors } from '@/styles/theme';
 import loadingImg from '../assets/img/loading.png';
+import { useEffect, useState } from 'react';
 
 const ProtectedRoute = ({ children }) => {
   const { accessToken, isLoading } = useAuthStore();
+  const [showLoading, setShowLoading] = useState(true);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (!isLoading) {
+      const timer = setTimeout(() => {
+        setShowLoading(false);
+      }, 3700);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
+
+  if (showLoading) {
     return (
       <div css={loading}>
         <div css={loadingImgBox}>
