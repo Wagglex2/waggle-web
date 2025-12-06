@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import SigninPage from './pages/SigninPage/SigninPage';
 import SignupPage from './pages/SignupPage';
 import MainPage from './pages/main/MainPage';
@@ -24,8 +24,49 @@ import { Navigate } from 'react-router-dom';
 import PublicRoute from './routes/PublicRoute';
 import ProtectedRoute from './routes/ProtectedRoute';
 import NotFoundPage from './pages/NotFoundPage';
+import axios from 'axios';
+import { useEffect } from 'react';
+import useAuthStore from './stores/useAuthStore';
 
 function App() {
+  const { setAccessToken, logout, accessToken, isLoading, setLoading } = useAuthStore();
+  const apiKey = import.meta.env.VITE_API_KEY;
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // 새로고침 시 refresh 요청
+  useEffect(() => {
+    if (location.pathname === '/signin' || location.pathname === 'signup') return;
+    async function postRefresh() {
+      try {
+        const res = await axios.post(
+          `${apiKey}/api/v1/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
+
+        const authHeader = res.headers.authorization;
+        const newToken = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader;
+
+        setAccessToken(newToken);
+      } catch (e) {
+        if (e.response?.status === 401) logout();
+      } finally {
+        setLoading(false); // 로딩 종료
+      }
+    }
+
+    postRefresh();
+  }, [setAccessToken, logout, setLoading]);
+
+  // 토큰 없으면 로그인 페이지로 이동
+  useEffect(() => {
+    if (!isLoading && !accessToken) {
+      alert('세션이 종료되었습니다. 다시 로그인해주세요.');
+      navigate('/signin', { replace: true });
+    }
+  }, [accessToken, isLoading, navigate]);
+
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/signin" replace />} />
