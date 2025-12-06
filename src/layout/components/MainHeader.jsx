@@ -88,6 +88,7 @@ const MainHeader = () => {
 
   async function handleLogout() {
     if (!confirm('로그아웃 하시겠습니까?')) return;
+
     try {
       await logoutApi();
     } catch (error) {
@@ -95,7 +96,6 @@ const MainHeader = () => {
     } finally {
       logout();
       alert('로그아웃되었습니다.');
-      navigate('/signin');
     }
   }
 
