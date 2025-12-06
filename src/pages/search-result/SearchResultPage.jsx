@@ -125,7 +125,7 @@ export default function SearchResultPage() {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      setData([]); // ✅ 수정됨: API 호출 전 데이터를 비워주어 컴포넌트 충돌 방지
+      setData([]);
       
       try {
         let endpoint = '';
@@ -186,13 +186,14 @@ export default function SearchResultPage() {
             title: item.title,
             deadline: item.deadline,
             author: item.authorNickname || "익명",
+            authorProfileImageUrl: item.authorProfileImageUrl, 
             status: item.status?.name || "RECRUITING",
           };
 
           if (category === 'project') {
             return {
               ...baseItem,
-              purposeTag: extractValue(item.category) || "미정",
+              purposeTag: extractValue(item.purpose) || "미정",
               methodTag: extractValue(item.meetingType) || "미정",
               positions: item.positions ? item.positions.map(extractValue) : [],
               techStack: item.skills ? item.skills.map(normalizeTech) : [],
