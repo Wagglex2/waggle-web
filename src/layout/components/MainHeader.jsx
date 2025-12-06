@@ -94,7 +94,6 @@ const MainHeader = () => {
       console.error('서버 로그아웃 실패', error);
     } finally {
       logout();
-      useAuthStore.persist.clearStorage();
       alert('로그아웃되었습니다.');
       navigate('/signin');
     }

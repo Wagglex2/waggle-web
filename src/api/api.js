@@ -1,6 +1,5 @@
 import axios from 'axios';
 import useAuthStore from '@/stores/useAuthStore';
-import { useNavigate } from 'react-router-dom';
 
 const apiKey = import.meta.env.VITE_API_KEY;
 
@@ -63,11 +62,8 @@ api.interceptors.response.use(
           isRefreshing = false;
           onTokenRefreshed(newAccessToken);
         } catch (error) {
-          const navigate = useNavigate();
           isRefreshing = false;
           authStore.logout(); // Refresh도 만료 → 로그아웃
-          alert('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');
-          navigate('/signin');
           return Promise.reject(error);
         }
       }
@@ -76,7 +72,13 @@ api.interceptors.response.use(
       return new Promise((resolve) => {
         refreshSubscribers.push((newToken) => {
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          resolve(api(originalRequest));
+
+          if (!originalRequest.url.startsWith('https')) {
+            originalRequest.url = `${apiKey}${originalRequest.url}`;
+          }
+          originalRequest.baseURL = undefined;
+
+          resolve(axios(originalRequest));
         });
       });
     }

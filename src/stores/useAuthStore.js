@@ -1,41 +1,39 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
-const useAuthStore = create(
-  persist(
-    (set) => ({
-      isLoggedIn: false,
-      accessToken: null,
-      userInfoChecking: false, // 사용자 프로필 입력 여부를 한 번만 불러오도록 하기 위한 state
+const useAuthStore = create((set) => ({
+  accessToken: null,
+  userInfoChecking: false, // 사용자 프로필 확인용
+  isLoading: true, // 토큰 확인 중 로딩 상태
 
-      setAccessToken: (token) =>
-        set({
-          accessToken: token,
-        }),
-
-      login: (token) =>
-        set({
-          isLoggedIn: true,
-          accessToken: token,
-        }),
-
-      logout: () =>
-        set({
-          isLoggedIn: false,
-          accessToken: null,
-          userInfoChecking: false,
-        }),
-
-      setUserInfoChecking: (value) => {
-        set({
-          userInfoChecking: value,
-        });
-      },
+  setAccessToken: (token) =>
+    set({
+      accessToken: token,
+      isLoggedIn: !!token,
+      isLoading: false,
     }),
-    {
-      name: 'auth-storage',
-    }
-  )
-);
+
+  login: (token) =>
+    set({
+      accessToken: token,
+      isLoading: false,
+    }),
+
+  logout: () =>
+    set({
+      accessToken: null,
+      userInfoChecking: false,
+      isLoading: false,
+    }),
+
+  setUserInfoChecking: (value) =>
+    set({
+      userInfoChecking: value,
+    }),
+
+  setLoading: (value) =>
+    set({
+      isLoading: value,
+    }),
+}));
 
 export default useAuthStore;

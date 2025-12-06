@@ -98,12 +98,16 @@ const MainPage = () => {
   // 오늘의 공고 목록 가져오기 api
   useEffect(() => {
     async function getTodaysJobs() {
+      console.log('1. 요청 시작');
       try {
         const res = await api.get('/api/v1/projects?status=recruiting&size=16');
         const projects = res.data.data.content;
+        console.log('2. 응답 받음:', res);
         setOriginalProjectList(projects.map((item) => ({ ...item, isSelected: 0 })));
       } catch (e) {
         console.error(e);
+      } finally {
+        console.log('3. 로딩 종료 시도'); // 로그 3
       }
     }
 
