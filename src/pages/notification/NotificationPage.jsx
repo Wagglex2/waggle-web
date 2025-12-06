@@ -74,7 +74,6 @@ const NotificationPage = () => {
 
       alert(successMessage);
       handleDeleteAll();
-      //console.log(res);
     } catch (e) {
       console.log(e);
       alert('알림 삭제에 실패하였습니다. 다시 시도해 주세요.');

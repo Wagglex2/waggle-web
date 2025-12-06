@@ -62,7 +62,6 @@ function App() {
   // 토큰 없으면 로그인 페이지로 이동
   useEffect(() => {
     if (!isLoading && !accessToken) {
-      alert('세션이 종료되었습니다. 다시 로그인해주세요.');
       navigate('/signin', { replace: true });
     }
   }, [accessToken, isLoading, navigate]);

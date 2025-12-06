@@ -14,7 +14,6 @@ const ProfileReviewBox = () => {
     async function getReview() {
       try {
         const res = await api.get(`/api/v1/reviews/me/received?page=${currentPage - 1}`);
-        console.log(res);
         setReview(res.data.data.content);
         setTotalPages(res.data.data.page.totalPages);
       } catch (e) {

@@ -11,13 +11,13 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import api from '@/api/api';
 import ProfileReviewBox from '../components/ProfileReviewBox';
+import profileDefaultImg from '../../../assets/img/profileDefault.png';
 
 const gradeList = ['1학년', '2학년', '3학년', '4학년 이상'];
 
 const ProfilePage = () => {
   const apiKey = import.meta.env.VITE_API_KEY;
-  const defaultImgUrl =
-    'https://waggle-image-bucket.s3.ap-northeast-2.amazonaws.com/user-profile-images/default-profile-image.png';
+  const defaultImgUrl = profileDefaultImg;
   const [imgFile, setImgFile] = useState(null);
   const [originalUserData, setOriginalUserData] = useState({
     nickname: '',
@@ -37,6 +37,8 @@ const ProfilePage = () => {
     email: '',
   });
 
+  const [isLoading, setIsLoading] = useState(true);
+
   // 닉네임 변경 관련 상태들
   const [nicknameConfirmState, setNicknameConfirmState] = useState({
     btnState: false,
@@ -46,10 +48,6 @@ const ProfilePage = () => {
   const [nicknameCheckingMsg, setNicknameCheckingMsg] = useState('중복검사');
   const nicknameRegex = /^[a-zA-Z가-힣0-9]{2,10}$/;
 
-  useEffect(() => {
-    console.log(techStack);
-  }, [techStack]);
-
   // 내 정보 조회 api
   useEffect(() => {
     async function getUserProfile() {
@@ -57,6 +55,7 @@ const ProfilePage = () => {
         const res = await api.get('/api/v1/users/me');
         const userInfo = res.data.data;
         handleSetAllUserData(userInfo);
+        setIsLoading(false);
       } catch (e) {
         console.error(e);
       }
@@ -106,6 +105,7 @@ const ProfilePage = () => {
 
   // 이미지 삭제
   async function deleteUserImg() {
+    if (!confirm('프로필 이미지를 삭제하시겠습니까?')) return;
     try {
       const res = await api.delete('/api/v1/users/me/profile-image');
       setOtherUserData((prev) => ({
@@ -269,128 +269,139 @@ const ProfilePage = () => {
     <div css={wrap}>
       <h2 css={pageTitle}>🍯 내 프로필</h2>
       <div css={profileContentBox}>
-        <div css={basicInfoCard}>
-          <div css={imgBox}>
-            <div className="img-card">
-              <img src={otherUserData.imgUrl} />
-            </div>
-            <div css={changeImgBtnBox}>
-              <label htmlFor="file">
-                <CameraAltOutlinedIcon fontSize="13px" />
-              </label>
-              <input type="file" id="file" accept="image/*" onChange={handleUploadImg} />
-              <button className="imgDeleteBtn" onClick={deleteUserImg}>
-                ✕
-              </button>
-            </div>
-          </div>
-          <h3 className="user-name">{originalUserData.nickname}</h3>
-          <p className="univ">✓ {otherUserData.univ} 인증 완료</p>
-        </div>
-        <form css={details}>
-          <div css={detailsItem}>
-            <p className="item-label">이메일</p>
-            <p css={itemContent}>{otherUserData.email}</p>
-          </div>
-          <div css={detailsItem}>
-            <p className="item-label">닉네임</p>
-            <div css={itemContent}>
-              <div className="change-user-name-box">
-                <input
-                  type="text"
-                  placeholder="닉네임을 입력해 주세요"
-                  value={nickname}
-                  onChange={handleNickname}
-                />
-                <button
-                  type="button"
-                  disabled={!nicknameConfirmState.btnState}
-                  onClick={getNicknameAvailability}
-                >
-                  {nicknameCheckingMsg}
-                </button>
-              </div>
-              <p css={confirmMsg(nicknameConfirmState.message)}>{nicknameConfirmState.message}</p>
-            </div>
-          </div>
-          <div css={detailsItem}>
-            <p className="item-label">비밀번호</p>
-            <div css={itemContent}>
-              <Link to={'/my-page/profile/editpw'}>
-                <p className="change-pw-btn">
-                  비밀번호 변경하기
-                  <LaunchOutlinedIcon sx={{ fontSize: '16px' }} />
-                </p>
-              </Link>
-            </div>
-          </div>
-          <div css={detailsItem}>
-            <p className="item-label">학년</p>
-            <div css={itemContent}>
-              <div>
-                {gradeList.map((item, i) => (
-                  <button
-                    type="button"
-                    key={item}
-                    css={gradeBtn(grade, i)}
-                    onClick={() => setGrade(i)}
-                  >
-                    {item}
+        {isLoading ? (
+          <p css={profileLoadingBox}>데이터를 불러오는 중...</p>
+        ) : (
+          <>
+            <div css={basicInfoCard}>
+              <div css={imgBox}>
+                <div className="img-card">
+                  <img src={otherUserData.imgUrl} />
+                </div>
+                <div css={changeImgBtnBox}>
+                  <label htmlFor="file">
+                    <CameraAltOutlinedIcon fontSize="13px" />
+                  </label>
+                  <input type="file" id="file" accept="image/*" onChange={handleUploadImg} />
+                  <button className="imgDeleteBtn" onClick={deleteUserImg}>
+                    ✕
                   </button>
-                ))}
+                </div>
               </div>
+              <h3 className="user-name">{originalUserData.nickname}</h3>
+              <p className="univ">✓ {otherUserData.univ} 인증 완료</p>
             </div>
-          </div>
-          <div css={detailsItem}>
-            <p className="item-label">포지션</p>
-            <div css={itemContent}>
-              <DropDown
-                label="포지션"
-                options={positionOptions}
-                buttonWidth={'200px'}
-                onChange={setPosition}
-                prevData={position}
-              />
-            </div>
-          </div>
-          <div css={detailsItem}>
-            <p className="item-label">기술</p>
-            <div css={itemContent}>
-              <MultiSelectDropDown
-                label="기술"
-                options={techStackOptions}
-                buttonWidth={'440px'}
-                onChange={setTechStack}
-                prevData={techStack}
-              />
-              {techStack.length === 0 && <p css={confirmMsg}>*기술을 한 개 이상 선택해 주세요.</p>}
-              {techStack.length > 10 && (
-                <p css={confirmMsg}>*10개 이하의 기술만 선택 가능합니다.</p>
-              )}
-            </div>
-          </div>
-          <div css={detailsItem} className="last-item">
-            <p className="item-label">한 줄 소개</p>
-            <div css={itemContent}>
-              <input
-                className="input-introduction"
-                type="text"
-                placeholder="한 줄 소개를 적어주세요"
-                value={shortIntro}
-                onChange={(e) => setShortIntro(e.target.value)}
-              />
-              {shortIntro.length === 0 && <p css={confirmMsg}>*한 줄 소개를 작성해 주세요.</p>}
-            </div>
-          </div>
-          <button
-            type="submit"
-            css={profileUpdateBtn}
-            disabled={isDataUnchanged}
-            onClick={patchUserData}
-          >
-            {isDataUnchanged ? '변경사항 없음' : '저장하기'}
-          </button>
-        </form>
+            <form css={details}>
+              <div css={detailsItem}>
+                <p className="item-label">이메일</p>
+                <p css={itemContent}>{otherUserData.email}</p>
+              </div>
+              <div css={detailsItem}>
+                <p className="item-label">닉네임</p>
+                <div css={itemContent}>
+                  <div className="change-user-name-box">
+                    <input
+                      type="text"
+                      placeholder="닉네임을 입력해 주세요"
+                      value={nickname}
+                      onChange={handleNickname}
+                    />
+                    <button
+                      type="button"
+                      disabled={!nicknameConfirmState.btnState}
+                      onClick={getNicknameAvailability}
+                    >
+                      {nicknameCheckingMsg}
+                    </button>
+                  </div>
+                  <p css={confirmMsg(nicknameConfirmState.message)}>
+                    {nicknameConfirmState.message}
+                  </p>
+                </div>
+              </div>
+              <div css={detailsItem}>
+                <p className="item-label">비밀번호</p>
+                <div css={itemContent}>
+                  <Link to={'/my-page/profile/editpw'}>
+                    <p className="change-pw-btn">
+                      비밀번호 변경하기
+                      <LaunchOutlinedIcon sx={{ fontSize: '16px' }} />
+                    </p>
+                  </Link>
+                </div>
+              </div>
+              <div css={detailsItem}>
+                <p className="item-label">학년</p>
+                <div css={itemContent}>
+                  <div>
+                    {gradeList.map((item, i) => (
+                      <button
+                        type="button"
+                        key={item}
+                        css={gradeBtn(grade, i)}
+                        onClick={() => setGrade(i)}
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div css={detailsItem}>
+                <p className="item-label">포지션</p>
+                <div css={itemContent}>
+                  <DropDown
+                    label="포지션"
+                    options={positionOptions}
+                    buttonWidth={'200px'}
+                    onChange={setPosition}
+                    prevData={position}
+                  />
+                </div>
+              </div>
+              <div css={detailsItem}>
+                <p className="item-label">기술</p>
+                <div css={itemContent}>
+                  <MultiSelectDropDown
+                    label="기술"
+                    options={techStackOptions}
+                    buttonWidth={'440px'}
+                    onChange={setTechStack}
+                    prevData={techStack}
+                  />
+                  {techStack.length === 0 && (
+                    <p css={confirmMsg}>*기술을 한 개 이상 선택해 주세요.</p>
+                  )}
+                  {techStack.length > 10 && (
+                    <p css={confirmMsg}>*10개 이하의 기술만 선택 가능합니다.</p>
+                  )}
+                </div>
+              </div>
+              <div css={detailsItem} className="last-item">
+                <p className="item-label">한 줄 소개</p>
+                <div css={itemContent}>
+                  <input
+                    className="input-introduction"
+                    type="text"
+                    placeholder="한 줄 소개를 적어주세요"
+                    value={shortIntro}
+                    onChange={(e) => setShortIntro(e.target.value)}
+                  />
+                  {shortIntro.length === 0 && <p css={confirmMsg}>*한 줄 소개를 작성해 주세요.</p>}
+                </div>
+              </div>
+              <button
+                type="submit"
+                css={profileUpdateBtn}
+                disabled={isDataUnchanged}
+                onClick={patchUserData}
+              >
+                {isDataUnchanged ? '변경사항 없음' : '저장하기'}
+              </button>
+            </form>
+          </>
+        )}
+
         <ProfileReviewBox />
       </div>
     </div>
@@ -414,6 +425,7 @@ const pageTitle = css`
 
 const profileContentBox = css`
   width: 100%;
+  min-height: 800px;
   border: 1px solid ${colors.gray[300]};
   border-radius: 10px;
   padding: 40px 100px;
@@ -596,4 +608,13 @@ const confirmMsg = (confirmMsg) => css`
   color: ${confirmMsg === '사용 가능한 닉네임입니다' ? '#6bb23d' : '#dc3545'};
   margin-top: 3px;
   margin-left: 7px;
+`;
+
+const profileLoadingBox = css`
+  min-height: 200px;
+  text-align: center;
+  font-family: 'nanumB';
+  font-size: 20px;
+  color: ${colors.gray[300]};
+  margin-top: 300px;
 `;

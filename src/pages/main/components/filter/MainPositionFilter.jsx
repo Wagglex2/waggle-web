@@ -6,11 +6,11 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const MainPositionFilter = ({ selectedPosition, setSelectedPosition }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // 필터 드롭다운 열림 여부
-  console.log(selectedPosition);
+  //console.log(selectedPosition);
 
   // 드롭다운에서 원하는 옵션을 클릭 했을 때
   function handleOptionSelect(newPosition) {
@@ -21,10 +21,6 @@ const MainPositionFilter = ({ selectedPosition, setSelectedPosition }) => {
         : [...prev, newPosition]
     );
   }
-
-  useEffect(() => {
-    console.log(selectedPosition);
-  }, [selectedPosition]);
 
   return (
     <div css={container}>
