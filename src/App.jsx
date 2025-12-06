@@ -36,7 +36,7 @@ function App() {
 
   // 새로고침 시 refresh 요청
   useEffect(() => {
-    if (location.pathname === '/signin' || location.pathname === 'signup') return;
+    if (location.pathname === '/signin' || location.pathname === '/signup') return;
     async function postRefresh() {
       try {
         const res = await axios.post(
