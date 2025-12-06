@@ -34,7 +34,7 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 새로고침 시 refresh 요청
+  //새로고침 시 refresh 요청
   useEffect(() => {
     if (location.pathname === '/signin' || location.pathname === '/signup') return;
     async function postRefresh() {
