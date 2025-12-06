@@ -1,19 +1,20 @@
 /** @jsxImportSource @emotion/react */
-import { wrap, mainContent } from './jobDetailStyle';
+import { wrap, mainContent, loadingBox } from './jobDetailStyle';
 import ProjectInfo from './components/job-info/ProjectInfo';
 import JobListLinkBtn from './components/JobListLinkBtn';
 import ProjectApplicationForm from './components/application-form/ProjectApplicationForm';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import api from '@/api/api';
+import profileImg from '../../assets/img/profileDefault.png';
 
 const ProjectDetailPage = () => {
   const params = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
 
-  const defaultImgUrl =
-    'https://waggle-image-bucket.s3.ap-northeast-2.amazonaws.com/user-profile-images/default-profile-image.png';
+  const defaultImgUrl = profileImg;
 
   // 공고 기본 데이터
   const [metaData, setMataData] = useState({
@@ -59,6 +60,7 @@ const ProjectDetailPage = () => {
       try {
         const res = await api.get(`/api/v1/projects/${params.id}`);
         const projectInfo = res.data.data;
+        setIsLoading(false);
         setMataData({
           imgUrl: projectInfo.authorProfileImageUrl || defaultImgUrl,
           recruiterId: projectInfo.authorId,
@@ -97,13 +99,17 @@ const ProjectDetailPage = () => {
     <div css={wrap}>
       <JobListLinkBtn category={'프로젝트'} onClick={handleListBtnClick} />
       <main css={mainContent}>
-        <ProjectInfo
-          meta={metaData}
-          bookMarked={bookMarkState}
-          changeBookMark={setBookMarkState}
-          summary={summary}
-          detail={projectDetail}
-        />
+        {isLoading ? (
+          <p css={loadingBox}>데이터를 불러오는 중...</p>
+        ) : (
+          <ProjectInfo
+            meta={metaData}
+            bookMarked={bookMarkState}
+            changeBookMark={setBookMarkState}
+            summary={summary}
+            detail={projectDetail}
+          />
+        )}
         <ProjectApplicationForm />
       </main>
     </div>

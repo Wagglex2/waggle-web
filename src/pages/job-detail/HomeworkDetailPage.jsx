@@ -1,19 +1,20 @@
 /** @jsxImportSource @emotion/react */
-import { wrap, mainContent } from './jobDetailStyle';
+import { wrap, mainContent, loadingBox } from './jobDetailStyle';
 import HomeworkInfo from './components/job-info/HomeworkInfo';
 import JobListLinkBtn from './components/JobListLinkBtn';
 import HomeworkApplicationForm from './components/application-form/HomeworkApplicationForm';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import api from '@/api/api';
+import profileImg from '../../assets/img/profileDefault.png';
 
 const HomeworkDetailPage = () => {
   const params = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
 
-  const defaultImgUrl =
-    'https://waggle-image-bucket.s3.ap-northeast-2.amazonaws.com/user-profile-images/default-profile-image.png';
+  const defaultImgUrl = profileImg;
 
   // 공고 기본 데이터
   const [metaData, setMataData] = useState({
@@ -57,8 +58,8 @@ const HomeworkDetailPage = () => {
     async function getHomeworkInfo() {
       try {
         const res = await api.get(`/api/v1/assignments/${params.id}`);
-        //console.log(res);
         const homeworkInfo = res.data.data;
+        setIsLoading(false);
         setMataData({
           imgUrl: homeworkInfo.authorProfileImageUrl || defaultImgUrl,
           recruiterId: homeworkInfo.authorId,
@@ -95,13 +96,17 @@ const HomeworkDetailPage = () => {
     <div css={wrap}>
       <JobListLinkBtn category={'과제'} onClick={handleListBtnClick} />
       <main css={mainContent}>
-        <HomeworkInfo
-          meta={metaData}
-          bookMarked={bookMarkState}
-          changeBookMark={setBookMarkState}
-          summary={summary}
-          detail={homeworkDetail}
-        />
+        {isLoading ? (
+          <p css={loadingBox}>데이터를 불러오는 중...</p>
+        ) : (
+          <HomeworkInfo
+            meta={metaData}
+            bookMarked={bookMarkState}
+            changeBookMark={setBookMarkState}
+            summary={summary}
+            detail={homeworkDetail}
+          />
+        )}
         <HomeworkApplicationForm />
       </main>
     </div>

@@ -98,16 +98,12 @@ const MainPage = () => {
   // 오늘의 공고 목록 가져오기 api
   useEffect(() => {
     async function getTodaysJobs() {
-      console.log('1. 요청 시작');
       try {
         const res = await api.get('/api/v1/projects?status=recruiting&size=16');
         const projects = res.data.data.content;
-        console.log('2. 응답 받음:', res);
         setOriginalProjectList(projects.map((item) => ({ ...item, isSelected: 0 })));
       } catch (e) {
         console.error(e);
-      } finally {
-        console.log('3. 로딩 종료 시도'); // 로그 3
       }
     }
 
@@ -160,17 +156,21 @@ const MainPage = () => {
           setSelectedPosition={setSelectedPosition}
         />
       </div>
-      <div css={jobCardList}>
-        <p css={link} onClick={() => navigate('/project-list')}>
-          프로젝트 공고 전체 보기
-          <ArrowForwardIosIcon fontSize="18px" />
-        </p>
-        {cardLocation.map((loc, index) => (
-          <div key={index} css={cardPosition(loc.top, loc.left)}>
-            <HexagonCard jobData={filteredProjectList[index]} />
-          </div>
-        ))}
-      </div>
+      {!cardLocation ? (
+        <p css={loadingBox}>데이터를 불러오는 중...</p>
+      ) : (
+        <div css={jobCardList}>
+          <p css={link} onClick={() => navigate('/project-list')}>
+            프로젝트 공고 전체 보기
+            <ArrowForwardIosIcon fontSize="18px" />
+          </p>
+          {cardLocation.map((loc, index) => (
+            <div key={index} css={cardPosition(loc.top, loc.left)}>
+              <HexagonCard jobData={filteredProjectList[index]} />
+            </div>
+          ))}
+        </div>
+      )}
       {openModal && <UserInfoModal setOpenModal={setOpenModal} onSave={handleModalClose} />}
     </div>
   );
@@ -258,4 +258,13 @@ const link = css`
     cursor: pointer;
     color: ${colors.primary};
   }
+`;
+
+const loadingBox = css`
+  text-align: center;
+  margin-top: 130px;
+  margin-left: 20px;
+  font-size: 25px;
+  color: ${colors.gray[100]};
+  font-family: 'nanumB';
 `;
