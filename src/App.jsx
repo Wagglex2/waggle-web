@@ -61,7 +61,6 @@ function App() {
 
   // 토큰 없으면 로그인 페이지로 이동
   useEffect(() => {
-    console.log(isLoading, accessToken);
     if (!isLoading && !accessToken) {
       navigate('/signin', { replace: true });
     }

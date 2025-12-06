@@ -56,7 +56,7 @@ const MainPage = () => {
         const response = await api.get('/api/v1/users/me');
         const data = response.data.data;
 
-        console.log('User info:', data);
+        //console.log('User info:', data);
 
         const hasGrade = data.grade && data.grade > 0;
         const hasPosition = data.position && data.position.name;
@@ -65,13 +65,13 @@ const MainPage = () => {
 
         const isMissingInfo = !hasGrade || !hasPosition || !hasSkills || !hasIntro;
 
-        console.log('Missing info check:', {
-          hasGrade,
-          hasPosition,
-          hasSkills,
-          hasIntro,
-          isMissingInfo,
-        });
+        // console.log('Missing info check:', {
+        //   hasGrade,
+        //   hasPosition,
+        //   hasSkills,
+        //   hasIntro,
+        //   isMissingInfo,
+        // });
 
         setOpenModal(isMissingInfo);
         if (!isMissingInfo) setUserInfoChecking(true);
