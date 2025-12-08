@@ -34,10 +34,25 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  //새로고침 시 refresh 요청
   useEffect(() => {
-    if (location.pathname === '/signin' || location.pathname === '/signup') return;
+    // 공개 페이지에서는 스킵
+    if (
+      location.pathname === '/signin' ||
+      location.pathname === '/signup' ||
+      location.pathname === '/'
+    ) {
+      setLoading(false);
+      return;
+    }
+
+    if (accessToken) {
+      setLoading(false);
+      return;
+    }
+
     async function postRefresh() {
+      const startTime = Date.now();
+
       try {
         const res = await axios.post(
           `${apiKey}/api/v1/auth/refresh`,
@@ -52,19 +67,30 @@ function App() {
       } catch (e) {
         if (e.response?.status === 401) logout();
       } finally {
-        setLoading(false); // 로딩 종료
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(2000 - elapsedTime, 0);
+
+        setTimeout(() => {
+          setLoading(false);
+        }, remainingTime);
       }
     }
 
     postRefresh();
-  }, [setAccessToken, logout, setLoading]);
+  }, [location.pathname, accessToken, setAccessToken, logout, setLoading, apiKey]);
 
   // 토큰 없으면 로그인 페이지로 이동
   useEffect(() => {
-    if (!isLoading && !accessToken) {
+    if (
+      !isLoading &&
+      !accessToken &&
+      location.pathname !== '/signin' &&
+      location.pathname !== '/signup' &&
+      location.pathname !== '/'
+    ) {
       navigate('/signin', { replace: true });
     }
-  }, [accessToken, isLoading, navigate]);
+  }, [accessToken, isLoading, location.pathname, navigate]);
 
   return (
     <Routes>
