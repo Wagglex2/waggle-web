@@ -13,7 +13,7 @@ const ProtectedRoute = ({ children }) => {
     if (!isLoading) {
       const timer = setTimeout(() => {
         setShowLoading(false);
-      }, 3700);
+      }, 2300);
 
       return () => clearTimeout(timer);
     }
@@ -51,7 +51,7 @@ const float = keyframes`
 const loadingImgBox = css`
   height: 250px;
   width: fit-content;
-  animation: ${float} 1.2s ease-in-out infinite alternate;
+  animation: ${float} 0.7s ease-in-out infinite alternate;
 
   img {
     height: 100%;
