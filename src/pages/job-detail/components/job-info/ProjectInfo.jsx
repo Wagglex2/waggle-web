@@ -3,15 +3,23 @@ import { jobInfoBox, infoBox, jobSummary } from './jobInfoStyle';
 import Meta from './info-data/Meta';
 import RecruitmentStatus from './info-data/RecruitmentStatus';
 import Details from './info-data/Details';
+import UserProfileModal from '@/pages/my-page/components/UserProfileModal';
+import { useState } from 'react';
 
 const ProjectInfo = (props) => {
   const { meta, bookMarked, changeBookMark, summary, detail } = props;
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div css={jobInfoBox}>
       <div css={infoBox}>
         {/* 공고 메타 데이터 */}
-        <Meta metaData={meta} bookMarked={bookMarked} setBookMark={changeBookMark} />
+        <Meta
+          metaData={meta}
+          bookMarked={bookMarked}
+          setBookMark={changeBookMark}
+          setIsProfileOpen={setIsOpen}
+        />
 
         {/* 공고 지원조건 요약 */}
         <table css={jobSummary}>
@@ -51,6 +59,9 @@ const ProjectInfo = (props) => {
         <h5 className="text-green">공고 상세</h5>
         <Details detail={detail} />
       </div>
+
+      {/* 공고 등록자 프로필 */}
+      <UserProfileModal isOpen={isOpen} user={meta} onClose={() => setIsOpen(false)} />
     </div>
   );
 };

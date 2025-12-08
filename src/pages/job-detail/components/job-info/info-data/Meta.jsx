@@ -5,7 +5,7 @@ import BookMark from './meta-items/BookMark';
 import ViewCount from './meta-items/ViewCount';
 import RecruiterInfo from './meta-items/RecruiterInfo';
 
-const Meta = ({ metaData, bookMarked, setBookMark }) => {
+const Meta = ({ metaData, bookMarked, setBookMark, setIsProfileOpen }) => {
   const createdAt = metaData.createdAt.split(' ');
   const deadline = metaData.deadline.split(' ');
 
@@ -16,6 +16,7 @@ const Meta = ({ metaData, bookMarked, setBookMark }) => {
           imgUrl={metaData.imgUrl}
           userId={metaData.recruiterId}
           userNickname={metaData.recruiterNickname}
+          setIsProfileOpen={setIsProfileOpen}
         />
         <div className="other-info">
           <BookMark
@@ -58,6 +59,15 @@ const metaHeader = css`
   .user-info {
     display: flex;
     align-items: center;
+
+    &:hover {
+      cursor: pointer;
+
+      .user-name {
+        color: ${colors.gray[400]};
+        text-decoration: underline;
+      }
+    }
 
     .user-img {
       width: 45px;
