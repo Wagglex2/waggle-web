@@ -1,6 +1,6 @@
-const RecruiterInfo = ({ imgUrl, userId, userNickname }) => {
+const RecruiterInfo = ({ imgUrl, userNickname, setIsProfileOpen }) => {
   return (
-    <div className="user-info">
+    <div className="user-info" onClick={() => setIsProfileOpen(true)}>
       <div className="user-img">
         <img src={imgUrl} />
       </div>

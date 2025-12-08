@@ -47,7 +47,7 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
     if (isOpen && user) {
       setExtendedUser(user);
 
-      const targetId = user.applicantId || user.id || user.userId;
+      const targetId = user.applicantId || user.id || user.userId || user.recruiterId;
 
       if (targetId) {
         const fetchAllData = async () => {
