@@ -16,20 +16,18 @@ const DropDown = ({
   isDisable,
 }) => {
   const [openModal, setOpenModal] = useState(false);
-  const [selected, setSelected] = useState(prevData?.desc || label);
+  const [selected, setSelected] = useState(label);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
-    if (prevData) setSelected(prevData.desc);
-  }, [prevData]);
-
-  useEffect(() => {
-    if (!value) {
-      setSelected(label);
-    } else {
+    if (value) {
       setSelected(value.desc);
+    } else if (prevData) {
+      setSelected(prevData.desc);
+    } else {
+      setSelected(label);
     }
-  }, [value, label]);
+  }, [value, prevData, label]);
 
   const handleSelect = (option) => {
     setSelected(option.desc);
@@ -37,7 +35,6 @@ const DropDown = ({
     setOpenModal(false);
   };
 
-  // 포커스 아웃 시 드롭다운 닫힘
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -83,6 +80,8 @@ const DropDown = ({
 };
 
 export default DropDown;
+
+// ... 나머지 스타일 동일
 
 const dropDownBox = (buttonWidth) => css`
   height: 33px;
