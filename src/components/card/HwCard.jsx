@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { colors } from "@/styles/theme";
 import api from "@/api/api";
 
@@ -23,6 +23,30 @@ const cardStyle = css`
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   }
+`;
+
+const closedOverlayStyle = css`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(155, 155, 155, 0.3); 
+  border-radius: 20px 20px 10px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  font-family: 'nanumB';
+`;
+
+const closedTextStyle = css`
+  background-color: #9b9b9bff;
+  color: white;
+  font-family: 'nanumR';
+  padding: 12px 20px;
+  border-radius: 18px;
+  font-size: 17px;
 `;
 
 const headerTopStyle = css`
@@ -188,7 +212,6 @@ const HeartIcon = ({ isLiked }) => (
 
 export default function HwCard({ project, onUnlike }) {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [isLiked, setIsLiked] = useState(project.bookmarked);
   const [bookmarkId, setBookmarkId] = useState(project.bookmarkId);
@@ -197,13 +220,15 @@ export default function HwCard({ project, onUnlike }) {
   const displayedSubjects = project.subjects ? project.subjects.slice(0, 3) : [];
   const hasMoreSubjects = project.subjects ? project.subjects.length > 3 : false;
 
+  const isClosed = project.status === 'CLOSED';
+
   useEffect(() => {
     setIsLiked(project.bookmarked);
     setBookmarkId(project.bookmarkId);
   }, [project]);
 
   const handleLikeClick = async (e) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
 
     if (isSavedPage) {
       onUnlike(project.id);
@@ -221,7 +246,7 @@ export default function HwCard({ project, onUnlike }) {
         setBookmarkId(null);
       } else {
         const response = await api.post(`/api/v1/bookmarks/recruitments/${project.id}`);
-        const newBookmarkId = response.data.data; 
+        const newBookmarkId = response.data.data;
         setIsLiked(true);
         setBookmarkId(newBookmarkId);
       }
@@ -234,13 +259,17 @@ export default function HwCard({ project, onUnlike }) {
   };
   
   const handleCardClick = () => {
-    navigate(`/hw-list/${project.id}`, {
-      state: { prevParams: location.search }
-    });
+    navigate(`/hw-list/${project.id}`);
   };
 
   return (
     <div css={cardStyle} onClick={handleCardClick}>
+      {isClosed && (
+        <div css={closedOverlayStyle}>
+          <span css={closedTextStyle}>모집 마감</span>
+        </div>
+      )}
+
       <div>
         <div css={headerTopStyle}>
           <div css={tagGroupStyle}>

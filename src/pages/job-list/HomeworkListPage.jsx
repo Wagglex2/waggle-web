@@ -162,6 +162,7 @@ export default function HwListPage() {
           subjects: item.lecture ? [item.lecture] : [], 
 
           grade: (item.grades && item.grades.length > 0) ? `${item.grades[0]}학년` : "학년 무관",
+          status: item.status?.name || item.status || "RECRUITING",
 
           bookmarked: item.bookmarked, 
           bookmarkId: item.bookmarkId, 

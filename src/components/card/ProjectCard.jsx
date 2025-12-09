@@ -26,6 +26,33 @@ const cardStyle = css`
   }
 `;
 
+// ★ [수정] 마감 오버레이 스타일 (훨씬 밝게)
+const closedOverlayStyle = css`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* 투명도를 0.5 -> 0.2로 낮춰서 덜 어둡게 변경 */
+  background-color: rgba(155, 155, 155, 0.3); 
+  border-radius: 20px 20px 10px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  font-family: 'nanumB';
+`;
+
+// ★ [수정] 마감 텍스트 박스 스타일 (밝은 회색)
+const closedTextStyle = css`
+  background-color: #9b9b9bff;
+  color: white;
+  font-family: 'nanumR';
+  padding: 12px 20px;
+  border-radius: 18px;
+  font-size: 17px;
+`;
+
 const headerTopStyle = css`
   display: flex;
   justify-content: space-between;
@@ -242,6 +269,8 @@ export default function ProjectCard({ project, onUnlike }) {
   const displayedPositions = project.positions?.slice(0, 3);
   const hasMorePositions = project.positions?.length > 3;
 
+  const isClosed = project.status === 'CLOSED';
+
   useEffect(() => {
     setIsLiked(project.bookmarked);
     setBookmarkId(project.bookmarkId);
@@ -289,6 +318,12 @@ export default function ProjectCard({ project, onUnlike }) {
 
   return (
     <div css={cardStyle} onClick={handleCardClick}>
+      {isClosed && (
+        <div css={closedOverlayStyle}>
+          <span css={closedTextStyle}>모집 마감</span>
+        </div>
+      )}
+
       <div css={headerTopStyle}>
         <div css={tagGroupStyle}>
           {project.purposeTag && (
