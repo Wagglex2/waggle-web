@@ -9,6 +9,7 @@ export const useTeamStore = create((set) => ({
   reviewTarget: null,
   reviewText: '',
   currentUserNickname: null,
+  currentReviewId: null,
 
   setCurrentUserNickname: (nickname) => set({ currentUserNickname: nickname }),
 
@@ -43,10 +44,11 @@ export const useTeamStore = create((set) => ({
   openReview: (team, member) =>
     set((state) => {
       const key = `${team.id}_${member.userId}`;
-      const existingText = state.reviews.get(key) || '';
+      const savedData = state.reviews.get(key) || { content: '', reviewId: null };
       return {
         reviewTarget: { team, member },
-        reviewText: existingText,
+        reviewText: savedData.content,
+        currentReviewId: savedData.reviewId,
       };
     }),
 
@@ -54,11 +56,12 @@ export const useTeamStore = create((set) => ({
     set({
       reviewTarget: null,
       reviewText: '',
+      currentReviewId: null,
     }),
 
   setReviewText: (text) => set({ reviewText: text }),
 
-  saveReview: () =>
+  saveReview: (newReviewId) =>
     set((state) => {
       if (!state.reviewTarget) return state;
 
@@ -69,13 +72,17 @@ export const useTeamStore = create((set) => ({
       newReviewedMembers.add(key);
 
       const newReviews = new Map(state.reviews);
-      newReviews.set(key, state.reviewText);
+      newReviews.set(key, {
+        content: state.reviewText,
+        reviewId: newReviewId || state.currentReviewId,
+      });
 
       return {
         reviewedMembers: newReviewedMembers,
         reviews: newReviews,
         reviewTarget: null,
         reviewText: '',
+        currentReviewId: null,
       };
     }),
 
@@ -97,6 +104,7 @@ export const useTeamStore = create((set) => ({
         reviews: newReviews,
         reviewTarget: null,
         reviewText: '',
+        currentReviewId: null,
       };
     }),
 }));
