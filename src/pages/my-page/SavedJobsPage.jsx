@@ -134,7 +134,7 @@ export default function SavedJobsPage() {
           author: item.authorNickname || "익명",
           authorProfileImageUrl: item.authorProfileImageUrl, 
           purposeTag: extractValue(item.purpose) || extractValue(item.category) || "기타",
-          status: extractValue(item.status) || "RECRUITING",
+          status: item.status?.name || "RECRUITING",
           
           bookmarked: true, 
           bookmarkId: item.bookmarkId, 
