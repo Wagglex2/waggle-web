@@ -22,11 +22,14 @@ const ReviewModal = () => {
     reviewTarget,
     reviewText,
     reviewedMembers,
+    currentReviewId,
     closeReview,
     setReviewText,
     saveReview,
     deleteReview,
   } = useTeamStore();
+
+  const maxChars = 200;
 
   async function handlesubmitReview() {
     try {
@@ -35,16 +38,48 @@ const ReviewModal = () => {
         content: reviewText,
       });
 
-      console.log(res);
+      const newReviewId = res.data?.data;
+
       alert('리뷰가 성공적으로 저장되었습니다.');
-      saveReview();
+      saveReview(newReviewId);
     } catch (error) {
-      console.error('리뷰 저장 중 오류가 발생했습니다:', error);
+      console.error(error);
       alert('리뷰 저장에 실패했습니다. 다시 시도해주세요.');
     }
   }
 
-  const maxChars = 200;
+  async function handleUpdateReview() {
+    if (!currentReviewId) {
+      alert('수정할 리뷰 정보를 찾을 수 없습니다.');
+      return;
+    }
+    try {
+      await api.patch(`/api/v1/reviews/me/written/${currentReviewId}`, {
+        content: reviewText,
+      });
+
+      alert('리뷰가 성공적으로 수정되었습니다.');
+      saveReview();
+    } catch (error) {
+      console.error(error);
+      alert('리뷰 수정에 실패했습니다.');
+    }
+  }
+
+  async function handleDeleteReview() {
+    if (!currentReviewId) return;
+    if (!window.confirm('정말로 이 리뷰를 삭제하시겠습니까?')) return;
+
+    try {
+      await api.delete(`/api/v1/reviews/me/written/${currentReviewId}`);
+
+      alert('리뷰가 삭제되었습니다.');
+      deleteReview();
+    } catch (error) {
+      console.error(error);
+      alert('리뷰 삭제에 실패했습니다.');
+    }
+  }
 
   if (!reviewTarget) {
     return null;
@@ -100,11 +135,11 @@ const ReviewModal = () => {
         <div css={saveBar}>
           {isEditing ? (
             <>
-              <button css={deleteBtn} onClick={deleteReview}>
+              <button css={deleteBtn} onClick={handleDeleteReview}>
                 삭제하기
               </button>
-              <button css={smallSaveBtn} onClick={saveReview}>
-                저장하기
+              <button css={smallSaveBtn} onClick={handleUpdateReview}>
+                수정하기
               </button>
             </>
           ) : (
