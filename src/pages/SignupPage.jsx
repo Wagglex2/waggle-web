@@ -346,6 +346,7 @@ const SignupPage = () => {
                 onChange={handleIdChange}
                 maxLength={10}
                 disabled={isVerified}
+                autoComplete="off"
               />
               <button
                 type="button"
@@ -477,16 +478,18 @@ const SignupPage = () => {
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
-                css={[fixedInput, css`width: 100%;`]}
+                css={[
+                  fixedInput,
+                  css`
+                    width: 100%;
+                  `,
+                ]}
                 placeholder="영문자, 숫자, 특수문자 포함 8~20자"
                 value={password}
                 onChange={handlePasswordChange}
+                autoComplete="new-password"
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                css={eyeBtn}
-              >
+              <button type="button" onClick={() => setShowPassword((prev) => !prev)} css={eyeBtn}>
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
@@ -498,7 +501,12 @@ const SignupPage = () => {
               <input
                 type={showPasswordConfirm ? 'text' : 'password'}
                 id="passwordConfirm"
-                css={[fixedInput, css`width: 100%;`]}
+                css={[
+                  fixedInput,
+                  css`
+                    width: 100%;
+                  `,
+                ]}
                 placeholder="비밀번호 확인해 주세요"
                 value={passwordConfirm}
                 onChange={handlePasswordConfirmChange}
@@ -628,12 +636,12 @@ const inputBase = css`
     background-color: #f5f5f5;
     color: ${colors.muted};
   }
-  
+
   &::-ms-reveal,
   &::-ms-clear {
     display: none;
   }
-  
+
   &::-webkit-credentials-auto-fill-button {
     visibility: hidden;
     display: none !important;
