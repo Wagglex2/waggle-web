@@ -167,8 +167,11 @@ const ProfilePage = () => {
         ok: true,
         message: '',
       });
+
+      alert('**수정 성공**');
     } catch (e) {
       console.log(e);
+      alert('**수정 실패** \n 알 수 없는 오류가 발생했습니다.');
     }
   }
 
@@ -383,9 +386,10 @@ const ProfilePage = () => {
                   <input
                     className="input-introduction"
                     type="text"
-                    placeholder="한 줄 소개를 적어주세요"
+                    placeholder="한 줄 소개를 적어주세요(100자 이내)"
                     value={shortIntro}
                     onChange={(e) => setShortIntro(e.target.value)}
+                    maxLength="100"
                   />
                   {shortIntro.length === 0 && <p css={confirmMsg}>*한 줄 소개를 작성해 주세요.</p>}
                 </div>
