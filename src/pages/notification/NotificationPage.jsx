@@ -54,6 +54,11 @@ const NotificationPage = () => {
     const categoryName = filterCatagory[activeFilterIndex].name;
     const categoryDesc = filterCatagory[activeFilterIndex].desc;
 
+    if (notifications?.length === 0) {
+      alert('삭제할 알림이 없습니다.');
+      return;
+    }
+
     switch (activeFilterIndex) {
       case 0:
         if (confirm('모든 알림을 삭제하시겠습니까?') === false) return;
