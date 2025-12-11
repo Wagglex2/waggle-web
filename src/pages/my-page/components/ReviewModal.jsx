@@ -3,6 +3,7 @@
 import { css } from '@emotion/react';
 import { useTeamStore } from '../../../stores/useTeamStore';
 import api from '@/api/api';
+import { useEffect } from 'react';
 
 const colors = {
   border: '#eee6d6',
@@ -29,7 +30,15 @@ const ReviewModal = () => {
     deleteReview,
   } = useTeamStore();
 
-  const maxChars = 200;
+  const maxChars = 100;
+
+  useEffect(() => {
+    try {
+      api.get(`/api/v1/reviews/me/written`);
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
   async function handlesubmitReview() {
     try {
