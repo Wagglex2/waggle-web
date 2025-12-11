@@ -178,7 +178,7 @@ const ProfilePage = () => {
   // 유저가 값을 수정했는지에 대한 여부([수정]버튼 활성화 여부)
   const isDataUnchanged = useMemo(() => {
     if (!nicknameConfirmState.ok) return true;
-    if (shortIntro.length === 0) return true;
+    if (shortIntro.trim() === '') return true;
     if (techStack.length === 0 || techStack.length > 10) return true;
 
     const isNicknameSame = originalUserData.nickname === nickname;
@@ -391,7 +391,7 @@ const ProfilePage = () => {
                     onChange={(e) => setShortIntro(e.target.value)}
                     maxLength="100"
                   />
-                  {shortIntro.length === 0 && <p css={confirmMsg}>*한 줄 소개를 작성해 주세요.</p>}
+                  {shortIntro.trim() === '' && <p css={confirmMsg}>*한 줄 소개를 작성해 주세요.</p>}
                 </div>
               </div>
               <button
