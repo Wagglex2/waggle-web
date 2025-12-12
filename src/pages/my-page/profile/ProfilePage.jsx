@@ -167,15 +167,18 @@ const ProfilePage = () => {
         ok: true,
         message: '',
       });
+
+      alert('**수정 성공**');
     } catch (e) {
       console.log(e);
+      alert('**수정 실패** \n 알 수 없는 오류가 발생했습니다.');
     }
   }
 
   // 유저가 값을 수정했는지에 대한 여부([수정]버튼 활성화 여부)
   const isDataUnchanged = useMemo(() => {
     if (!nicknameConfirmState.ok) return true;
-    if (shortIntro.length === 0) return true;
+    if (shortIntro.trim() === '') return true;
     if (techStack.length === 0 || techStack.length > 10) return true;
 
     const isNicknameSame = originalUserData.nickname === nickname;
@@ -383,11 +386,12 @@ const ProfilePage = () => {
                   <input
                     className="input-introduction"
                     type="text"
-                    placeholder="한 줄 소개를 적어주세요"
+                    placeholder="한 줄 소개를 적어주세요(100자 이내)"
                     value={shortIntro}
                     onChange={(e) => setShortIntro(e.target.value)}
+                    maxLength="100"
                   />
-                  {shortIntro.length === 0 && <p css={confirmMsg}>*한 줄 소개를 작성해 주세요.</p>}
+                  {shortIntro.trim() === '' && <p css={confirmMsg}>*한 줄 소개를 작성해 주세요.</p>}
                 </div>
               </div>
               <button

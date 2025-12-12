@@ -86,6 +86,7 @@ export const useTeamStore = create((set, get) => ({
     set({
       reviewTarget: null,
       reviewText: '',
+      currentReviewId: null,
     }),
 
   setReviewText: (text) => set({ reviewText: text }),
@@ -108,6 +109,7 @@ export const useTeamStore = create((set, get) => ({
         reviews: newReviews,
         reviewTarget: null,
         reviewText: '',
+        currentReviewId: null,
       };
     }),
 
@@ -129,6 +131,7 @@ export const useTeamStore = create((set, get) => ({
         reviews: newReviews,
         reviewTarget: null,
         reviewText: '',
+        currentReviewId: null,
       };
     }),
 }));
