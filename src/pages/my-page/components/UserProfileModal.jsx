@@ -25,80 +25,17 @@ const colors = {
   skillText: '#F9A825',
 };
 
-export const positionOptions = [
-  { name: 'BACK_END', desc: '백엔드' },
-  { name: 'FRONT_END', desc: '프론트엔드' },
-  { name: 'FULL_STACK', desc: '풀스택' },
-  { name: 'DATA', desc: '데이터' },
-  { name: 'AI', desc: 'AI' },
-  { name: 'GAME', desc: '게임' },
-  { name: 'PLANNER', desc: '기획' },
-  { name: 'DESIGNER', desc: '디자인' },
-  { name: 'PLANNING', desc: '기획' },
-  { name: 'DESIGN', desc: '디자인' },
-  { name: 'PM', desc: '기획(PM)' },
-  { name: 'PO', desc: '기획(PO)' },
-  { name: 'BACKEND', desc: '백엔드' },
-  { name: 'FRONTEND', desc: '프론트엔드' },
-];
-
-export const techStackOptions = [
-  { name: 'JAVA', desc: 'Java' },
-  { name: 'C', desc: 'C' },
-  { name: 'CPP', desc: 'C++' },
-  { name: 'CSHARP', desc: 'C#' },
-  { name: 'HTML', desc: 'HTML' },
-  { name: 'CSS', desc: 'CSS' },
-  { name: 'TYPESCRIPT', desc: 'TypeScript' },
-  { name: 'JAVASCRIPT', desc: 'JavaScript' },
-  { name: 'KOTLIN', desc: 'Kotlin' },
-  { name: 'SWIFT', desc: 'Swift' },
-  { name: 'PYTHON', desc: 'Python' },
-  { name: 'EXPRESS', desc: 'Express' },
-  { name: 'VUE_JS', desc: 'Vue.js' },
-  { name: 'NEXT_JS', desc: 'Next.js' },
-  { name: 'REACT', desc: 'React' },
-  { name: 'NODE_JS', desc: 'Node.js' },
-  { name: 'SPRING_BOOT', desc: 'Spring Boot' },
-  { name: 'DJANGO', desc: 'Django' },
-  { name: 'FLUTTER', desc: 'Flutter' },
-  { name: 'PANDAS', desc: 'Pandas' },
-  { name: 'SCIKIT_LEARN', desc: 'scikit-learn' },
-  { name: 'TENSORFLOW', desc: 'TensorFlow' },
-  { name: 'PYTORCH', desc: 'PyTorch' },
-  { name: 'UNITY', desc: 'Unity' },
-  { name: 'UNREAL', desc: 'Unreal' },
-  { name: 'POSTGRESQL', desc: 'PostgreSQL' },
-  { name: 'MYSQL', desc: 'MySQL' },
-  { name: 'MONGODB', desc: 'MongoDB' },
-  { name: 'REDIS', desc: 'Redis' },
-  { name: 'GIT', desc: 'Git' },
-  { name: 'GITHUB', desc: 'GitHub' },
-  { name: 'GITHUB_ACTIONS', desc: 'GitHub Actions' },
-  { name: 'DOCKER', desc: 'Docker' },
-  { name: 'FIGMA', desc: 'Figma' },
-  { name: 'NOTION', desc: 'Notion' },
-  { name: 'JIRA', desc: 'Jira' },
-];
-
-const getPositionLabel = (value) => {
-  if (!value) return '';
-  const searchKey = String(value).toUpperCase();
-  const target = positionOptions.find((opt) => opt.name === searchKey);
-  return target ? target.desc : value;
-};
-
-const getTagLabel = (value) => {
-  if (!value) return '';
-  const searchKey = String(value).toUpperCase();
-
-  const tech = techStackOptions.find((opt) => opt.name === searchKey);
-  if (tech) return tech.desc;
-
-  const pos = positionOptions.find((opt) => opt.name === searchKey);
-  if (pos) return pos.desc;
-
-  return value;
+const positionMap = {
+  BACK_END: '백엔드',
+  FRONT_END: '프론트엔드',
+  FULL_STACK: '풀스택',
+  DATA: '데이터',
+  AI: 'AI',
+  GAME: '게임',
+  PLANNING: '기획',
+  DESIGN: '디자인',
+  BACKEND: '백엔드',
+  FRONTEND: '프론트엔드',
 };
 
 const techStackOptions = [
@@ -157,11 +94,11 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [extendedUser, setExtendedUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
   const reviewsPerPage = 3;
 
   useEffect(() => {
     if (isOpen && user) {
+      setExtendedUser(user);
       setIsLoading(true);
 
       const targetId = user.applicantId || user.id || user.userId || user.recruiterId;
@@ -169,19 +106,15 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
       if (targetId) {
         const fetchAllData = async () => {
           try {
-            // 1. 유저 상세 정보
             const userRes = await api.get(`/api/v1/users/${targetId}`);
             const userData = userRes.data.data || userRes.data;
 
             let reviewList = [];
             try {
-              // [핵심 수정] size를 100으로 지정해서 "최대 100개까지 다 내놔"라고 요청
-              // 이렇게 하면 5개 제한에 걸리지 않고 다 받아옵니다.
               const reviewRes = await api.get(
                 `/api/v1/users/${targetId}/reviews/received?page=0&size=100`
               );
               const reviewData = reviewRes.data.data || reviewRes.data;
-
               reviewList = reviewData.content || reviewData.reviews || reviewData || [];
 
               if (!Array.isArray(reviewList)) {
@@ -191,39 +124,56 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
               console.error(reviewErr);
             }
 
-            setExtendedUser({
-              ...user,
+            setExtendedUser((prev) => ({
+              ...prev,
               ...userData,
-              bio: userData.shortIntro || userData.bio || userData.introduction || user.bio,
-              position: userData.positionType || userData.position || user.position,
-              skills: userData.skills || userData.tags || user.skills,
+              bio: userData.shortIntro || userData.bio || userData.introduction || prev.bio,
+              position: userData.positionType || userData.position || prev.position,
+              skills: userData.skills || userData.tags || prev.skills,
               profileImageUrl:
-                userData.profileImageUrl || userData.profileImage || user.profileImageUrl,
+                userData.profileImageUrl || userData.profileImage || prev.profileImageUrl,
               reviews: reviewList,
-            });
+            }));
           } catch (err) {
             console.error(err);
-            setExtendedUser(user);
           } finally {
             setIsLoading(false);
           }
         };
         fetchAllData();
-      } else {
-        setExtendedUser(user);
-        setIsLoading(false);
       }
     } else {
       setExtendedUser(null);
-      setIsLoading(false);
       if (!isOpen) setCurrentPage(1);
     }
   }, [isOpen, user]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !extendedUser) return null;
 
-  const displayUser = extendedUser;
+  const targetUser = extendedUser.user || extendedUser.member || extendedUser;
 
+  const profileSrc =
+    extendedUser.profileImageUrl ||
+    targetUser.profileImageUrl ||
+    targetUser.profileImage ||
+    targetUser.imgUrl ||
+    defaultImgUrl;
+
+  const nickname = extendedUser.nickname || targetUser.nickname || targetUser.name || '익명';
+
+  const bio =
+    extendedUser.shortIntro ||
+    extendedUser.bio ||
+    extendedUser.introduction ||
+    extendedUser.content ||
+    targetUser.shortIntro ||
+    targetUser.bio ||
+    '';
+
+  const tags =
+    extendedUser.skills || extendedUser.tags || targetUser.skills || targetUser.tags || [];
+
+  // 기술 스택 이름 변환
   const formatSkill = (skill) => {
     const raw = typeof skill === 'string' ? skill : skill.name || skill.desc || '';
     if (!raw) return '';
@@ -232,61 +182,32 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
     return raw.replace(/_/g, ' ');
   };
 
-  let profileSrc = defaultImgUrl;
-  let nickname = '익명';
-  let bio = '';
-  let tags = [];
-  let currentReviews = [];
-  let totalPages = 0;
-  let hasReviews = false;
-  let displayPosition = '';
+  const reviews = extendedUser.reviews || [];
+  const hasReviews = reviews.length > 0;
 
-  if (displayUser) {
-    const targetUser = displayUser.user || displayUser.member || displayUser;
+  const indexOfLastReview = currentPage * reviewsPerPage;
+  const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
+  const currentReviews = reviews.slice(indexOfFirstReview, indexOfLastReview);
+  const totalPages = Math.ceil(reviews.length / reviewsPerPage);
 
-    profileSrc =
-      displayUser.profileImageUrl ||
-      targetUser.profileImageUrl ||
-      targetUser.profileImage ||
-      targetUser.imgUrl ||
-      defaultImgUrl;
-    nickname = displayUser.nickname || targetUser.nickname || targetUser.name || '익명';
-    bio =
-      displayUser.shortIntro ||
-      displayUser.bio ||
-      displayUser.introduction ||
-      displayUser.content ||
-      targetUser.shortIntro ||
-      targetUser.bio ||
-      '';
-    tags = displayUser.skills || displayUser.tags || targetUser.skills || targetUser.tags || [];
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
-    // [프론트엔드 페이지네이션]
-    // 100개를 받아와서 여기서 3개씩 자릅니다.
-    const allReviews = displayUser.reviews || [];
-    hasReviews = allReviews.length > 0;
-
-    const indexOfLastReview = currentPage * reviewsPerPage;
-    const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
-    currentReviews = allReviews.slice(indexOfFirstReview, indexOfLastReview);
-
-    totalPages = Math.ceil(allReviews.length / reviewsPerPage);
-
-    const rawPosition = displayUser.position || targetUser.position;
-    if (rawPosition) {
-      if (typeof rawPosition === 'object') {
-        displayPosition = rawPosition.desc || rawPosition.name;
-      } else {
-        displayPosition = positionMap[rawPosition] || rawPosition;
-      }
-    }
-  }
-
-  const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
   const handleClose = () => {
     setCurrentPage(1);
     onClose();
   };
+
+  let displayPosition = '';
+  const rawPosition = extendedUser.position || targetUser.position;
+  if (rawPosition) {
+    if (typeof rawPosition === 'object') {
+      displayPosition = rawPosition.desc || rawPosition.name;
+    } else {
+      displayPosition = positionMap[rawPosition] || rawPosition;
+    }
+  }
 
   return ReactDOM.createPortal(
     <div css={overlay} onClick={handleClose}>
@@ -307,90 +228,85 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
           </svg>
         </button>
 
-        {isLoading || !displayUser ? (
-          <div css={loadingContainer}>
-            <div className="spinner"></div>
-          </div>
-        ) : (
-          <div css={contentWrapper}>
-            <div css={profileHeader}>
-              <div css={avatarSection}>
-                <div className="avatar-circle">
-                  <img
-                    src={profileSrc}
-                    alt={`${nickname} Avatar`}
-                    className="avatar-image"
-                    onError={(e) => {
-                      e.target.src = defaultImgUrl;
-                    }}
-                  />
-                </div>
-                <h2 className="user-name">{nickname}</h2>
+        <div css={contentWrapper}>
+          <div css={profileHeader}>
+            <div css={avatarSection}>
+              <div className="avatar-circle">
+                <img
+                  src={profileSrc}
+                  alt={`${nickname} Avatar`}
+                  className="avatar-image"
+                  onError={(e) => {
+                    e.target.src = defaultImgUrl;
+                  }}
+                />
               </div>
-              <div css={infoSection}>
-                <div className="tag-list">
-                  {displayPosition && <span css={[tagBase, roleTag]}>#{displayPosition}</span>}
-                  {Array.isArray(tags) &&
-                    tags.slice(0, 4).map((tag, idx) => {
-                      const formattedName = formatSkill(tag);
-                      return (
-                        <span key={idx} css={[tagBase, skillTag]}>
-                          #{formattedName}
+              <h2 className="user-name">{nickname}</h2>
+            </div>
+            <div css={infoSection}>
+              <div className="tag-list">
+                {displayPosition && <span css={[tagBase, roleTag]}>#{displayPosition}</span>}
+                {Array.isArray(tags) &&
+                  tags.slice(0, 4).map((tag, idx) => {
+                    const formattedName = formatSkill(tag);
+                    return (
+                      <span key={idx} css={[tagBase, skillTag]}>
+                        #{formattedName}
+                      </span>
+                    );
+                  })}
+              </div>
+              <p className="user-bio">{bio}</p>
+            </div>
+          </div>
+
+          <div css={divider}></div>
+
+          <div css={reviewSection}>
+            {hasReviews ? (
+              <>
+                <div className="review-list">
+                  {currentReviews.map((review, idx) => {
+                    let content = '내용 없음';
+                    if (typeof review === 'string') content = review;
+                    else if (review && typeof review === 'object') {
+                      content =
+                        review.content ||
+                        review.comment ||
+                        review.message ||
+                        JSON.stringify(review);
+                    }
+
+                    return (
+                      <div key={idx} css={reviewItem}>
+                        {content}
+                      </div>
+                    );
+                  })}
+                </div>
+                {totalPages > 1 && (
+                  <div css={pagination}>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((number, index) => (
+                      <React.Fragment key={number}>
+                        {index > 0 && <span className="separator">|</span>}
+                        <span
+                          onClick={() => handlePageChange(number)}
+                          className={`page-number ${currentPage === number ? 'active' : ''}`}
+                        >
+                          {number}
                         </span>
-                      );
-                    })}
-                </div>
-                <p className="user-bio">{bio}</p>
-              </div>
-            </div>
-
-            <div css={divider}></div>
-
-            <div css={reviewSection}>
-              {hasReviews ? (
-                <>
-                  <div className="review-list">
-                    {currentReviews.map((review, idx) => {
-                      let content = '내용 없음';
-                      if (typeof review === 'string') content = review;
-                      else if (review && typeof review === 'object') {
-                        content =
-                          review.content ||
-                          review.comment ||
-                          review.message ||
-                          JSON.stringify(review);
-                      }
-                      return (
-                        <div key={idx} css={reviewItem}>
-                          {content}
-                        </div>
-                      );
-                    })}
+                      </React.Fragment>
+                    ))}
                   </div>
-                  {totalPages > 1 && (
-                    <div css={pagination}>
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((number, index) => (
-                        <React.Fragment key={number}>
-                          {index > 0 && <span className="separator">|</span>}
-                          <span
-                            onClick={() => handlePageChange(number)}
-                            className={`page-number ${currentPage === number ? 'active' : ''}`}
-                          >
-                            {number}
-                          </span>
-                        </React.Fragment>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div css={emptyState}>
-                  <p>조회된 동료 리뷰가 없습니다.</p>
-                </div>
-              )}
-            </div>
+                )}
+              </>
+            ) : (
+              <div css={emptyState}>
+                <p>조회된 동료 리뷰가 없습니다.</p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>,
     document.body
@@ -398,28 +314,6 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
 };
 
 export default UserProfileModal;
-
-const spin = keyframes`
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-`;
-
-const loadingContainer = css`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid ${colors.gray[100]};
-    border-top: 4px solid ${colors.gray[600]};
-    border-radius: 50%;
-    animation: ${spin} 1s linear infinite;
-  }
-`;
 
 const overlay = css`
   position: fixed;
@@ -523,7 +417,7 @@ const avatarSection = css`
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
-  width: 150px;
+  width: 120px;
   @media (max-width: 600px) {
     width: 100%;
   }
@@ -546,14 +440,8 @@ const avatarSection = css`
     color: ${colors.gray[800]};
     margin: 0;
     font-family: 'nanumB', sans-serif;
-
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-
     text-align: center;
-    display: block;
   }
 `;
 
