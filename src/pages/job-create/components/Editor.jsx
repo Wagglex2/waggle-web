@@ -22,7 +22,7 @@ const Editor = ({ editorValue, onChangeEditorValue }) => {
         toolbar: { container: toolbarOptions },
       }}
       onChange={(value) => onChangeEditorValue(value)}
-      placeholder="어쩌구저쩌구와글와글 이야기를 넣어보세요"
+      placeholder="공고와 관련하여 추가로 전하고 싶은 내용을 작성해주세요."
     />
   );
 };
