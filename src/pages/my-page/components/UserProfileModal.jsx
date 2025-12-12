@@ -370,6 +370,11 @@ const avatarSection = css`
     font-family: 'nanumB', sans-serif;
     white-space: nowrap;
     text-align: center;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
   }
 `;
 
