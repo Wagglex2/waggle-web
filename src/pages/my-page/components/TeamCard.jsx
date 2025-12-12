@@ -4,19 +4,6 @@ import { css } from '@emotion/react';
 import { useTeamStore } from '../../../stores/useTeamStore';
 import api from '@/api/api';
 
-const colors = {
-  border: '#eee6d6',
-  text: '#3a3a3a',
-  muted: '#8f8678',
-  btnHover: '#fcfbf8',
-  white: '#fff',
-  dangerBg: '#FFDFDF',
-  successBg: '#CFE6C1',
-  dangerText: '#666',
-  successText: '#666',
-  arrow: '#26422A',
-};
-
 const TeamCard = ({ team }) => {
   const {
     open,
@@ -25,12 +12,15 @@ const TeamCard = ({ team }) => {
     openReview,
     reviewedMembers,
     setHoveredMember,
-    currentUserNickname,
+    currentUser, // [변경] 전체 객체 가져옴
   } = useTeamStore();
 
   const isOpen = open.has(team.id);
   const leaderName = team.leaderNickname;
   const isProject = team.category.name === 'PROJECT';
+
+  // [추가] 닉네임 추출
+  const myNickname = currentUser?.nickname;
 
   async function handleDeleteMember(e, teamId, targetId) {
     e.stopPropagation();
@@ -80,17 +70,15 @@ const TeamCard = ({ team }) => {
 
       {isOpen &&
         team.members.map((member) => {
-          const isCurrentUser = member.nickname === currentUserNickname;
+          // [변경] myNickname 사용
+          const isCurrentUser = member.nickname === myNickname;
           const isMemberLeader = member.nickname === leaderName;
-          const currentUserIsLeader = currentUserNickname === leaderName;
+          const currentUserIsLeader = myNickname === leaderName;
 
           return (
             <div key={member.userId} css={memberRow(isProject)}>
               <div css={dot(member.color)}>
-                <img 
-                  src={member.profileImageUrl || defaultImgUrl}
-                  alt={member.nickname}
-                />
+                <img src={member.profileImageUrl || defaultImgUrl} alt={member.nickname} />
               </div>
 
               <button
@@ -132,6 +120,20 @@ const TeamCard = ({ team }) => {
 
 export default TeamCard;
 
+const colors = {
+  border: '#eee6d6',
+  white: '#fff',
+  muted: '#8f8678',
+  arrow: '#26422A',
+  dangerBg: '#FFDFDF',
+  successBg: '#CFE6C1',
+  dangerText: '#666',
+  successText: '#666',
+};
+
+const defaultImgUrl =
+  'https://waggle-image-bucket.s3.ap-northeast-2.amazonaws.com/user-profile-images/default-profile-image.png';
+
 const memberNameWrapper = css`
   background: none;
   border: none;
@@ -143,7 +145,6 @@ const memberNameWrapper = css`
   cursor: pointer;
   display: flex;
   align-items: center;
-
   &:hover {
     opacity: 0.7;
     text-decoration: underline;
@@ -163,6 +164,7 @@ const teamCard = css`
   overflow: hidden;
   position: relative;
 `;
+
 const teamHeader = css`
   width: 100%;
   text-align: left;
@@ -176,11 +178,13 @@ const teamHeader = css`
   cursor: pointer;
   border-bottom: 1px solid ${colors.border};
 `;
+
 const teamTitle = css`
   font-weight: 700;
   font-size: 18px;
   font-family: 'nanumEB', 'NanumSquareRound', sans-serif;
 `;
+
 const teamMeta = css`
   display: flex;
   align-items: center;
@@ -189,6 +193,7 @@ const teamMeta = css`
   font-size: 12px;
   margin-top: 6px;
 `;
+
 const badge = (status) => css`
   padding: 2px 8px;
   border-radius: 999px;
@@ -197,10 +202,12 @@ const badge = (status) => css`
   background: ${status === 'CLOSED' || status === 'COMPLETED' ? colors.dangerBg : colors.successBg};
   color: ${status === 'CLOSED' || status === 'COMPLETED' ? colors.dangerText : colors.successText};
 `;
+
 const count = css`
   color: ${colors.muted};
   font-size: 14px;
 `;
+
 const caret = (open) => css`
   width: 0;
   height: 0;
@@ -212,6 +219,7 @@ const caret = (open) => css`
   transition: transform 0.15s ease;
   transform: rotate(${open ? 180 : 0}deg);
 `;
+
 const memberRow = (isProject) => css`
   display: grid;
   grid-template-columns: ${isProject ? '56px 1fr 100px 150px auto' : '56px 1fr 100px auto'};
@@ -223,8 +231,6 @@ const memberRow = (isProject) => css`
     border-bottom: 0;
   }
 `;
-const defaultImgUrl =
-  'https://waggle-image-bucket.s3.ap-northeast-2.amazonaws.com/user-profile-images/default-profile-image.png';
 
 const dot = (color) => css`
   width: 40px;
@@ -232,21 +238,23 @@ const dot = (color) => css`
   border-radius: 50%;
   background: ${color || '#e5e5e5'};
   overflow: hidden;
-  
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 `;
+
 const memberName = css`
   font-weight: 600;
   font-size: 15px;
   font-family: 'nanumB', 'NanumSquareRound', sans-serif;
 `;
+
 const subText = css`
   color: ${colors.muted};
 `;
+
 const actions = css`
   display: flex;
   gap: 8px;
@@ -254,6 +262,7 @@ const actions = css`
   min-width: 180px;
   justify-content: flex-end;
 `;
+
 const btn = css`
   height: 32px;
   padding: 0 12px;
@@ -266,6 +275,7 @@ const btn = css`
     background: #fcfbf8;
   }
 `;
+
 const reviewBtn = css`
   background: #fef1b2;
   &:hover {

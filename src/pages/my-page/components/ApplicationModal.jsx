@@ -20,12 +20,94 @@ const colors = {
   rejectBtnHover: '#f0f0f0',
 };
 
+// 1. 제공해주신 기술 스택 리스트
+const techStackOptions = [
+  'Java',
+  'C',
+  'C++',
+  'C#',
+  'HTML',
+  'CSS',
+  'TypeScript',
+  'JavaScript',
+  'Kotlin',
+  'Swift',
+  'Python',
+  'Express',
+  'Vue.js',
+  'Next.js',
+  'React',
+  'Node.js',
+  'Spring Boot',
+  'Django',
+  'Flutter',
+  'Pandas',
+  'scikit-learn',
+  'TensorFlow',
+  'PyTorch',
+  'Unity',
+  'Unreal',
+  'PostgreSQL',
+  'MySQL',
+  'MongoDB',
+  'Redis',
+  'Git',
+  'GitHub',
+  'GitHub Actions',
+  'Docker',
+  'Figma',
+  'Notion',
+  'Jira',
+];
+
+// 2. 리스트를 기반으로 Enum -> Display Name 매핑 객체 자동 생성
+// 예: 'Spring Boot' -> { SPRING_BOOT: 'Spring Boot' }
+const skillMap = techStackOptions.reduce((acc, stack) => {
+  // 기본 변환: 공백, 점(.), 하이픈(-)을 언더바(_)로 바꾸고 대문자로 변환
+  // 예: "Node.js" -> "NODE_JS", "Spring Boot" -> "SPRING_BOOT"
+  const standardKey = stack.toUpperCase().replace(/[\s.-]/g, '_');
+  acc[standardKey] = stack;
+
+  // 특수 케이스 처리 (C++, C# 등은 Enum으로 만들 때 보통 별칭을 씀)
+  if (stack === 'C++') {
+    acc['CPP'] = stack;
+    acc['C_PLUS_PLUS'] = stack;
+  } else if (stack === 'C#') {
+    acc['CSHARP'] = stack;
+    acc['C_SHARP'] = stack;
+  } else if (stack === 'HTML') {
+    acc['HTML5'] = stack; // 혹시 모를 HTML5 대응
+  } else if (stack === 'CSS') {
+    acc['CSS3'] = stack; // 혹시 모를 CSS3 대응
+  }
+
+  return acc;
+}, {});
+
 const ApplicantModal = ({ modalData, onClose, onAcceptClick, onRejectClick }) => {
   if (!modalData) {
     return null;
   }
 
   const { postType, name, mode, grade, position, skills, content } = modalData;
+
+  // 스택 이름을 포맷팅하는 함수
+  const formatSkill = (skill) => {
+    // 1. 객체거나 문자열이거나 상관없이 원본 string 추출
+    const raw = typeof skill === 'string' ? skill : skill.name || skill.desc || '';
+
+    if (!raw) return '';
+
+    // 2. 매핑된 값이 있으면 그대로 반환 (예: SPRING_BOOT -> Spring Boot)
+    // 대문자로 변환하여 매칭 시도
+    const upperRaw = raw.toUpperCase();
+    if (skillMap[upperRaw]) {
+      return skillMap[upperRaw];
+    }
+
+    // 3. 맵에 없으면 언더바(_)를 공백으로 바꾸고, 첫 글자만 대문자로 하거나 그대로 출력
+    return raw.replace(/_/g, ' ');
+  };
 
   return (
     <div css={overlay} onClick={onClose} role="dialog" aria-modal="true">
@@ -63,11 +145,7 @@ const ApplicantModal = ({ modalData, onClose, onAcceptClick, onRejectClick }) =>
                 <span className="field-label">기술 스택</span>
                 <span className="field-value">
                   {skills && skills.length > 0
-                    ? skills
-                        .map((skill) =>
-                          typeof skill === 'string' ? skill : skill.name || skill.desc || skill
-                        )
-                        .join(', ')
+                    ? skills.map((skill) => formatSkill(skill)).join(', ')
                     : '-'}
                 </span>
               </div>

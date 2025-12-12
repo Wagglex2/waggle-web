@@ -5,19 +5,6 @@ import { useTeamStore } from '../../../stores/useTeamStore';
 import api from '@/api/api';
 import { useEffect } from 'react';
 
-const colors = {
-  border: '#eee6d6',
-  text: '#3a3a3a',
-  muted: '#8f8678',
-  btnHover: '#fcfbf8',
-  primary: '#FFCC00',
-  white: '#fff',
-  overlay: 'rgba(0, 0, 0, 0.45)',
-  modalTitle: '#103c1f',
-  avatarBg: '#ffe7e7',
-  placeholder: '#b5b0a8',
-};
-
 const ReviewModal = () => {
   const {
     reviewTarget,
@@ -28,47 +15,59 @@ const ReviewModal = () => {
     setReviewText,
     saveReview,
     deleteReview,
+    reviews,
   } = useTeamStore();
 
-  const maxChars = 100;
+  const maxChars = 200;
 
-  useEffect(() => {
-    try {
-      api.get(`/api/v1/reviews/me/written`);
-    } catch (e) {
-      console.error(e);
+  if (!reviewTarget) {
+    return null;
+  }
+
+  const memberKey = `${reviewTarget.team.id}_${reviewTarget.member.userId}`;
+  const isEditing = reviewedMembers.has(memberKey);
+
+  async function handleSubmitReview() {
+    if (!reviewText.trim()) {
+      alert('리뷰 내용을 입력해주세요.');
+      return;
     }
-  }, []);
 
-  async function handlesubmitReview() {
     try {
       const res = await api.post('/api/v1/reviews', {
+        teamId: reviewTarget.team.id,
         revieweeId: reviewTarget.member.userId,
         content: reviewText,
       });
 
-      const newReviewId = res.data?.data;
-
       alert('리뷰가 성공적으로 저장되었습니다.');
-      saveReview(newReviewId);
+      saveReview(res.data.data);
     } catch (error) {
       console.error(error);
-      alert('리뷰 저장에 실패했습니다. 다시 시도해주세요.');
+      alert('리뷰 저장에 실패했습니다.');
     }
   }
 
   async function handleUpdateReview() {
-    if (!currentReviewId) {
+    if (!reviewText.trim()) {
+      alert('수정할 내용을 입력해주세요.');
+      return;
+    }
+
+    const currentReview = reviews.get(memberKey);
+    const reviewId = currentReview?.id;
+
+    if (!reviewId) {
       alert('수정할 리뷰 정보를 찾을 수 없습니다.');
       return;
     }
+
     try {
-      await api.patch(`/api/v1/reviews/me/written/${currentReviewId}`, {
+      await api.patch(`/api/v1/reviews/me/written/${reviewId}`, {
         content: reviewText,
       });
-
-      alert('리뷰가 성공적으로 수정되었습니다.');
-      saveReview();
+      alert('리뷰가 수정되었습니다.');
+      saveReview(reviewId);
     } catch (error) {
       console.error(error);
       alert('리뷰 수정에 실패했습니다.');
@@ -76,46 +75,41 @@ const ReviewModal = () => {
   }
 
   async function handleDeleteReview() {
-    if (!currentReviewId) return;
-    if (!window.confirm('정말로 이 리뷰를 삭제하시겠습니까?')) return;
+    if (!confirm('정말 리뷰를 삭제하시겠습니까?')) return;
+
+    const currentReview = reviews.get(memberKey);
+    const reviewId = currentReview?.id;
+
+    if (!reviewId) {
+      alert('삭제할 리뷰 ID가 없습니다.');
+      return;
+    }
 
     try {
-      await api.delete(`/api/v1/reviews/me/written/${currentReviewId}`);
-
+      await api.delete(`/api/v1/reviews/me/written/${reviewId}`);
       alert('리뷰가 삭제되었습니다.');
       deleteReview();
     } catch (error) {
       console.error(error);
-      alert('리뷰 삭제에 실패했습니다.');
+      alert('리뷰 삭제 중 오류가 발생했습니다.');
     }
   }
-
-  if (!reviewTarget) {
-    return null;
-  }
-
-  const isEditing = reviewedMembers.has(`${reviewTarget.team.id}_${reviewTarget.member.userId}`);
 
   return (
     <div css={overlay} onClick={closeReview}>
       <div css={modal} onClick={(e) => e.stopPropagation()}>
         <header css={modalHeader}>
-          <h3 css={modalTitle}>리뷰쓰기</h3>
+          <h3 css={modalTitle}>{isEditing ? '리뷰 수정' : '리뷰 쓰기'}</h3>
           <button css={closeBtn} onClick={closeReview}>
             ✕
           </button>
         </header>
+
         <div css={profileRow}>
           <div css={avatar}>🐣</div>
-          <div
-            css={css`
-              font-weight: 600;
-              font-family: 'nanumB', 'NanumSquareRound', sans-serif;
-            `}
-          >
-            {reviewTarget.member.name}
-          </div>
+          <div css={nameText}>{reviewTarget.member.name}</div>
         </div>
+
         <label htmlFor="review-detail" css={label}>
           상세
         </label>
@@ -130,6 +124,7 @@ const ReviewModal = () => {
         <div css={helper}>
           {reviewText.length} / {maxChars}
         </div>
+
         <ul css={notes}>
           <li>
             작성한 피드백은 닉네임, 프로필 이미지와 함께 누구나 볼 수 있도록 공개됩니다. 피드백
@@ -141,6 +136,7 @@ const ReviewModal = () => {
             따라 제재를 받을 수 있습니다.
           </li>
         </ul>
+
         <div css={saveBar}>
           {isEditing ? (
             <>
@@ -152,7 +148,7 @@ const ReviewModal = () => {
               </button>
             </>
           ) : (
-            <button css={largeSaveBtn} onClick={handlesubmitReview}>
+            <button css={largeSaveBtn} onClick={handleSubmitReview}>
               저장하기
             </button>
           )}
@@ -163,6 +159,19 @@ const ReviewModal = () => {
 };
 
 export default ReviewModal;
+
+const colors = {
+  border: '#eee6d6',
+  text: '#3a3a3a',
+  muted: '#8f8678',
+  btnHover: '#fcfbf8',
+  primary: '#FFCC00',
+  white: '#fff',
+  overlay: 'rgba(0, 0, 0, 0.45)',
+  modalTitle: '#103c1f',
+  avatarBg: '#ffe7e7',
+  placeholder: '#b5b0a8',
+};
 
 const overlay = css`
   position: fixed;
@@ -230,6 +239,11 @@ const avatar = css`
   align-items: center;
   justify-content: center;
   font-size: 22px;
+`;
+
+const nameText = css`
+  font-weight: 600;
+  font-family: 'nanumB', 'NanumSquareRound', sans-serif;
 `;
 
 const label = css`
