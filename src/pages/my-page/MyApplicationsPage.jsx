@@ -127,7 +127,7 @@ const MyApplicationsPage = () => {
 export default MyApplicationsPage;
 
 const wrap = css`
-  padding: 24px 32px;
+  padding: 100px 32px 24px;
   color: ${colors.text};
   font-family: 'nanumR', 'NanumSquareRound', sans-serif;
 `;
