@@ -38,7 +38,6 @@ const positionMap = {
   FRONTEND: '프론트엔드',
 };
 
-// [수정 1] 중복 선언 방지: 파일 상단에 한 번만 선언
 const techStackOptions = [
   'Java',
   'C',
@@ -112,7 +111,6 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
 
             let reviewList = [];
             try {
-              // [수정 2] size=100 추가 (데이터 잘림 방지)
               const reviewRes = await api.get(
                 `/api/v1/users/${targetId}/reviews/received?page=0&size=100`
               );
@@ -150,7 +148,6 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
     }
   }, [isOpen, user]);
 
-  // 데이터가 없으면 아예 그리지 않음 (이상한 기본값 안 뜨게)
   if (!isOpen || !extendedUser) return null;
 
   const targetUser = extendedUser.user || extendedUser.member || extendedUser;
