@@ -18,7 +18,7 @@ const ReviewModal = () => {
     reviews,
   } = useTeamStore();
 
-  const maxChars = 200;
+  const maxChars = 100;
 
   if (!reviewTarget) {
     return null;
