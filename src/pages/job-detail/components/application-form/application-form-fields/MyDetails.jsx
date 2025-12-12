@@ -14,7 +14,7 @@ const MyDetails = () => {
       </div>
       <textarea
         css={details}
-        placeholder="추가로 남기고 싶은 이야기을 작성해주세요."
+        placeholder="추가로 남기고 싶은 내용을 작성해주세요."
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
