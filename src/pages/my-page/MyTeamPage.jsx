@@ -89,20 +89,11 @@ const MyTeamPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleOpenMyReviews = () => {
-    if (currentUser) {
-      setHoveredMember(currentUser);
-    }
-  };
-
   return (
     <div css={wrap}>
       <div css={contentContainer}>
         <div css={headerArea}>
           <h2 css={title}>🧑‍🤝‍🧑 내 팀 관리</h2>
-          <button css={reviewsBtn} onClick={handleOpenMyReviews}>
-            💌 받은 리뷰 보기
-          </button>
         </div>
 
         <div css={tabs}>
@@ -202,23 +193,6 @@ const title = css`
   margin: 0;
   font-size: 22px;
   font-family: 'nanumB', 'NanumSquareRound', sans-serif;
-`;
-
-const reviewsBtn = css`
-  padding: 8px 16px;
-  border-radius: 20px;
-  border: 1px solid ${colors.border};
-  background: ${colors.white};
-  color: ${colors.text};
-  font-weight: 600;
-  cursor: pointer;
-  font-family: 'nanumB', sans-serif;
-  transition: all 0.2s;
-
-  &:hover {
-    background: #ffcc00;
-    border-color: #ffcc00;
-  }
 `;
 
 const tabs = css`
