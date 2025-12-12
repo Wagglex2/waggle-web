@@ -25,80 +25,17 @@ const colors = {
   skillText: '#F9A825',
 };
 
-export const positionOptions = [
-  { name: 'BACK_END', desc: '백엔드' },
-  { name: 'FRONT_END', desc: '프론트엔드' },
-  { name: 'FULL_STACK', desc: '풀스택' },
-  { name: 'DATA', desc: '데이터' },
-  { name: 'AI', desc: 'AI' },
-  { name: 'GAME', desc: '게임' },
-  { name: 'PLANNER', desc: '기획' },
-  { name: 'DESIGNER', desc: '디자인' },
-  { name: 'PLANNING', desc: '기획' },
-  { name: 'DESIGN', desc: '디자인' },
-  { name: 'PM', desc: '기획(PM)' },
-  { name: 'PO', desc: '기획(PO)' },
-  { name: 'BACKEND', desc: '백엔드' },
-  { name: 'FRONTEND', desc: '프론트엔드' },
-];
-
-export const techStackOptions = [
-  { name: 'JAVA', desc: 'Java' },
-  { name: 'C', desc: 'C' },
-  { name: 'CPP', desc: 'C++' },
-  { name: 'CSHARP', desc: 'C#' },
-  { name: 'HTML', desc: 'HTML' },
-  { name: 'CSS', desc: 'CSS' },
-  { name: 'TYPESCRIPT', desc: 'TypeScript' },
-  { name: 'JAVASCRIPT', desc: 'JavaScript' },
-  { name: 'KOTLIN', desc: 'Kotlin' },
-  { name: 'SWIFT', desc: 'Swift' },
-  { name: 'PYTHON', desc: 'Python' },
-  { name: 'EXPRESS', desc: 'Express' },
-  { name: 'VUE_JS', desc: 'Vue.js' },
-  { name: 'NEXT_JS', desc: 'Next.js' },
-  { name: 'REACT', desc: 'React' },
-  { name: 'NODE_JS', desc: 'Node.js' },
-  { name: 'SPRING_BOOT', desc: 'Spring Boot' },
-  { name: 'DJANGO', desc: 'Django' },
-  { name: 'FLUTTER', desc: 'Flutter' },
-  { name: 'PANDAS', desc: 'Pandas' },
-  { name: 'SCIKIT_LEARN', desc: 'scikit-learn' },
-  { name: 'TENSORFLOW', desc: 'TensorFlow' },
-  { name: 'PYTORCH', desc: 'PyTorch' },
-  { name: 'UNITY', desc: 'Unity' },
-  { name: 'UNREAL', desc: 'Unreal' },
-  { name: 'POSTGRESQL', desc: 'PostgreSQL' },
-  { name: 'MYSQL', desc: 'MySQL' },
-  { name: 'MONGODB', desc: 'MongoDB' },
-  { name: 'REDIS', desc: 'Redis' },
-  { name: 'GIT', desc: 'Git' },
-  { name: 'GITHUB', desc: 'GitHub' },
-  { name: 'GITHUB_ACTIONS', desc: 'GitHub Actions' },
-  { name: 'DOCKER', desc: 'Docker' },
-  { name: 'FIGMA', desc: 'Figma' },
-  { name: 'NOTION', desc: 'Notion' },
-  { name: 'JIRA', desc: 'Jira' },
-];
-
-const getPositionLabel = (value) => {
-  if (!value) return '';
-  const searchKey = String(value).toUpperCase();
-  const target = positionOptions.find((opt) => opt.name === searchKey);
-  return target ? target.desc : value;
-};
-
-const getTagLabel = (value) => {
-  if (!value) return '';
-  const searchKey = String(value).toUpperCase();
-
-  const tech = techStackOptions.find((opt) => opt.name === searchKey);
-  if (tech) return tech.desc;
-
-  const pos = positionOptions.find((opt) => opt.name === searchKey);
-  if (pos) return pos.desc;
-
-  return value;
+const positionMap = {
+  BACK_END: '백엔드',
+  FRONT_END: '프론트엔드',
+  FULL_STACK: '풀스택',
+  DATA: '데이터',
+  AI: 'AI',
+  GAME: '게임',
+  PLANNING: '기획',
+  DESIGN: '디자인',
+  BACKEND: '백엔드',
+  FRONTEND: '프론트엔드',
 };
 
 const techStackOptions = [
@@ -518,7 +455,7 @@ const avatarSection = css`
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
-  width: 150px;
+  width: 120px;
   @media (max-width: 600px) {
     width: 100%;
   }
@@ -541,14 +478,8 @@ const avatarSection = css`
     color: ${colors.gray[800]};
     margin: 0;
     font-family: 'nanumB', sans-serif;
-
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-
     text-align: center;
-    display: block;
   }
 `;
 
