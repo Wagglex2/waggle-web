@@ -38,7 +38,6 @@ const positionMap = {
   FRONTEND: '프론트엔드',
 };
 
-// [중복 선언 방지] 여기 한 번만 선언되어 있는지 확인해주세요!
 const techStackOptions = [
   'Java',
   'C',
@@ -107,13 +106,11 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
       if (targetId) {
         const fetchAllData = async () => {
           try {
-            // 1. 유저 상세 정보
             const userRes = await api.get(`/api/v1/users/${targetId}`);
             const userData = userRes.data.data || userRes.data;
 
             let reviewList = [];
             try {
-              // 2. 리뷰 전체 가져오기 (size=100으로 넉넉하게 요청)
               const reviewRes = await api.get(
                 `/api/v1/users/${targetId}/reviews/received?page=0&size=100`
               );
@@ -198,7 +195,6 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
       '';
     tags = displayUser.skills || displayUser.tags || targetUser.skills || targetUser.tags || [];
 
-    // 프론트엔드에서 페이지네이션 처리
     const allReviews = displayUser.reviews || [];
     hasReviews = allReviews.length > 0;
 
@@ -334,8 +330,6 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
 };
 
 export default UserProfileModal;
-
-// --- CSS ---
 
 const spin = keyframes`
   0% { transform: rotate(0deg); }
