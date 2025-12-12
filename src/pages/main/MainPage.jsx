@@ -99,7 +99,7 @@ const MainPage = () => {
   useEffect(() => {
     async function getTodaysJobs() {
       try {
-        const res = await api.get('/api/v1/projects?status=recruiting&size=16');
+        const res = await api.get('/api/v1/projects?status=recruiting&size=16&random=true');
         const projects = res.data.data.content;
         setOriginalProjectList(projects.map((item) => ({ ...item, isSelected: 0 })));
       } catch (e) {
