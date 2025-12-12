@@ -53,6 +53,7 @@ const sideBarListBox = css`
   top: 0;
   width: 240px;
   height: 100vh;
+  max-height: 1400px;
   border-right: 1px solid ${colors.gray[100]};
   float: left;
 `;

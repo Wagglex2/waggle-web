@@ -85,6 +85,17 @@ const StudyDetailPage = () => {
         setProjectDetail(studyInfo.content);
       } catch (e) {
         console.error(e);
+        if (e.response.status === 403) {
+          alert('**권한 없음** \n 타 대학 공고입니다.');
+          navigate('/study-list');
+          return;
+        }
+
+        if (e.response.status === 404) {
+          alert('해당 스터디 공고를 찾을 수 없습니다.');
+          navigate('/study-list');
+          return;
+        }
       }
     }
     getProjectInfo();
