@@ -3,12 +3,14 @@
 import { css } from '@emotion/react';
 import { useTeamStore } from '../../../stores/useTeamStore';
 import api from '@/api/api';
+import { useEffect } from 'react';
 
 const ReviewModal = () => {
   const {
     reviewTarget,
     reviewText,
     reviewedMembers,
+    currentReviewId,
     closeReview,
     setReviewText,
     saveReview,
