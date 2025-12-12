@@ -104,7 +104,7 @@ const SignupPage = () => {
       const response = await signupApi(payload);
 
       alert(response || '회원가입이 완료되었습니다.');
-      navigate('/signin');
+      navigate('/home');
     } catch (error) {
       alert(error.message);
     }

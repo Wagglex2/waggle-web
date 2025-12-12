@@ -122,6 +122,9 @@ const MultiSelectDropDown = ({
   const [openModal, setOpenModal] = useState(false);
   const dropdownRef = useRef(null);
 
+  // '포지션을 선택해주세요'일 때는 단일 선택 모드
+  const isSingleSelect = label === '포지션을 선택해주세요';
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -133,9 +136,15 @@ const MultiSelectDropDown = ({
   }, []);
 
   const handleSelect = (option) => {
-    setSelected((prev) =>
-      prev.includes(option) ? prev.filter((item) => item !== option) : [...prev, option]
-    );
+    if (isSingleSelect) {
+      // 단일 선택: 이미 선택된 항목을 클릭하면 해제, 아니면 해당 항목만 선택
+      setSelected((prev) => (prev.includes(option) ? [] : [option]));
+    } else {
+      // 다중 선택: 기존 로직 유지
+      setSelected((prev) =>
+        prev.includes(option) ? prev.filter((item) => item !== option) : [...prev, option]
+      );
+    }
   };
 
   const isSelected = selected.length > 0;
@@ -202,20 +211,24 @@ const UserInfoModal = ({ setOpenModal, onSave }) => {
   const grades = [1, 2, 3, 4];
 
   useEffect(() => {
-    const loadUserInfo = async () => {
-      try {
-        const response = await api.get('/api/v1/users/basic-info');
-        const data = response.data.data || response.data;
+    console.log(positions);
+  }, [positions]);
 
-        if (data.grade) setSelectedGrade(data.grade);
-        if (data.shortIntro) setIntro(data.shortIntro);
-      } catch (error) {
-        console.error('User info fetch error:', error);
-      }
-    };
+  // useEffect(() => {
+  //   const loadUserInfo = async () => {
+  //     try {
+  //       const response = await api.get('/api/v1/users/basic-info');
+  //       const data = response.data.data || response.data;
 
-    loadUserInfo();
-  }, []);
+  //       if (data.grade) setSelectedGrade(data.grade);
+  //       if (data.shortIntro) setIntro(data.shortIntro);
+  //     } catch (error) {
+  //       console.error('User info fetch error:', error);
+  //     }
+  //   };
+
+  //   loadUserInfo();
+  // }, []);
 
   const handleIntroChange = (e) => {
     setIntro(e.target.value);
@@ -265,7 +278,7 @@ const UserInfoModal = ({ setOpenModal, onSave }) => {
     };
 
     try {
-      const response = await api.patch('/api/v1/users/basic-info', userData);
+      await api.patch('/api/v1/users/basic-info', userData);
 
       if (onSave) {
         await onSave(userData);

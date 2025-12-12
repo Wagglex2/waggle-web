@@ -49,6 +49,8 @@ const SideBar = () => {
 export default SideBar;
 
 const sideBarListBox = css`
+  position: sticky;
+  top: 0;
   width: 240px;
   height: 100vh;
   border-right: 1px solid ${colors.gray[100]};
